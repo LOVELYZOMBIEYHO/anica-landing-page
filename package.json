@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
+    "dev": "astro dev --base /",
+    "start": "astro dev --base /",
     "build": "astro check && astro build",
     "check": "astro check",
     "preview": "astro preview"

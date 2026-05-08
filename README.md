@@ -18,9 +18,9 @@ npm run dev
 
 This project expects Node `>=22.12.0`. The included `.nvmrc` points to Node `22.19.0`.
 
-The dev server runs at `http://localhost:4321/`.
+The dev server runs at `http://localhost:4321/` by overriding Astro base to `/` in the `dev` script.
 
-The production build uses `base: /anica-landing-page` for GitHub Pages. If you want to inspect the deployed path locally, use `npm run preview` after building.
+The production config uses `base: /anica-landing-page` for GitHub Pages. If you want to inspect the deployed path locally, use `npm run preview` after building.
 
 ## Build
 
