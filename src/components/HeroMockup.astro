@@ -1,0 +1,72 @@
+---
+const timelineTracks = [68, 42, 88, 54, 76];
+---
+<div class="relative mx-auto max-w-2xl lg:max-w-none">
+  <div class="absolute -right-6 -top-8 hidden rounded-3xl border-2 border-anica-ink bg-anica-lime px-5 py-4 font-mono text-xs font-bold uppercase tracking-[0.2em] ink-panel float-slow md:block">
+    ACP agent online
+  </div>
+
+  <div class="scanline rounded-[2.2rem] border-2 border-anica-ink bg-anica-ink p-3 ink-panel">
+    <div class="rounded-[1.55rem] border border-white/10 bg-[#171812] p-4 text-anica-paper">
+      <div class="flex items-center justify-between border-b border-white/10 pb-4">
+        <div class="flex gap-2">
+          <span class="size-3 rounded-full bg-anica-signal"></span>
+          <span class="size-3 rounded-full bg-anica-lime"></span>
+          <span class="size-3 rounded-full bg-anica-blue"></span>
+        </div>
+        <span class="font-mono text-xs uppercase tracking-[0.22em] text-anica-paper/50">anica timeline</span>
+      </div>
+
+      <div class="grid gap-4 pt-4 lg:grid-cols-[1fr_0.72fr]">
+        <div class="rounded-3xl border border-white/10 bg-black/35 p-4">
+          <div class="aspect-video rounded-2xl bg-gradient-to-br from-anica-blue via-[#24313a] to-anica-signal p-4">
+            <div class="flex h-full items-end justify-between rounded-xl border border-white/20 bg-black/20 p-4">
+              <div>
+                <p class="font-mono text-[0.65rem] uppercase tracking-[0.22em] text-anica-lime">preview</p>
+                <p class="mt-2 max-w-[12rem] text-xl font-black leading-none tracking-[-0.05em]">Rough cut with agent notes</p>
+              </div>
+              <div class="grid size-14 place-items-center rounded-full border border-white/30 bg-white/15 text-xl">PLAY</div>
+            </div>
+          </div>
+
+          <div class="mt-5 space-y-3">
+            {timelineTracks.map((width, index) => (
+              <div class="grid grid-cols-[4rem_1fr] items-center gap-3" style={`--track-width: ${width}%`}>
+                <span class="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-anica-paper/45">T{index + 1}</span>
+                <div class="h-8 rounded-full bg-white/8 p-1">
+                  <div class:list={['h-full rounded-full', index % 2 === 0 ? 'bg-anica-lime' : 'bg-anica-signal']} style="width: var(--track-width)"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div class="rounded-3xl border border-anica-lime/25 bg-anica-lime/8 p-4">
+          <p class="font-mono text-[0.65rem] uppercase tracking-[0.22em] text-anica-lime">agent prompt</p>
+          <div class="mt-4 rounded-2xl border border-white/10 bg-black/30 p-4 text-sm leading-6 text-anica-paper/82">
+            Help me cut silent parts, remove duplicate speech, then suggest B-roll for the open gaps.
+          </div>
+          <div class="mt-4 space-y-3">
+            <div class="rounded-2xl bg-anica-paper p-4 text-anica-ink">
+              <p class="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-anica-signal">planned actions</p>
+              <ul class="mt-3 space-y-2 text-sm font-bold">
+                <li>Analyze audio energy</li>
+                <li>Mark repeated speech</li>
+                <li>Draft semantic layer ideas</li>
+              </ul>
+            </div>
+            <div class="rounded-2xl border border-white/10 p-4">
+              <div class="flex items-center justify-between text-xs font-bold uppercase tracking-[0.2em] text-anica-paper/45">
+                <span>export path</span>
+                <span class="text-anica-lime">ready</span>
+              </div>
+              <div class="mt-3 h-2 rounded-full bg-white/10">
+                <div class="h-full w-3/4 rounded-full bg-anica-lime"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

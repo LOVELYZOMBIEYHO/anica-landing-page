@@ -1,0 +1,135 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Space Grotesk", "Avenir Next", "Helvetica Neue", sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", "Cascadia Code", monospace;
+  --color-anica-ink: #11120d;
+  --color-anica-paper: #f2eddf;
+  --color-anica-cream: #fff8e6;
+  --color-anica-lime: #d8ff3e;
+  --color-anica-signal: #f15a24;
+  --color-anica-steel: #40535d;
+  --color-anica-blue: #1d4e89;
+  --color-anica-line: #d6cbb7;
+  color-scheme: light;
+  background: #f2eddf;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(circle at 12% 14%, rgba(216, 255, 62, 0.45), transparent 23rem),
+    radial-gradient(circle at 90% 5%, rgba(241, 90, 36, 0.18), transparent 25rem),
+    linear-gradient(135deg, rgba(17, 18, 13, 0.045) 25%, transparent 25%) 0 0 / 34px 34px,
+    #f2eddf;
+  color: #11120d;
+  font-family: var(--font-sans);
+  text-rendering: geometricPrecision;
+}
+
+::selection {
+  background: #d8ff3e;
+  color: #11120d;
+}
+
+img {
+  max-width: 100%;
+}
+
+.page-shell {
+  width: min(1180px, calc(100% - 32px));
+  margin-inline: auto;
+}
+
+.hairline-grid {
+  background-image:
+    linear-gradient(rgba(17, 18, 13, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(17, 18, 13, 0.08) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.ink-panel {
+  box-shadow: 10px 10px 0 #11120d;
+}
+
+.soft-panel {
+  box-shadow: 0 24px 80px rgba(17, 18, 13, 0.12);
+}
+
+.scanline {
+  position: relative;
+  overflow: hidden;
+}
+
+.scanline::after {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  background: linear-gradient(180deg, transparent, rgba(216, 255, 62, 0.22), transparent);
+  transform: translateY(-100%);
+  animation: scan 5s linear infinite;
+}
+
+.reveal {
+  animation: rise 700ms ease both;
+}
+
+.reveal-delay-1 {
+  animation-delay: 120ms;
+}
+
+.reveal-delay-2 {
+  animation-delay: 220ms;
+}
+
+.reveal-delay-3 {
+  animation-delay: 320ms;
+}
+
+.float-slow {
+  animation: float 7s ease-in-out infinite;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scan {
+  0% {
+    transform: translateY(-120%);
+  }
+
+  45%, 100% {
+    transform: translateY(120%);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateY(-12px) rotate(1deg);
+  }
+}

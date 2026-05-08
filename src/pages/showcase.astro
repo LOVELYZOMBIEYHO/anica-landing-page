@@ -1,0 +1,95 @@
+---
+import BaseLayout from '@components/BaseLayout.astro';
+import FeatureCard from '@components/FeatureCard.astro';
+import SectionHeader from '@components/SectionHeader.astro';
+import { showcaseItems, site } from '@data/site';
+import { withBase } from '@utils/url';
+---
+<BaseLayout
+  title="Showcase - Anica"
+  description="Explore Anica workflows for agent-powered editing, subtitle translation, media analysis, and native export paths."
+>
+  <section class="page-shell py-16 md:py-24">
+    <div class="grid items-end gap-10 lg:grid-cols-[1fr_0.75fr]">
+      <div class="reveal">
+        <p class="inline-flex rounded-full border-2 border-anica-ink bg-anica-lime px-4 py-2 font-mono text-xs font-bold uppercase tracking-[0.24em] shadow-[4px_4px_0_#11120d]">
+          Showcase
+        </p>
+        <h1 class="mt-8 max-w-4xl text-6xl font-black leading-[0.9] tracking-[-0.08em] text-anica-ink md:text-8xl">
+          Agent-native editing workflows.
+        </h1>
+      </div>
+      <p class="reveal reveal-delay-1 max-w-2xl text-xl leading-8 text-anica-steel">
+        These examples focus on the product direction: timeline-aware prompts, media analysis, subtitle localization, and export flows that operate from inside the editor.
+      </p>
+    </div>
+  </section>
+
+  <section class="page-shell pb-20">
+    <div class="grid gap-8 lg:grid-cols-2">
+      <figure class="rounded-[2rem] border-2 border-anica-ink bg-anica-ink p-3 ink-panel">
+        <img src={site.screenshotOne} alt="Anica editor screenshot" loading="lazy" class="aspect-video w-full rounded-[1.35rem] object-cover" />
+        <figcaption class="px-2 pb-2 pt-4 font-mono text-xs uppercase tracking-[0.24em] text-anica-paper/65">Editor workspace</figcaption>
+      </figure>
+      <figure class="rounded-[2rem] border-2 border-anica-ink bg-anica-ink p-3 ink-panel lg:translate-y-10">
+        <img src={site.screenshotTwo} alt="Anica subtitle translation workflow screenshot" loading="lazy" class="aspect-video w-full rounded-[1.35rem] object-cover" />
+        <figcaption class="px-2 pb-2 pt-4 font-mono text-xs uppercase tracking-[0.24em] text-anica-paper/65">Subtitle translation workflow</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="page-shell py-20">
+    <SectionHeader
+      eyebrow="Workflows"
+      title="Practical agent assistance, not a black box."
+      text="Anica keeps the timeline visible while agents help with repetitive editing passes, speech cleanup, localization, and creative planning."
+    />
+
+    <div class="mt-12 grid gap-6 md:grid-cols-3">
+      {showcaseItems.map((item, index) => <FeatureCard eyebrow={item.label} title={item.title} text={item.text} index={index + 1} />)}
+    </div>
+  </section>
+
+  <section class="page-shell py-8">
+    <div class="rounded-[2.5rem] border-2 border-anica-ink bg-anica-cream p-6 ink-panel md:p-10">
+      <div class="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+        <div>
+          <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-signal">Architecture</p>
+          <h2 class="mt-5 text-4xl font-black leading-none tracking-[-0.06em] text-anica-ink md:text-5xl">A native stack with an agent layer.</h2>
+          <p class="mt-5 text-lg leading-8 text-anica-steel">
+            The project is built around a GPUI application, ACP agent chat, timeline state, media preview, export analysis, and GPU rendering.
+          </p>
+        </div>
+        <div class="grid gap-3 font-mono text-sm font-bold uppercase tracking-[0.12em]">
+          {[
+            'GPUI application',
+            'ACP agents and chat layer',
+            'Timeline and project state engine',
+            'GStreamer preview path',
+            'FFmpeg export and analysis',
+            'WGPU rendering and effects',
+          ].map((layer, index) => (
+            <div class="grid grid-cols-[3rem_1fr] items-center rounded-2xl border-2 border-anica-ink bg-white p-4">
+              <span class="text-anica-signal">{String(index + 1).padStart(2, '0')}</span>
+              <span>{layer}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-shell py-24">
+    <div class="hairline-grid rounded-[2.5rem] border-2 border-anica-ink bg-white/70 p-6 text-center soft-panel md:p-12">
+      <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-signal">Example prompts</p>
+      <div class="mx-auto mt-8 grid max-w-4xl gap-4 text-left font-mono text-sm leading-7 md:grid-cols-3">
+        <p class="rounded-3xl border-2 border-anica-ink bg-anica-cream p-5">Help me cut the silent parts and remove duplicate speech.</p>
+        <p class="rounded-3xl border-2 border-anica-ink bg-anica-lime p-5">Suggest B-roll and apply it to a semantic layer.</p>
+        <p class="rounded-3xl border-2 border-anica-ink bg-anica-cream p-5">Translate the subtitle track and preserve the timeline timing.</p>
+      </div>
+      <a href={withBase('/download')} class="mt-9 inline-flex rounded-full border-2 border-anica-ink bg-anica-ink px-7 py-4 text-sm font-black uppercase tracking-[0.18em] text-anica-lime shadow-[6px_6px_0_#d8ff3e] transition hover:-translate-y-1">
+        Try the alpha
+      </a>
+    </div>
+  </section>
+</BaseLayout>

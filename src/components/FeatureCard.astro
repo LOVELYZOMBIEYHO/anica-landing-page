@@ -1,0 +1,20 @@
+---
+interface Props {
+  eyebrow: string;
+  title: string;
+  text: string;
+  index?: number;
+}
+
+const { eyebrow, title, text, index = 1 } = Astro.props;
+---
+<article class="group rounded-[2rem] border-2 border-anica-ink bg-anica-cream p-6 soft-panel transition duration-300 hover:-translate-y-1 hover:bg-white md:p-8">
+  <div class="flex items-center justify-between gap-4">
+    <p class="font-mono text-xs font-bold uppercase tracking-[0.28em] text-anica-signal">{eyebrow}</p>
+    <span class="grid size-10 place-items-center rounded-full bg-anica-ink font-mono text-sm font-bold text-anica-lime transition group-hover:rotate-12">
+      {String(index).padStart(2, '0')}
+    </span>
+  </div>
+  <h3 class="mt-8 text-2xl font-black tracking-[-0.04em] text-anica-ink">{title}</h3>
+  <p class="mt-4 text-base leading-7 text-anica-steel">{text}</p>
+</article>

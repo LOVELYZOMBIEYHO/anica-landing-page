@@ -1,0 +1,36 @@
+---
+import { navItems, site } from '@data/site';
+import { withBase } from '@utils/url';
+---
+<footer class="mt-24 border-t-2 border-anica-ink bg-anica-ink text-anica-paper">
+  <div class="page-shell grid gap-10 py-12 md:grid-cols-[1.2fr_0.8fr_0.8fr]">
+    <div>
+      <a href={withBase('/')} class="inline-flex items-center gap-3">
+        <span class="grid size-11 place-items-center rounded-2xl border-2 border-anica-lime bg-anica-lime text-lg font-black text-anica-ink">A</span>
+        <span>
+          <span class="block text-2xl font-black tracking-[-0.04em]">Anica</span>
+          <span class="font-mono text-xs uppercase tracking-[0.3em] text-anica-lime">open source alpha</span>
+        </span>
+      </a>
+      <p class="mt-5 max-w-md text-sm leading-7 text-anica-paper/72">
+        An agentic-first video editor built with Rust, native media tooling, and timeline-aware AI workflows.
+      </p>
+    </div>
+
+    <div>
+      <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-anica-lime">Site</h2>
+      <div class="mt-4 grid gap-3 text-sm font-bold">
+        {navItems.map((item) => <a class="text-anica-paper/72 transition hover:text-anica-lime" href={withBase(item.href)}>{item.label}</a>)}
+      </div>
+    </div>
+
+    <div>
+      <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-anica-lime">Project</h2>
+      <div class="mt-4 grid gap-3 text-sm font-bold">
+        <a class="text-anica-paper/72 transition hover:text-anica-lime" href={site.repoUrl} target="_blank" rel="noreferrer">Repository</a>
+        <a class="text-anica-paper/72 transition hover:text-anica-lime" href={site.contributingUrl} target="_blank" rel="noreferrer">Contributing</a>
+        <a class="text-anica-paper/72 transition hover:text-anica-lime" href={site.licenseUrl} target="_blank" rel="noreferrer">License</a>
+      </div>
+    </div>
+  </div>
+</footer>

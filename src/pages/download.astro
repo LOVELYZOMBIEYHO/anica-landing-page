@@ -1,0 +1,117 @@
+---
+import BaseLayout from '@components/BaseLayout.astro';
+import SectionHeader from '@components/SectionHeader.astro';
+import { platformStatus, site } from '@data/site';
+---
+<BaseLayout
+  title="Download - Anica"
+  description="Get the Anica source-only alpha, review platform status, and build the open source video editor locally."
+>
+  <section class="page-shell py-16 md:py-24">
+    <div class="grid items-end gap-10 lg:grid-cols-[1fr_0.72fr]">
+      <div class="reveal">
+        <p class="inline-flex rounded-full border-2 border-anica-ink bg-anica-signal px-4 py-2 font-mono text-xs font-bold uppercase tracking-[0.24em] text-white shadow-[4px_4px_0_#11120d]">
+          Download
+        </p>
+        <h1 class="mt-8 max-w-4xl text-6xl font-black leading-[0.9] tracking-[-0.08em] text-anica-ink md:text-8xl">
+          Get the source-only alpha.
+        </h1>
+      </div>
+      <div class="reveal reveal-delay-1 rounded-[2rem] border-2 border-anica-ink bg-anica-lime p-6 ink-panel">
+        <p class="font-mono text-xs font-bold uppercase tracking-[0.28em] text-anica-ink/70">Current status</p>
+        <p class="mt-4 text-3xl font-black leading-tight tracking-[-0.05em] text-anica-ink">No prebuilt binaries are published at this stage.</p>
+        <p class="mt-4 leading-7 text-anica-ink/72">Build from source and expect APIs, workflows, and project formats to change during alpha development.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-shell py-8">
+    <div class="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+      <div>
+        <SectionHeader
+          eyebrow="Build locally"
+          title="Start from the repository."
+          text="Anica is currently intended for early adopters who are comfortable building native tooling and validating media dependencies."
+        />
+        <div class="mt-8 flex flex-col gap-4 sm:flex-row">
+          <a href={site.repoUrl} target="_blank" rel="noreferrer" class="rounded-full border-2 border-anica-ink bg-anica-ink px-7 py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-anica-lime shadow-[6px_6px_0_#d8ff3e] transition hover:-translate-y-1">
+            Open GitHub
+          </a>
+          <a href={site.installDocsUrl} target="_blank" rel="noreferrer" class="rounded-full border-2 border-anica-ink bg-anica-cream px-7 py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-anica-ink shadow-[6px_6px_0_#11120d] transition hover:-translate-y-1">
+            Install docs
+          </a>
+        </div>
+      </div>
+
+      <div class="rounded-[2rem] border-2 border-anica-ink bg-anica-ink p-4 text-anica-paper ink-panel">
+        <div class="flex items-center gap-2 border-b border-white/10 pb-4">
+          <span class="size-3 rounded-full bg-anica-signal"></span>
+          <span class="size-3 rounded-full bg-anica-lime"></span>
+          <span class="size-3 rounded-full bg-anica-blue"></span>
+          <span class="ml-auto font-mono text-xs uppercase tracking-[0.24em] text-anica-paper/40">terminal</span>
+        </div>
+        <pre class="overflow-x-auto p-5 text-sm leading-7"><code>git clone https://github.com/LOVELYZOMBIEYHO/anica.git
+cd anica
+cargo run
+
+# or build release binaries
+cargo build --release --bins</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-shell py-24">
+    <SectionHeader
+      eyebrow="Requirements"
+      title="Native media dependencies are part of the alpha experience."
+      text="Review the install documentation before building, especially on a fresh macOS machine."
+    />
+
+    <div class="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      {[
+        ['Rust', 'Rust 1.90.0 is pinned by the upstream toolchain file.'],
+        ['GStreamer', 'Runtime and development libraries are required for playback paths.'],
+        ['FFmpeg', 'Used for export and analysis, with macOS bootstrap support.'],
+        ['Xcode tools', 'Required on macOS build hosts.'],
+      ].map(([title, text]) => (
+        <article class="rounded-[2rem] border-2 border-anica-ink bg-anica-cream p-6 soft-panel">
+          <h2 class="text-2xl font-black tracking-[-0.05em] text-anica-ink">{title}</h2>
+          <p class="mt-4 leading-7 text-anica-steel">{text}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="page-shell py-8">
+    <div class="rounded-[2.5rem] border-2 border-anica-ink bg-white p-6 ink-panel md:p-10">
+      <div class="grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
+        <div>
+          <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-signal">Platform support</p>
+          <h2 class="mt-5 text-4xl font-black tracking-[-0.06em] text-anica-ink md:text-5xl">Start with macOS Apple Silicon.</h2>
+          <p class="mt-5 text-lg leading-8 text-anica-steel">Other platforms are part of the project direction, but they are not the primary tested path yet.</p>
+        </div>
+        <div class="grid gap-4">
+          {platformStatus.map((item) => (
+            <div class="flex flex-col justify-between gap-3 rounded-3xl border-2 border-anica-ink bg-anica-cream p-5 sm:flex-row sm:items-center">
+              <p class="text-xl font-black tracking-[-0.04em] text-anica-ink">{item.platform}</p>
+              <p class="font-mono text-xs font-bold uppercase tracking-[0.2em] text-anica-steel">{item.status}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-shell py-24 text-center">
+    <div class="rounded-[2.5rem] border-2 border-anica-ink bg-anica-ink px-6 py-14 text-anica-paper soft-panel md:px-12">
+      <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-lime">Contribute</p>
+      <h2 class="mt-5 text-4xl font-black tracking-[-0.06em] md:text-6xl">Help shape agent-native video editing.</h2>
+      <p class="mx-auto mt-5 max-w-2xl text-lg leading-8 text-anica-paper/72">
+        Report bugs, improve documentation, build custom agents, or propose workflows that make editing less mechanical.
+      </p>
+      <a href={site.contributingUrl} target="_blank" rel="noreferrer" class="mt-9 inline-flex rounded-full border-2 border-anica-lime bg-anica-lime px-7 py-4 text-sm font-black uppercase tracking-[0.18em] text-anica-ink transition hover:-translate-y-1">
+        Read contributing guide
+      </a>
+    </div>
+  </section>
+</BaseLayout>

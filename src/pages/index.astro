@@ -1,0 +1,105 @@
+---
+import BaseLayout from '@components/BaseLayout.astro';
+import FeatureCard from '@components/FeatureCard.astro';
+import HeroMockup from '@components/HeroMockup.astro';
+import SectionHeader from '@components/SectionHeader.astro';
+import { featureGroups, site, workflowSteps } from '@data/site';
+import { withBase } from '@utils/url';
+---
+<BaseLayout
+  title="Anica - Agentic AI Video Editor"
+  description="Anica is an open source, agentic-first video editor built with Rust for native AI-assisted editing workflows."
+>
+  <section class="page-shell grid min-h-[calc(100vh-8rem)] items-center gap-14 py-16 lg:grid-cols-[0.9fr_1.1fr] lg:py-24">
+    <div class="reveal">
+      <p class="inline-flex rounded-full border-2 border-anica-ink bg-anica-lime px-4 py-2 font-mono text-xs font-bold uppercase tracking-[0.24em] shadow-[4px_4px_0_#11120d]">
+        Source-only alpha
+      </p>
+      <h1 class="mt-8 text-6xl font-black leading-[0.9] tracking-[-0.08em] text-anica-ink md:text-8xl">
+        Video editing with an agent in the timeline.
+      </h1>
+      <p class="mt-7 max-w-xl text-xl leading-8 text-anica-steel">
+        Anica is an agentic-first video editor where AI is a collaborator, not a side panel. Talk to an agent, inspect your timeline, clean speech, translate subtitles, and drive media workflows from one native Rust application.
+      </p>
+      <div class="mt-9 flex flex-col gap-4 sm:flex-row">
+        <a href={withBase('/download')} class="rounded-full border-2 border-anica-ink bg-anica-ink px-7 py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-anica-lime shadow-[6px_6px_0_#d8ff3e] transition hover:-translate-y-1">
+          Get the source
+        </a>
+        <a href={withBase('/showcase')} class="rounded-full border-2 border-anica-ink bg-anica-cream px-7 py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-anica-ink shadow-[6px_6px_0_#11120d] transition hover:-translate-y-1">
+          See workflows
+        </a>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-1">
+      <HeroMockup />
+    </div>
+  </section>
+
+  <section class="border-y-2 border-anica-ink bg-anica-ink text-anica-paper">
+    <div class="page-shell grid gap-6 py-8 md:grid-cols-3">
+      <div>
+        <p class="font-mono text-xs uppercase tracking-[0.28em] text-anica-lime">Core</p>
+        <p class="mt-2 text-xl font-black tracking-[-0.04em]">Rust + GPUI + WGPU</p>
+      </div>
+      <div>
+        <p class="font-mono text-xs uppercase tracking-[0.28em] text-anica-lime">Media</p>
+        <p class="mt-2 text-xl font-black tracking-[-0.04em]">GStreamer + FFmpeg</p>
+      </div>
+      <div>
+        <p class="font-mono text-xs uppercase tracking-[0.28em] text-anica-lime">Intelligence</p>
+        <p class="mt-2 text-xl font-black tracking-[-0.04em]">ACP + LLM workflows</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-shell py-24">
+    <SectionHeader
+      eyebrow="Why it exists"
+      title="AI should understand the edit, not just generate assets."
+      text="Traditional editors bolt AI onto separate dialogs. Anica makes the agent part of the editing model, so natural language can map to timeline-aware actions."
+    />
+
+    <div class="mt-12 grid gap-6 md:grid-cols-3">
+      {featureGroups.map((feature, index) => <FeatureCard {...feature} index={index + 1} />)}
+    </div>
+  </section>
+
+  <section class="page-shell py-8">
+    <div class="grid gap-8 rounded-[2.5rem] border-2 border-anica-ink bg-anica-cream p-6 ink-panel md:grid-cols-[0.85fr_1.15fr] md:p-10">
+      <div>
+        <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-signal">Editing loop</p>
+        <h2 class="mt-5 text-4xl font-black leading-none tracking-[-0.06em] text-anica-ink md:text-5xl">Keep creative control while the agent handles the mechanical passes.</h2>
+        <p class="mt-5 text-lg leading-8 text-anica-steel">
+          The goal is not one-click editing. The goal is a faster conversation between your intent, the timeline, and the media engine.
+        </p>
+      </div>
+      <div class="grid gap-4">
+        {workflowSteps.map((step, index) => (
+          <div class="grid grid-cols-[3rem_1fr] gap-4 rounded-3xl border-2 border-anica-ink bg-white p-4">
+            <span class="grid size-12 place-items-center rounded-2xl bg-anica-lime font-mono text-sm font-black text-anica-ink">{index + 1}</span>
+            <p class="self-center text-lg font-bold leading-7 text-anica-ink">{step}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="page-shell py-24 text-center">
+    <div class="mx-auto max-w-4xl rounded-[2.5rem] border-2 border-anica-ink bg-anica-ink px-6 py-14 text-anica-paper soft-panel md:px-12">
+      <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-lime">Open source</p>
+      <h2 class="mt-5 text-4xl font-black tracking-[-0.06em] md:text-6xl">Built in public for agent-native creative tools.</h2>
+      <p class="mx-auto mt-5 max-w-2xl text-lg leading-8 text-anica-paper/72">
+        Anica is currently alpha software with source-only distribution. Contributions, experiments, and workflow feedback are welcome.
+      </p>
+      <div class="mt-9 flex flex-col justify-center gap-4 sm:flex-row">
+        <a href={site.repoUrl} target="_blank" rel="noreferrer" class="rounded-full border-2 border-anica-lime bg-anica-lime px-7 py-4 text-sm font-black uppercase tracking-[0.18em] text-anica-ink transition hover:-translate-y-1">
+          View repository
+        </a>
+        <a href={site.contributingUrl} target="_blank" rel="noreferrer" class="rounded-full border-2 border-anica-paper px-7 py-4 text-sm font-black uppercase tracking-[0.18em] text-anica-paper transition hover:-translate-y-1 hover:bg-anica-paper hover:text-anica-ink">
+          Contribute
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
