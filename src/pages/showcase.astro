@@ -79,17 +79,52 @@ import { withBase } from '@utils/url';
     </div>
   </section>
 
-  <section class="page-shell py-24">
-    <div class="hairline-grid rounded-[2.5rem] border-2 border-anica-ink bg-white/70 p-6 text-center soft-panel md:p-12">
-      <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-signal">Example prompts</p>
-      <div class="mx-auto mt-8 grid max-w-4xl gap-4 text-left font-mono text-sm leading-7 md:grid-cols-3">
-        <p class="rounded-3xl border-2 border-anica-ink bg-anica-cream p-5">Help me cut the silent parts and remove duplicate speech.</p>
-        <p class="rounded-3xl border-2 border-anica-ink bg-anica-lime p-5">Suggest B-roll and apply it to a semantic layer.</p>
-        <p class="rounded-3xl border-2 border-anica-ink bg-anica-cream p-5">Translate the subtitle track and preserve the timeline timing.</p>
-      </div>
-      <a href={withBase('/download')} class="mt-9 inline-flex rounded-full border-2 border-anica-ink bg-anica-ink px-7 py-4 text-sm font-black uppercase tracking-[0.18em] text-anica-lime shadow-[6px_6px_0_#d8ff3e] transition hover:-translate-y-1">
-        Try the alpha
-      </a>
-    </div>
-  </section>
+ <section class="page-shell py-24">
+  <div class="hairline-grid rounded-[2.5rem] border-2 border-anica-ink bg-white/70 p-6 text-center soft-panel md:p-12">
+    <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-signal">
+      Agent prompts
+    </p>
+
+    <h2 class="mx-auto mt-5 max-w-4xl text-4xl font-black tracking-[-0.06em] text-anica-ink md:text-6xl">
+      Works with Codex CLI, Claude Code, and Gemini CLI.
+    </h2>
+
+    <p class="mx-auto mt-5 max-w-2xl text-lg leading-8 text-anica-steel">
+      Use Anica with your preferred coding agent to inspect the project, run the app, test workflows, or automate video editing experiments.
+    </p>
+
+    <div class="mx-auto mt-8 max-w-5xl space-y-4 text-left font-mono text-sm leading-7">
+  <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <p class="rounded-3xl border-2 border-anica-ink bg-anica-cream p-5">
+      Install the latest Anica alpha on macOS Apple Silicon and open the app.
+    </p>
+
+    <p class="rounded-3xl border-2 border-anica-ink bg-white p-5">
+      Sign in to your preferred agent CLI first, such as Codex CLI, Claude Code, Gemini CLI, Cursor, or another coding agent that can run terminal commands.
+    </p>
+
+    <p class="rounded-3xl border-2 border-anica-ink bg-anica-lime p-5">
+      Select the same CLI inside Anica so the app can route agent-assisted editing tasks to your chosen tool.
+    </p>
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-2">
+    <p class="rounded-3xl border-2 border-anica-ink bg-anica-cream p-5">
+      Help me cut the silent parts, clean duplicate speech, and prepare a short edit.
+    </p>
+
+    <p class="rounded-3xl border-2 border-anica-ink bg-white p-5">
+      Review the timeline workflow and suggest an agent-assisted editing pass.
+    </p>
+  </div>
+</div>
+
+    <a
+      href={withBase('/download')}
+      class="mt-9 inline-flex rounded-full border-2 border-anica-ink bg-anica-ink px-7 py-4 text-sm font-black uppercase tracking-[0.18em] text-anica-lime shadow-[6px_6px_0_#d8ff3e] transition hover:-translate-y-1"
+    >
+      Try the alpha
+    </a>
+  </div>
+</section>
 </BaseLayout>

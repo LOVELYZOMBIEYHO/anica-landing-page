@@ -11,13 +11,13 @@
     "preview": "astro preview"
   },
   "dependencies": {
-    "astro": "6.3.1",
+    "astro": "^6.4.6",
     "autoprefixer": "^10.5.0",
     "postcss": "^8.5.14",
     "tailwindcss": "^3.4.19"
   },
   "devDependencies": {
-    "@astrojs/check": "0.9.2",
+    "@astrojs/check": "^0.9.9",
     "typescript": "5.9.3"
   },
   "overrides": {

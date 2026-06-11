@@ -2,10 +2,45 @@
 import BaseLayout from '@components/BaseLayout.astro';
 import SectionHeader from '@components/SectionHeader.astro';
 import { platformStatus, site } from '@data/site';
+
+const installCommand = `URL=$(curl -s https://api.github.com/repos/LOVELYZOMBIEYHO/anica/releases \\
+  | grep "browser_download_url" \\
+  | grep "macos-apple-silicon.zip" \\
+  | head -n 1 \\
+  | cut -d '"' -f 4)
+
+if [ -z "$URL" ]; then
+  echo "Could not find the macOS Apple Silicon release asset."
+  echo "Open: https://github.com/LOVELYZOMBIEYHO/anica/releases"
+  exit 1
+fi
+
+curl -L -o Anica.zip "$URL" \\
+  && unzip -o Anica.zip \\
+  && sudo rm -rf /Applications/Anica.app \\
+  && sudo mv Anica.app /Applications/ \\
+  && sudo xattr -dr com.apple.quarantine /Applications/Anica.app \\
+  && open /Applications/Anica.app`;
+
+const agentPrompt = `Install the latest Anica alpha on macOS Apple Silicon.
+
+Use the public GitHub releases from:
+https://github.com/LOVELYZOMBIEYHO/anica/releases
+
+Find the latest macOS Apple Silicon zip asset, download it, unzip it, install Anica.app into /Applications, remove the macOS quarantine attribute because this alpha is not notarized yet, then open the app.
+
+Run this command:
+
+${installCommand}
+
+Note:
+- Anica is currently available only for macOS Apple Silicon.
+- The command uses sudo because the alpha installs into /Applications and needs permission-safe quarantine cleanup for the bundled media runtime.`;
 ---
+
 <BaseLayout
   title="Download - Anica"
-  description="Get the Anica source-only alpha, review platform status, and build the open source video editor locally."
+  description="Download the Anica macOS Apple Silicon alpha, install the open source agentic video editor, and try early builds."
 >
   <section class="page-shell py-16 md:py-24">
     <div class="grid items-end gap-10 lg:grid-cols-[1fr_0.72fr]">
@@ -14,13 +49,20 @@ import { platformStatus, site } from '@data/site';
           Download
         </p>
         <h1 class="mt-8 max-w-4xl text-6xl font-black leading-[0.9] tracking-[-0.08em] text-anica-ink md:text-8xl">
-          Get the source-only alpha.
+          Download the Anica alpha.
         </h1>
       </div>
+
       <div class="reveal reveal-delay-1 rounded-[2rem] border-2 border-anica-ink bg-anica-lime p-6 ink-panel">
-        <p class="font-mono text-xs font-bold uppercase tracking-[0.28em] text-anica-ink/70">Current status</p>
-        <p class="mt-4 text-3xl font-black leading-tight tracking-[-0.05em] text-anica-ink">No prebuilt binaries are published at this stage.</p>
-        <p class="mt-4 leading-7 text-anica-ink/72">Build from source and expect APIs, workflows, and project formats to change during alpha development.</p>
+        <p class="font-mono text-xs font-bold uppercase tracking-[0.28em] text-anica-ink/70">
+          Current status
+        </p>
+        <p class="mt-4 text-3xl font-black leading-tight tracking-[-0.05em] text-anica-ink">
+          macOS Apple Silicon alpha is available now.
+        </p>
+        <p class="mt-4 leading-7 text-anica-ink/72">
+          Anica is currently available only for macOS Apple Silicon. This is an early alpha build and is not notarized yet, so macOS may block it on first launch.
+        </p>
       </div>
     </div>
   </section>
@@ -29,16 +71,28 @@ import { platformStatus, site } from '@data/site';
     <div class="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
       <div>
         <SectionHeader
-          eyebrow="Build locally"
-          title="Start from the repository."
-          text="Anica is currently intended for early adopters who are comfortable building native tooling and validating media dependencies."
+          eyebrow="Install"
+          title="Install the latest macOS alpha."
+          text="Copy the command and run it in Terminal. The alpha installs into /Applications and uses sudo because the bundled media runtime needs permission-safe quarantine cleanup."
         />
+
         <div class="mt-8 flex flex-col gap-4 sm:flex-row">
-          <a href={site.repoUrl} target="_blank" rel="noreferrer" class="rounded-full border-2 border-anica-ink bg-anica-ink px-7 py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-anica-lime shadow-[6px_6px_0_#d8ff3e] transition hover:-translate-y-1">
-            Open GitHub
+          <a
+            href="https://github.com/LOVELYZOMBIEYHO/anica/releases"
+            target="_blank"
+            rel="noreferrer"
+            class="rounded-full border-2 border-anica-ink bg-anica-ink px-7 py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-anica-lime shadow-[6px_6px_0_#d8ff3e] transition hover:-translate-y-1"
+          >
+            Releases
           </a>
-          <a href={site.installDocsUrl} target="_blank" rel="noreferrer" class="rounded-full border-2 border-anica-ink bg-anica-cream px-7 py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-anica-ink shadow-[6px_6px_0_#11120d] transition hover:-translate-y-1">
-            Install docs
+
+          <a
+            href={site.repoUrl}
+            target="_blank"
+            rel="noreferrer"
+            class="rounded-full border-2 border-anica-ink bg-anica-cream px-7 py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-anica-ink shadow-[6px_6px_0_#11120d] transition hover:-translate-y-1"
+          >
+            Open GitHub
           </a>
         </div>
       </div>
@@ -48,14 +102,113 @@ import { platformStatus, site } from '@data/site';
           <span class="size-3 rounded-full bg-anica-signal"></span>
           <span class="size-3 rounded-full bg-anica-lime"></span>
           <span class="size-3 rounded-full bg-anica-blue"></span>
-          <span class="ml-auto font-mono text-xs uppercase tracking-[0.24em] text-anica-paper/40">terminal</span>
+          <span id="terminal-label" class="ml-auto font-mono text-xs uppercase tracking-[0.24em] text-anica-paper/40">
+            terminal · sudo · /Applications
+          </span>
         </div>
-        <pre class="overflow-x-auto p-5 text-sm leading-7"><code>git clone https://github.com/LOVELYZOMBIEYHO/anica.git
-cd anica
-cargo run
 
-# or build release binaries
-cargo build --release --bins</code></pre>
+        <div class="flex flex-col gap-3 border-b border-white/10 py-4 sm:flex-row">
+          <button
+            id="install-btn"
+            type="button"
+            class="install-tab rounded-full border-2 border-anica-lime bg-anica-lime px-5 py-3 text-xs font-black uppercase tracking-[0.18em] text-anica-ink transition hover:-translate-y-0.5"
+            data-active="true"
+          >
+            Install command
+          </button>
+
+          <button
+            id="why-sudo-btn"
+            type="button"
+            class="install-tab rounded-full border-2 border-anica-paper/30 bg-transparent px-5 py-3 text-xs font-black uppercase tracking-[0.18em] text-anica-paper/72 transition hover:-translate-y-0.5 hover:border-anica-lime hover:text-anica-lime"
+            data-active="false"
+          >
+            Why sudo?
+          </button>
+
+          <button
+            id="copy-install-btn"
+            type="button"
+            class="rounded-full border-2 border-anica-paper/30 bg-transparent px-5 py-3 text-xs font-black uppercase tracking-[0.18em] text-anica-paper/72 transition hover:-translate-y-0.5 hover:border-anica-lime hover:text-anica-lime sm:ml-auto"
+          >
+            Copy command
+          </button>
+        </div>
+
+        <div id="why-sudo-panel" class="hidden px-5 py-5">
+          <p class="font-mono text-xs font-bold uppercase tracking-[0.24em] text-anica-lime">
+            Why sudo?
+          </p>
+
+          <div class="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p class="font-mono text-[0.68rem] font-bold uppercase tracking-[0.22em] text-anica-lime">
+              System install
+            </p>
+            <h3 class="mt-3 text-lg font-black tracking-[-0.04em] text-anica-paper">
+              Install to /Applications
+            </h3>
+            <p class="mt-3 text-sm leading-6 text-anica-paper/72">
+              Anica currently installs system-wide into
+              <code class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-xs text-anica-paper">/Applications</code>.
+              The alpha bundle includes FFmpeg and GStreamer runtime files, so the command uses
+              <code class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-xs text-anica-paper">sudo</code>
+              to replace the app and remove macOS quarantine attributes safely.
+            </p>
+            <p class="font-bold underline mt-3 text-sm leading-6 text-anica-paper/72">
+                Please input your macOS password to proceed.
+            </p>
+          </div>
+        </div>
+
+        <div id="install-command-panel">
+          <pre class="overflow-x-auto p-5 text-sm leading-7"><code id="install-code">{installCommand}</code></pre>
+        </div>
+
+        <p id="copy-install-status" class="hidden px-5 pb-5 font-mono text-xs uppercase tracking-[0.2em] text-anica-lime">
+          Copied.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-shell py-12">
+    <div class="rounded-[2.5rem] border-2 border-anica-ink bg-anica-blue p-6 ink-panel md:p-10">
+      <div class="grid gap-8 lg:grid-cols-[0.85fr_1.15fr]">
+        <div>
+          <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-ink/70">
+            Codex CLI / Claude Code / Gemini CLI
+          </p>
+          <h2 class="mt-5 text-4xl font-black tracking-[-0.06em] text-anica-ink md:text-5xl">
+            Ask your AI coding agent to install Anica.
+          </h2>
+          <p class="mt-5 text-lg leading-8 text-anica-ink/72">
+            Copy this prompt into Codex CLI, Claude Code, Gemini CLI, Cursor, or another coding agent. It tells the agent to fetch the latest macOS Apple Silicon release and run the install command.
+          </p>
+
+          <button
+            id="copy-prompt-btn"
+            type="button"
+            class="mt-8 rounded-full border-2 border-anica-ink bg-anica-ink px-7 py-4 text-sm font-black uppercase tracking-[0.18em] text-anica-lime shadow-[6px_6px_0_#d8ff3e] transition hover:-translate-y-1"
+          >
+            Copy prompt
+          </button>
+
+          <p id="copy-prompt-status" class="mt-4 hidden font-mono text-xs font-bold uppercase tracking-[0.2em] text-anica-ink/70">
+            Prompt copied.
+          </p>
+        </div>
+
+        <div class="rounded-[2rem] border-2 border-anica-ink bg-anica-ink p-4 text-anica-paper">
+          <div class="flex items-center gap-2 border-b border-white/10 pb-4">
+            <span class="size-3 rounded-full bg-anica-signal"></span>
+            <span class="size-3 rounded-full bg-anica-lime"></span>
+            <span class="size-3 rounded-full bg-anica-blue"></span>
+            <span class="ml-auto font-mono text-xs uppercase tracking-[0.24em] text-anica-paper/40">
+              prompt
+            </span>
+          </div>
+          <pre class="overflow-x-auto whitespace-pre-wrap p-5 text-sm leading-7"><code id="agent-prompt-code">{agentPrompt}</code></pre>
+        </div>
       </div>
     </div>
   </section>
@@ -63,16 +216,16 @@ cargo build --release --bins</code></pre>
   <section class="page-shell py-24">
     <SectionHeader
       eyebrow="Requirements"
-      title="Native media dependencies are part of the alpha experience."
-      text="Review the install documentation before building, especially on a fresh macOS machine."
+      title="Currently macOS Apple Silicon only."
+      text="Anica is an early alpha. The current downloadable build targets macOS on Apple Silicon. Other platforms are not the primary tested path yet."
     />
 
     <div class="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       {[
-        ['Rust', 'Rust 1.90.0 is pinned by the upstream toolchain file.'],
-        ['GStreamer', 'Runtime and development libraries are required for playback paths.'],
-        ['FFmpeg', 'Used for export and analysis, with macOS bootstrap support.'],
-        ['Xcode tools', 'Required on macOS build hosts.'],
+        ['macOS Apple Silicon', 'The current alpha download is built for Apple Silicon Macs.'],
+        ['Not notarized yet', 'macOS may block the first launch. The install command removes the quarantine flag.'],
+        ['FFmpeg', 'Used for export and media processing workflows.'],
+        ['GStreamer runtime', 'Bundled runtime components are used by the alpha app for media playback paths.'],
       ].map(([title, text]) => (
         <article class="rounded-[2rem] border-2 border-anica-ink bg-anica-cream p-6 soft-panel">
           <h2 class="text-2xl font-black tracking-[-0.05em] text-anica-ink">{title}</h2>
@@ -86,10 +239,17 @@ cargo build --release --bins</code></pre>
     <div class="rounded-[2.5rem] border-2 border-anica-ink bg-white p-6 ink-panel md:p-10">
       <div class="grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
         <div>
-          <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-signal">Platform support</p>
-          <h2 class="mt-5 text-4xl font-black tracking-[-0.06em] text-anica-ink md:text-5xl">Start with macOS Apple Silicon.</h2>
-          <p class="mt-5 text-lg leading-8 text-anica-steel">Other platforms are part of the project direction, but they are not the primary tested path yet.</p>
+          <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-signal">
+            Platform support
+          </p>
+          <h2 class="mt-5 text-4xl font-black tracking-[-0.06em] text-anica-ink md:text-5xl">
+            Start with macOS Apple Silicon.
+          </h2>
+          <p class="mt-5 text-lg leading-8 text-anica-steel">
+            Other platforms are part of the project direction, but the downloadable alpha is currently macOS Apple Silicon only.
+          </p>
         </div>
+
         <div class="grid gap-4">
           {platformStatus.map((item) => (
             <div class="flex flex-col justify-between gap-3 rounded-3xl border-2 border-anica-ink bg-anica-cream p-5 sm:flex-row sm:items-center">
@@ -102,16 +262,175 @@ cargo build --release --bins</code></pre>
     </div>
   </section>
 
+  <section class="page-shell py-24">
+    <div class="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+      <div>
+        <SectionHeader
+          eyebrow="Build from source"
+          title="Prefer source? Build it locally."
+          text="Anica is open source. Developers can still clone the repository, inspect the code, and build from source."
+        />
+
+        <div class="mt-8 flex flex-col gap-4 sm:flex-row">
+          <a
+            href={site.installDocsUrl}
+            target="_blank"
+            rel="noreferrer"
+            class="rounded-full border-2 border-anica-ink bg-anica-cream px-7 py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-anica-ink shadow-[6px_6px_0_#11120d] transition hover:-translate-y-1"
+          >
+            Install docs
+          </a>
+        </div>
+      </div>
+
+      <div class="rounded-[2rem] border-2 border-anica-ink bg-anica-ink p-4 text-anica-paper ink-panel">
+        <div class="flex items-center gap-2 border-b border-white/10 pb-4">
+          <span class="size-3 rounded-full bg-anica-signal"></span>
+          <span class="size-3 rounded-full bg-anica-lime"></span>
+          <span class="size-3 rounded-full bg-anica-blue"></span>
+          <span class="ml-auto font-mono text-xs uppercase tracking-[0.24em] text-anica-paper/40">
+            build from source
+          </span>
+        </div>
+        <pre class="overflow-x-auto p-5 text-sm leading-7"><code>git clone https://github.com/LOVELYZOMBIEYHO/anica.git
+cd anica
+cargo run
+
+# or build release binaries
+cargo build --release --bins</code></pre>
+      </div>
+    </div>
+  </section>
+
   <section class="page-shell py-24 text-center">
     <div class="rounded-[2.5rem] border-2 border-anica-ink bg-anica-ink px-6 py-14 text-anica-paper soft-panel md:px-12">
-      <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-lime">Contribute</p>
-      <h2 class="mt-5 text-4xl font-black tracking-[-0.06em] md:text-6xl">Help shape agent-native video editing.</h2>
+      <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-lime">
+        Contribute
+      </p>
+      <h2 class="mt-5 text-4xl font-black tracking-[-0.06em] md:text-6xl">
+        Help shape agent-native video editing.
+      </h2>
       <p class="mx-auto mt-5 max-w-2xl text-lg leading-8 text-anica-paper/72">
         Report bugs, improve documentation, build custom agents, or propose workflows that make editing less mechanical.
       </p>
-      <a href={site.contributingUrl} target="_blank" rel="noreferrer" class="mt-9 inline-flex rounded-full border-2 border-anica-lime bg-anica-lime px-7 py-4 text-sm font-black uppercase tracking-[0.18em] text-anica-ink transition hover:-translate-y-1">
+      <a
+        href={site.contributingUrl}
+        target="_blank"
+        rel="noreferrer"
+        class="mt-9 inline-flex rounded-full border-2 border-anica-lime bg-anica-lime px-7 py-4 text-sm font-black uppercase tracking-[0.18em] text-anica-ink transition hover:-translate-y-1"
+      >
         Read contributing guide
       </a>
     </div>
   </section>
+
+  <script define:vars={{ installCommand, agentPrompt }}>
+    const terminalLabel = document.getElementById('terminal-label');
+
+    const installBtn = document.getElementById('install-btn');
+    const whySudoBtn = document.getElementById('why-sudo-btn');
+
+    const installCommandPanel = document.getElementById('install-command-panel');
+    const whySudoPanel = document.getElementById('why-sudo-panel');
+
+    const copyInstallBtn = document.getElementById('copy-install-btn');
+    const copyInstallStatus = document.getElementById('copy-install-status');
+
+    const copyPromptBtn = document.getElementById('copy-prompt-btn');
+    const copyPromptStatus = document.getElementById('copy-prompt-status');
+    const agentPromptCode = document.getElementById('agent-prompt-code');
+
+    const activeClasses = [
+      'border-anica-lime',
+      'bg-anica-lime',
+      'text-anica-ink',
+    ];
+
+    const inactiveClasses = [
+      'border-anica-paper/30',
+      'bg-transparent',
+      'text-anica-paper/72',
+      'hover:border-anica-lime',
+      'hover:text-anica-lime',
+    ];
+
+    function setButtonActive(button, active) {
+      if (!button) return;
+
+      button.dataset.active = active ? 'true' : 'false';
+
+      if (active) {
+        button.classList.remove(...inactiveClasses);
+        button.classList.add(...activeClasses);
+      } else {
+        button.classList.remove(...activeClasses);
+        button.classList.add(...inactiveClasses);
+      }
+    }
+
+    function showTemporaryStatus(element, text) {
+      if (!element) return;
+
+      element.textContent = text;
+      element.classList.remove('hidden');
+
+      window.setTimeout(() => {
+        element.classList.add('hidden');
+      }, 1800);
+    }
+
+    function showInstallCommand() {
+      if (terminalLabel) {
+        terminalLabel.textContent = 'terminal · sudo · /Applications';
+      }
+
+      installCommandPanel?.classList.remove('hidden');
+      whySudoPanel?.classList.add('hidden');
+      copyInstallBtn?.classList.remove('hidden');
+
+      setButtonActive(installBtn, true);
+      setButtonActive(whySudoBtn, false);
+    }
+
+    function showWhySudo() {
+      if (terminalLabel) {
+        terminalLabel.textContent = 'terminal · why sudo';
+      }
+
+      installCommandPanel?.classList.add('hidden');
+      whySudoPanel?.classList.remove('hidden');
+      copyInstallBtn?.classList.add('hidden');
+
+      setButtonActive(installBtn, false);
+      setButtonActive(whySudoBtn, true);
+    }
+
+    async function copyText(text, statusElement, successMessage) {
+      try {
+        await navigator.clipboard.writeText(text);
+        showTemporaryStatus(statusElement, successMessage);
+      } catch {
+        showTemporaryStatus(statusElement, 'Copy failed. Please select and copy manually.');
+      }
+    }
+
+    installBtn?.addEventListener('click', () => {
+      showInstallCommand();
+    });
+
+    whySudoBtn?.addEventListener('click', () => {
+      showWhySudo();
+    });
+
+    copyInstallBtn?.addEventListener('click', () => {
+      copyText(installCommand, copyInstallStatus, 'Copied.');
+    });
+
+    copyPromptBtn?.addEventListener('click', () => {
+      const promptText = agentPromptCode?.textContent || agentPrompt;
+      copyText(promptText, copyPromptStatus, 'Prompt copied.');
+    });
+
+    showInstallCommand();
+  </script>
 </BaseLayout>

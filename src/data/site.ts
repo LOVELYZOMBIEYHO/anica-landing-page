@@ -17,6 +17,7 @@ export const site = {
 export const navItems = [
   { label: 'Intro', href: '/' },
   { label: 'Showcase', href: '/showcase' },
+  { label: 'MotionLoom', href: '/motionloom' },
   { label: 'Download', href: '/download' },
 ];
 

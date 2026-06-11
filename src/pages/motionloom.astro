@@ -1,0 +1,907 @@
+---
+import BaseLayout from '@components/BaseLayout.astro';
+import { withBase } from '@utils/url';
+---
+
+<BaseLayout
+  title="MotionLoom - GPU Effect Engine"
+  description="MotionLoom is Anica's GPU-accelerated effect and motion graph engine. Live demo with full graph DSL."
+>
+  <section class="page-shell py-16">
+    <div class="reveal mx-auto max-w-3xl text-center">
+      <p class="inline-flex rounded-full border-2 border-anica-ink bg-anica-lime px-4 py-2 font-mono text-xs font-bold uppercase tracking-[0.24em] shadow-[4px_4px_0_#11120d]">
+        GPU effect engine
+      </p>
+      <h1 class="mt-8 text-5xl font-black leading-[0.9] tracking-[-0.08em] text-anica-ink md:text-7xl">
+        MotionLoom
+      </h1>
+      <p class="mt-6 text-xl leading-8 text-anica-steel">
+        A graph-based video effects and motion graphics engine built on WGPU. This playground shows a real graph execution pipeline — DSL → textures → compute passes → present.
+      </p>
+    </div>
+  </section>
+
+  <section class="page-shell py-8">
+    <div class="grid gap-6 rounded-[2.5rem] border-2 border-anica-ink bg-anica-ink p-6 ink-panel md:p-10">
+      <div class="text-center">
+        <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-lime">Live playground</p>
+        <h2 class="mt-3 text-3xl font-black tracking-[0.06em] text-anica-paper md:text-4xl">Graph &rarr; Pipeline &rarr; Preview</h2>
+        <p class="mx-auto mt-3 max-w-xl text-lg leading-8 text-anica-paper/72">
+          Edit the full MotionLoom graph below. The browser parses the DSL, builds a texture pipeline, and executes compute passes on your image in real time.
+        </p>
+      </div>
+
+      <div class="grid gap-4 lg:grid-cols-[1fr_1fr]">
+        <div class="flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+            <p class="font-mono text-xs font-bold uppercase tracking-wider text-anica-lime">MotionLoom Graph</p>
+            <div class="flex gap-2">
+              <button id="btn-compile" class="rounded-full border-2 border-anica-lime bg-anica-lime px-3 py-1 text-xs font-black uppercase tracking-wider text-anica-ink transition hover:-translate-y-0.5">Compile</button>
+              <button id="btn-reset" class="rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Process</button>
+              <button id="btn-scene" class="rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Scene</button>
+            </div>
+          </div>
+          <textarea
+            id="dsl-editor"
+            class="min-h-[420px] flex-1 rounded-2xl border-2 border-anica-ink/40 bg-anica-ink/60 p-4 font-mono text-xs leading-relaxed text-anica-paper shadow-inner outline-none transition focus:border-anica-lime"
+            spellcheck="false"
+          ></textarea>
+          <div id="compile-status" class="min-h-[1.5rem] font-mono text-xs text-anica-lime/80"></div>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <p class="font-mono text-xs font-bold uppercase tracking-wider text-anica-lime">Preview</p>
+            <div class="flex items-center gap-2">
+              <label class="cursor-pointer rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">
+                <input id="file-upload" type="file" accept="image/*,video/*" class="hidden" />
+                Upload
+              </label>
+              <button id="btn-compare" class="rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10 select-none">Compare Original</button>
+              <button id="btn-download" class="rounded-full border-2 border-anica-lime/50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-lime transition hover:bg-anica-lime/10">Save</button>
+            </div>
+          </div>
+          <div class="relative flex-1 min-h-[320px] overflow-hidden rounded-2xl border-2 border-anica-ink/40 bg-black">
+            <canvas id="motionloom-canvas" class="h-full w-full object-contain"></canvas>
+            <div id="webgpu-status" class="absolute bottom-3 left-3 rounded-full border border-anica-lime/30 bg-anica-ink/80 px-3 py-1 font-mono text-xs text-anica-lime backdrop-blur-md">
+              Canvas 2D pipeline
+            </div>
+          </div>
+          <p class="text-xs text-anica-paper/50">
+            Source: <span id="source-name">demo.jpg</span> (public domain)
+          </p>
+          <p class="mt-1 text-[0.65rem] italic text-anica-paper/35">
+            This is a MotionLoom demo showcase. It does not mean MotionLoom can currently run in the browser.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-shell py-16">
+    <div class="mx-auto max-w-4xl">
+      <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-signal">Pipeline</p>
+      <h2 class="mt-4 text-4xl font-black tracking-[0.06em] text-anica-ink">How it works</h2>
+      <p class="mt-4 text-lg leading-8 text-anica-steel">
+        MotionLoom graphs describe a directed pipeline: input clips are loaded into textures, passes read and write textures, and the final present node composites the result.
+      </p>
+      <div class="mt-8 grid gap-4 md:grid-cols-3">
+        <div class="rounded-3xl border-2 border-anica-ink bg-anica-cream p-5 shadow-[6px_6px_0_#11120d]">
+          <p class="font-mono text-xs font-bold uppercase tracking-wider text-anica-steel">1. Parse</p>
+          <p class="mt-2 text-sm text-anica-ink">The DSL parser reads the graph, validates connections, and builds a runtime node list.</p>
+        </div>
+        <div class="rounded-3xl border-2 border-anica-ink bg-anica-cream p-5 shadow-[6px_6px_0_#11120d]">
+          <p class="font-mono text-xs font-bold uppercase tracking-wider text-anica-steel">2. Compile</p>
+          <p class="mt-2 text-sm text-anica-ink">Textures are allocated, passes are ordered by dependency, and shaders are prepared.</p>
+        </div>
+        <div class="rounded-3xl border-2 border-anica-ink bg-anica-cream p-5 shadow-[6px_6px_0_#11120d]">
+          <p class="font-mono text-xs font-bold uppercase tracking-wider text-anica-steel">3. Execute</p>
+          <p class="mt-2 text-sm text-anica-ink">Each pass runs on the GPU. The final texture is blitted to the present target.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-shell py-16 text-center">
+    <div class="mx-auto max-w-4xl rounded-[2.5rem] border-2 border-anica-ink bg-anica-ink px-6 py-14 text-anica-paper soft-panel md:px-12">
+      <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-lime">Native vs Web</p>
+      <h2 class="mt-5 text-3xl font-black tracking-[0.06em] md:text-4xl">MotionLoom in the browser</h2>
+      <p class="mx-auto mt-5 max-w-2xl text-lg leading-8 text-anica-paper/72">
+        This playground uses a Canvas 2D fallback to demonstrate the graph execution model. The real Anica desktop app runs the same MotionLoom DSL through Rust/WGPU with full GPU compute and video export.
+      </p>
+      <div class="mt-9 flex flex-col justify-center gap-4 sm:flex-row">
+        <a href="https://github.com/LOVELYZOMBIEYHO/anica/tree/main/crates/motionloom" target="_blank" rel="noreferrer" class="rounded-full border-2 border-anica-lime bg-anica-lime px-7 py-4 text-sm font-black uppercase tracking-[0.18em] text-anica-ink transition hover:-translate-y-1">
+          View Rust source
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+    (function() {
+      const canvas = document.getElementById('motionloom-canvas');
+      const editor = document.getElementById('dsl-editor');
+      const compileBtn = document.getElementById('btn-compile');
+      const resetBtn = document.getElementById('btn-reset');
+      const compileStatus = document.getElementById('compile-status');
+      const fileUpload = document.getElementById('file-upload');
+      const sourceName = document.getElementById('source-name');
+      const downloadBtn = document.getElementById('btn-download');
+      const ctx = canvas.getContext('2d');
+
+      const processScript = `<Graph fps={60} size={[1920,1080]}>
+  <Process id="layer_fx">
+    <Input id="clip0" type="video" from="input:clip0" />
+    <Tex id="src" fmt="rgba16f" from="clip0" />
+    <Tex id="out" fmt="rgba16f" size={[1920,1080]} />
+    <Tex id="stage1" fmt="rgba16f" size={[1920,1080]} />
+    <Pass id="fx_hsla_overlay" kind="compute"
+        effect="hsla_overlay"
+        in={["src"]} out={["stage1"]}
+        params={{
+          hue: "150.0",
+          saturation: "10.20",
+          lightness: "0.41",
+          alpha: "0.25"
+        }} />
+    <Pass id="fx_blur" kind="compute"
+        effect="gaussian_5tap_h"
+        in={["stage1"]} out={["out"]}
+        params={{
+          sigma: "5.0"
+        }} />
+  </Process>
+  <Present from="layer_fx" />
+</Graph>`;
+
+      const sceneScript = `<Graph fps={30} duration="4s" size={[800,450]} renderSize={[800,450]}>
+  <Background color="#FFFFFF" />
+
+  <Scene id="PinwheelZDepthLogo">
+    <Timeline>
+      <Track id="depth_guides" space="screen" z="0">
+        <Sequence from="0s" duration="4s" out="hold">
+          <Layer>
+            <Text x="32" y="44" value="Pinwheel zDepth" fontSize="28" color="#111827" />
+            <Text x="32" y="72" value="Layer zDepth sorts four overlapping color blades" fontSize="16" color="#6B7280" />
+            <Line x1="400" y1="86" x2="400" y2="364" stroke="#11182718" strokeWidth="2" />
+            <Line x1="258" y1="225" x2="542" y2="225" stroke="#11182718" strokeWidth="2" />
+          </Layer>
+        </Sequence>
+      </Track>
+
+      <Track id="pinwheel" space="world" z="10" zDepth="0">
+        <Sequence from="0s" duration="4s" out="hold">
+          <Layer>
+            <Circle x="400" y="225" radius="128" color="#F3F4F6" opacity="0.62" />
+            <Circle x="400" y="225" radius="10" color="#111827" opacity="0.18" />
+          </Layer>
+
+          <Layer id="blade_blue_mid_near" zDepth="-0.25">
+            <Group x="400" y="225" rotation={curve("0:-4:linear, 4:16:ease_in_out")}>
+              <Rect x="-22" y="-120" width="102" height="132" radius="34" color="#4285F4" opacity="0.92" />
+              <Circle x="34" y="-62" radius="30" color="#8AB4F8" opacity="0.32" />
+            </Group>
+          </Layer>
+
+          <Layer id="blade_red_mid_far" zDepth="0.55">
+            <Group x="400" y="225" rotation={curve("0:86:linear, 4:106:ease_in_out")}>
+              <Rect x="-22" y="-120" width="102" height="132" radius="34" color="#EA4335" opacity="0.88" />
+              <Circle x="34" y="-62" radius="30" color="#F28B82" opacity="0.34" />
+            </Group>
+          </Layer>
+
+          <Layer id="blade_yellow_far" zDepth="1.25">
+            <Group x="400" y="225" rotation={curve("0:176:linear, 4:196:ease_in_out")}>
+              <Rect x="-22" y="-120" width="102" height="132" radius="34" color="#FBBC04" opacity="0.86" />
+              <Circle x="34" y="-62" radius="30" color="#FDE293" opacity="0.36" />
+            </Group>
+          </Layer>
+
+          <Layer id="blade_green_near" zDepth="-0.8">
+            <Group x="400" y="225" rotation={curve("0:266:linear, 4:286:ease_in_out")}>
+              <Rect x="-22" y="-120" width="102" height="132" radius="34" color="#34A853" opacity="0.84" />
+              <Circle x="34" y="-62" radius="30" color="#81C995" opacity="0.38" />
+            </Group>
+          </Layer>
+
+          <Layer id="center_cap" zDepth="0">
+            <Circle x="400" y="225" radius="38" color="#FFFFFF" opacity="0.94" />
+            <Circle x="400" y="225" radius="20" color="#111827" opacity="0.16" />
+          </Layer>
+        </Sequence>
+      </Track>
+    </Timeline>
+  </Scene>
+
+  <Present from="PinwheelZDepthLogo" />
+</Graph>`;
+
+      let defaultScript = processScript;
+      editor.value = defaultScript;
+
+      let currentImage = new Image();
+      let isVideo = false;
+      currentImage.crossOrigin = 'anonymous';
+      currentImage.src = 'demo.jpg';
+      currentImage.onload = () => compile();
+      currentImage.onerror = () => {
+        compileStatus.textContent = 'Failed to load default image';
+        compileStatus.classList.add('text-anica-signal');
+      };
+
+      // ---------- Simple MotionLoom Graph Parser ----------
+      function parseGraph(src) {
+        const graph = {
+          fps: 30, size: [1920, 1080], duration: 4, renderSize: null,
+          processes: [], scenes: [], present: null, background: null
+        };
+        // Match both opening <Tag ...> and closing </Tag> tags
+        const tagRe = /<\/?(\w+)([^>]*)>/g;
+        let m;
+        let stack = [graph];
+        let depth = 0;
+
+        while ((m = tagRe.exec(src)) !== null) {
+          const fullTag = m[0];
+          const isClosing = fullTag.startsWith('</');
+          const tag = m[1];
+          const attrStr = m[2];
+          const attrs = parseAttrs(attrStr);
+
+          // Handle closing tags
+          if (isClosing) {
+            if (tag === 'Process' || tag === 'Scene' || tag === 'Timeline' || tag === 'Track' || tag === 'Sequence' || tag === 'Layer' || tag === 'Group') {
+              if (stack.length > 1) {
+                stack.pop();
+                depth--;
+              }
+            }
+            continue;
+          }
+
+          if (tag === 'Graph') {
+            if (attrs.fps) graph.fps = Number(attrs.fps);
+            if (attrs.size) graph.size = attrs.size;
+            if (attrs.duration) graph.duration = parseDuration(attrs.duration);
+            if (attrs.renderSize) graph.renderSize = attrs.renderSize;
+          } else if (tag === 'Background') {
+            graph.background = attrs.color || '#000000';
+          } else if (tag === 'Process') {
+            const proc = { id: attrs.id || 'proc', inputs: [], textures: [], passes: [] };
+            graph.processes.push(proc);
+            stack.push(proc);
+            depth++;
+          } else if (tag === 'Scene') {
+            const scene = {
+              id: attrs.id || 'scene',
+              timelines: []
+            };
+            graph.scenes.push(scene);
+            stack.push(scene);
+            depth++;
+          } else if (tag === 'Timeline') {
+            const timeline = { tracks: [] };
+            const parent = stack[stack.length - 1];
+            if (parent && parent.timelines) {
+              parent.timelines.push(timeline);
+              stack.push(timeline);
+              depth++;
+            }
+          } else if (tag === 'Track') {
+            const track = {
+              id: attrs.id || 'track',
+              space: attrs.space || 'screen',
+              z: parseFloat(attrs.z) || 0,
+              zDepth: attrs.zDepth !== undefined ? parseFloat(attrs.zDepth) : 0,
+              sequences: []
+            };
+            const parent = stack[stack.length - 1];
+            if (parent && parent.tracks) {
+              parent.tracks.push(track);
+              stack.push(track);
+              depth++;
+            }
+          } else if (tag === 'Sequence') {
+            const seq = {
+              from: parseDuration(attrs.from) || 0,
+              duration: parseDuration(attrs.duration) || 4,
+              out: attrs.out || 'hold',
+              layers: []
+            };
+            const parent = stack[stack.length - 1];
+            if (parent && parent.sequences) {
+              parent.sequences.push(seq);
+              stack.push(seq);
+              depth++;
+            }
+          } else if (tag === 'Layer') {
+            const layer = {
+              id: attrs.id || 'layer',
+              zDepth: attrs.zDepth !== undefined ? parseFloat(attrs.zDepth) : 0,
+              shapes: []
+            };
+            const parent = stack[stack.length - 1];
+            if (parent && parent.layers) {
+              parent.layers.push(layer);
+              stack.push(layer);
+              depth++;
+            }
+          } else if (tag === 'Group') {
+            const group = {
+              type: 'group',
+              x: parseFloat(attrs.x) || 0,
+              y: parseFloat(attrs.y) || 0,
+              rotation: parseCurve(attrs.rotation) || 0,
+              shapes: []
+            };
+            const parent = stack[stack.length - 1];
+            if (parent && parent.shapes) {
+              parent.shapes.push(group);
+              stack.push(group);
+              depth++;
+            }
+          } else if (['Circle', 'Rect', 'Line', 'Text'].includes(tag)) {
+            const shape = { type: tag.toLowerCase(), ...attrs };
+            // Parse numeric properties
+            const numericProps = ['x', 'y', 'x1', 'y1', 'x2', 'y2', 'radius', 'width', 'height', 'fontSize', 'strokeWidth', 'opacity'];
+            for (const prop of numericProps) {
+              if (shape[prop] !== undefined) {
+                const num = parseFloat(shape[prop]);
+                if (!isNaN(num)) shape[prop] = num;
+              }
+            }
+            const parent = stack[stack.length - 1];
+            if (parent && parent.shapes) {
+              parent.shapes.push(shape);
+            }
+          } else if (tag === 'Input') {
+            const parent = stack[stack.length - 1];
+            if (parent && parent.inputs) {
+              parent.inputs.push({ id: attrs.id, type: attrs.type || 'video', from: attrs.from });
+            }
+          } else if (tag === 'Tex') {
+            const parent = stack[stack.length - 1];
+            if (parent && parent.textures) {
+              parent.textures.push({
+                id: attrs.id,
+                fmt: attrs.fmt,
+                from: attrs.from,
+                size: attrs.size || graph.size
+              });
+            }
+          } else if (tag === 'Pass') {
+            const parent = stack[stack.length - 1];
+            if (parent && parent.passes) {
+              parent.passes.push({
+                id: attrs.id,
+                kind: attrs.kind || 'compute',
+                effect: attrs.effect,
+                in: attrs.in || [],
+                out: attrs.out || [],
+                params: attrs.params || {}
+              });
+            }
+          } else if (tag === 'Present') {
+            graph.present = { from: attrs.from };
+          }
+        }
+        return graph;
+      }
+
+      function parseDuration(val) {
+        if (typeof val === 'number') return val;
+        if (typeof val !== 'string') return 0;
+        const m = val.match(/^([\d.]+)\s*s$/);
+        if (m) return parseFloat(m[1]);
+        return parseFloat(val) || 0;
+      }
+
+      function parseCurve(val) {
+        if (typeof val !== 'string') return val;
+        const m = val.match(/curve\("(.+)"\)/);
+        if (!m) return val;
+        const parts = m[1].split(',').map(s => s.trim().split(':'));
+        const keyframes = parts.map(p => ({
+          t: parseFloat(p[0]),
+          value: parseFloat(p[1]),
+          ease: p[2] || 'linear'
+        }));
+        return { type: 'curve', keyframes };
+      }
+
+      function parseAttrs(str) {
+        const attrs = {};
+        let i = 0;
+        while (i < str.length) {
+          // Skip whitespace and special chars
+          while (i < str.length && /\s/.test(str[i])) i++;
+          if (i >= str.length) break;
+
+          // Read key name
+          const keyStart = i;
+          while (i < str.length && /\w/.test(str[i])) i++;
+          const key = str.slice(keyStart, i);
+          if (!key) { i++; continue; }
+
+          // Skip whitespace
+          while (i < str.length && /\s/.test(str[i])) i++;
+          if (i >= str.length || str[i] !== '=') continue;
+          i++; // skip '='
+          while (i < str.length && /\s/.test(str[i])) i++;
+          if (i >= str.length) break;
+
+          if (str[i] === '"') {
+            // String value: key="value"
+            i++; // skip opening quote
+            const valStart = i;
+            while (i < str.length && str[i] !== '"') i++;
+            attrs[key] = str.slice(valStart, i);
+            if (str[i] === '"') i++;
+          } else if (str[i] === '{') {
+            // Braced value: key={...} or key={[...]} or key={{...}}
+            // Need to balance braces
+            let depth = 1;
+            i++; // skip opening brace
+            const valStart = i;
+            while (i < str.length && depth > 0) {
+              if (str[i] === '{') depth++;
+              else if (str[i] === '}') depth--;
+              if (depth > 0) i++;
+            }
+            const val = str.slice(valStart, i).trim();
+            if (str[i] === '}') i++; // skip closing brace
+
+            if (val.startsWith('[') && val.endsWith(']')) {
+              attrs[key] = JSON.parse(val.replace(/'/g, '"'));
+            } else if (val.startsWith('{') && val.endsWith('}')) {
+              attrs[key] = parseObjectLiteral(val.slice(1, -1));
+            } else {
+              const num = Number(val);
+              attrs[key] = isNaN(num) ? val : num;
+            }
+          } else {
+            // Unquoted value or something else, skip
+            i++;
+          }
+        }
+        return attrs;
+      }
+
+      function parseObjectLiteral(inner) {
+        const obj = {};
+        // Split by comma, but be careful with nested objects
+        const parts = [];
+        let depth = 0;
+        let start = 0;
+        for (let i = 0; i < inner.length; i++) {
+          if (inner[i] === '{' || inner[i] === '[') depth++;
+          else if (inner[i] === '}' || inner[i] === ']') depth--;
+          else if (inner[i] === ',' && depth === 0) {
+            parts.push(inner.slice(start, i));
+            start = i + 1;
+          }
+        }
+        parts.push(inner.slice(start));
+
+        for (const part of parts) {
+          const colonIdx = part.indexOf(':');
+          if (colonIdx === -1) continue;
+          const k = part.slice(0, colonIdx).trim().replace(/['"]/g, '');
+          const v = part.slice(colonIdx + 1).trim().replace(/['"]/g, '');
+          const num = Number(v);
+          obj[k] = isNaN(num) ? v : num;
+        }
+        return obj;
+      }
+
+      // ---------- Pipeline Execution ----------
+      function executeGraph(graph, sourceImage) {
+        const proc = graph.processes[0];
+        if (!proc) return sourceImage;
+
+        const w = sourceImage.width || sourceImage.videoWidth || 1920;
+        const h = sourceImage.height || sourceImage.videoHeight || 1080;
+        canvas.width = w;
+        canvas.height = h;
+
+        const texMap = {};
+        // Load source into texture
+        texMap['src'] = sourceImage;
+
+        // Execute passes in order
+        for (const pass of proc.passes) {
+          const inputTex = texMap[pass.in[0]];
+          if (!inputTex) continue;
+
+          const outW = pass.out === 'out' ? w : w;
+          const outH = pass.out === 'out' ? h : h;
+
+          const off = document.createElement('canvas');
+          off.width = outW;
+          off.height = outH;
+          const offCtx = off.getContext('2d');
+          offCtx.drawImage(inputTex, 0, 0, outW, outH);
+
+          if (pass.effect === 'hsla_overlay') {
+            applyHslaOverlay(offCtx, outW, outH, pass.params);
+          } else if (pass.effect === 'gaussian_5tap_h' || pass.effect === 'blur') {
+            applyBlur(offCtx, outW, outH, pass.params);
+          }
+
+          const outId = pass.out[0];
+          texMap[outId] = off;
+        }
+
+        // Present final output
+        const final = texMap['out'] || texMap['stage1'] || texMap['src'];
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(final, 0, 0, w, h);
+      }
+
+      // ---------- Scene Execution ----------
+      let sceneAnimationId = null;
+      let sceneStartTime = 0;
+      let isScenePlaying = false;
+      let currentGraph = null;
+
+      function executeScene(graph, time) {
+        const size = graph.renderSize || graph.size;
+        const w = size[0];
+        const h = size[1];
+        canvas.width = w;
+        canvas.height = h;
+
+        // Background
+        ctx.fillStyle = graph.background || '#000000';
+        ctx.fillRect(0, 0, w, h);
+
+        // Collect all layers from all scenes
+        const allLayers = [];
+        for (const scene of graph.scenes) {
+          for (const timeline of scene.timelines) {
+            for (const track of timeline.tracks) {
+              for (const seq of track.sequences) {
+                for (const layer of seq.layers) {
+                  allLayers.push({
+                    ...layer,
+                    trackZ: track.zDepth !== undefined ? track.zDepth : 0,
+                    trackSpace: track.space
+                  });
+                }
+              }
+            }
+          }
+        }
+
+        // Sort by zDepth (far = larger zDepth, rendered first)
+        allLayers.sort((a, b) => (b.zDepth || 0) - (a.zDepth || 0));
+
+        // Render each layer
+        for (const layer of allLayers) {
+          renderLayer(layer, time, graph);
+        }
+      }
+
+      function renderLayer(layer, time, graph) {
+        for (const shape of layer.shapes) {
+          renderShape(shape, time, graph);
+        }
+      }
+
+      function renderShape(shape, time, graph) {
+        if (shape.type === 'group') {
+          const rotation = evaluateCurve(shape.rotation, time, graph);
+          ctx.save();
+          ctx.translate(shape.x, shape.y);
+          if (rotation) ctx.rotate((rotation * Math.PI) / 180);
+          for (const child of shape.shapes) {
+            renderShape(child, time, graph);
+          }
+          ctx.restore();
+        } else if (shape.type === 'circle') {
+          ctx.beginPath();
+          ctx.arc(shape.x, shape.y, shape.radius, 0, Math.PI * 2);
+          ctx.fillStyle = shape.color || '#000000';
+          if (shape.opacity !== undefined) ctx.globalAlpha = shape.opacity;
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        } else if (shape.type === 'rect') {
+          const r = shape.radius || 0;
+          const x = shape.x;
+          const y = shape.y;
+          const w = shape.width;
+          const h = shape.height;
+          ctx.beginPath();
+          if (r) {
+            ctx.roundRect(x, y, w, h, r);
+          } else {
+            ctx.rect(x, y, w, h);
+          }
+          ctx.fillStyle = shape.color || '#000000';
+          if (shape.opacity !== undefined) ctx.globalAlpha = shape.opacity;
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        } else if (shape.type === 'line') {
+          ctx.beginPath();
+          ctx.moveTo(shape.x1, shape.y1);
+          ctx.lineTo(shape.x2, shape.y2);
+          ctx.strokeStyle = shape.stroke || '#000000';
+          ctx.lineWidth = shape.strokeWidth || 1;
+          if (shape.opacity !== undefined) ctx.globalAlpha = shape.opacity;
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+        } else if (shape.type === 'text') {
+          ctx.fillStyle = shape.color || '#000000';
+          ctx.font = `${shape.fontSize || 16}px ${shape.font || 'Space Grotesk, sans-serif'}`;
+          if (shape.opacity !== undefined) ctx.globalAlpha = shape.opacity;
+          ctx.fillText(shape.value || '', shape.x, shape.y);
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      function evaluateCurve(curve, time, graph) {
+        if (!curve || typeof curve !== 'object' || curve.type !== 'curve') {
+          return curve;
+        }
+        const kf = curve.keyframes;
+        if (!kf || kf.length === 0) return 0;
+        const t = time % graph.duration;
+        // Find segment
+        for (let i = 0; i < kf.length - 1; i++) {
+          const a = kf[i];
+          const b = kf[i + 1];
+          if (t >= a.t && t <= b.t) {
+            const p = (t - a.t) / (b.t - a.t);
+            const eased = ease(p, a.ease);
+            return a.value + (b.value - a.value) * eased;
+          }
+        }
+        return kf[kf.length - 1].value;
+      }
+
+      function ease(t, type) {
+        if (type === 'ease_in_out') {
+          return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        }
+        return t; // linear
+      }
+
+      function startSceneLoop(graph) {
+        if (sceneAnimationId) cancelAnimationFrame(sceneAnimationId);
+        isScenePlaying = true;
+        sceneStartTime = performance.now();
+        currentGraph = graph;
+        function loop() {
+          if (!isScenePlaying) return;
+          const elapsed = (performance.now() - sceneStartTime) / 1000;
+          executeScene(graph, elapsed);
+          sceneAnimationId = requestAnimationFrame(loop);
+        }
+        sceneAnimationId = requestAnimationFrame(loop);
+      }
+
+      function stopSceneLoop() {
+        isScenePlaying = false;
+        if (sceneAnimationId) {
+          cancelAnimationFrame(sceneAnimationId);
+          sceneAnimationId = null;
+        }
+      }
+
+      function applyHslaOverlay(ctx, w, h, params) {
+        const hue = parseFloat(params.hue || 0) / 360;
+        const sat = parseFloat(params.saturation || 0);
+        const lit = parseFloat(params.lightness || 0);
+        const alpha = parseFloat(params.alpha || 0.5);
+
+        const imgData = ctx.getImageData(0, 0, w, h);
+        const data = imgData.data;
+
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i] / 255;
+          const g = data[i + 1] / 255;
+          const b = data[i + 2] / 255;
+          const [hslH, hslS, hslL] = rgbToHsl(r, g, b);
+
+          const newH = fract(hslH + hue);
+          const newS = clamp(hslS * (1 + sat), 0, 1);
+          const newL = clamp(hslL + (lit - 0.5), 0, 1);
+          const [nr, ng, nb] = hslToRgb(newH, newS, newL);
+
+          data[i] = mix(data[i], nr * 255, alpha);
+          data[i + 1] = mix(data[i + 1], ng * 255, alpha);
+          data[i + 2] = mix(data[i + 2], nb * 255, alpha);
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+      }
+
+      function applyBlur(ctx, w, h, params) {
+        const sigma = parseFloat(params.sigma || 1);
+        // Use CSS filter for fast blur, then draw to canvas
+        const temp = document.createElement('canvas');
+        temp.width = w;
+        temp.height = h;
+        const tCtx = temp.getContext('2d');
+        tCtx.filter = `blur(${sigma}px)`;
+        tCtx.drawImage(ctx.canvas, 0, 0, w, h);
+        ctx.clearRect(0, 0, w, h);
+        ctx.drawImage(temp, 0, 0, w, h);
+      }
+
+      // Math helpers
+      function rgbToHsl(r, g, b) {
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        const l = (max + min) / 2;
+        let h = 0, s = 0;
+        if (max !== min) {
+          const d = max - min;
+          s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+          switch (max) {
+            case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+            case g: h = ((b - r) / d + 2) / 6; break;
+            case b: h = ((r - g) / d + 4) / 6; break;
+          }
+        }
+        return [h, s, l];
+      }
+
+      function hslToRgb(h, s, l) {
+        const hue2rgb = (p, q, t) => {
+          if (t < 0) t += 1;
+          if (t > 1) t -= 1;
+          if (t < 1/6) return p + (q - p) * 6 * t;
+          if (t < 1/2) return q;
+          if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+          return p;
+        };
+        let r, g, b;
+        if (s === 0) {
+          r = g = b = l;
+        } else {
+          const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+          const p = 2 * l - q;
+          r = hue2rgb(p, q, h + 1/3);
+          g = hue2rgb(p, q, h);
+          b = hue2rgb(p, q, h - 1/3);
+        }
+        return [r, g, b];
+      }
+
+      function clamp(v, min, max) { return Math.min(Math.max(v, min), max); }
+      function fract(v) { return v - Math.floor(v); }
+      function mix(a, b, t) { return a + (b - a) * t; }
+
+      // ---------- UI handlers ----------
+      function compile() {
+        try {
+          stopSceneLoop();
+          const graph = parseGraph(editor.value);
+
+          if (graph.scenes.length > 0) {
+            // Scene mode
+            const layerCount = graph.scenes.reduce((sum, s) => {
+              return sum + s.timelines.reduce((t, tl) => {
+                return t + tl.tracks.reduce((tr, t) => tr + t.sequences.reduce((sq, seq) => sq + seq.layers.length, 0), 0);
+              }, 0);
+            }, 0);
+            compileStatus.textContent = `Compiled: ${graph.scenes.length} scene(s), ${layerCount} layer(s) | ${graph.fps}fps, ${graph.duration}s`;
+            compileStatus.classList.remove('text-anica-signal');
+            compileStatus.classList.add('text-anica-lime/80');
+            startSceneLoop(graph);
+          } else {
+            // Process graph mode
+            const passCount = graph.processes.reduce((s, p) => s + p.passes.length, 0);
+
+            const paramTexts = [];
+            for (const proc of graph.processes) {
+              for (const pass of proc.passes) {
+                if (pass.params && Object.keys(pass.params).length > 0) {
+                  const entries = Object.entries(pass.params)
+                    .map(([k, v]) => `${k}=${v}`)
+                    .join(', ');
+                  paramTexts.push(`${pass.id}: ${entries}`);
+                }
+              }
+            }
+            const paramsLine = paramTexts.length > 0 ? ` | ${paramTexts.join(' | ')}` : '';
+
+            compileStatus.textContent = `Compiled: ${graph.processes.length} process, ${passCount} pass(es)${paramsLine}`;
+            compileStatus.classList.remove('text-anica-signal');
+            compileStatus.classList.add('text-anica-lime/80');
+
+            if (currentImage.complete || isVideo) {
+              executeGraph(graph, currentImage);
+            }
+          }
+        } catch (e) {
+          compileStatus.textContent = 'Error: ' + e.message;
+          compileStatus.classList.remove('text-anica-lime/80');
+          compileStatus.classList.add('text-anica-signal');
+        }
+      }
+
+      function reset() {
+        defaultScript = processScript;
+        editor.value = defaultScript;
+        compile();
+      }
+
+      const sceneBtn = document.getElementById('btn-scene');
+      sceneBtn.addEventListener('click', () => {
+        defaultScript = sceneScript;
+        editor.value = sceneScript;
+        compile();
+      });
+
+      fileUpload.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const url = URL.createObjectURL(file);
+        isVideo = file.type.startsWith('video');
+        sourceName.textContent = file.name;
+
+        if (isVideo) {
+          const vid = document.createElement('video');
+          vid.crossOrigin = 'anonymous';
+          vid.src = url;
+          vid.muted = true;
+          vid.loop = true;
+          vid.playsInline = true;
+          vid.onloadeddata = () => {
+            currentImage = vid;
+            vid.play();
+            compile();
+            // Render loop for video
+            function renderLoop() {
+              if (isVideo) {
+                compile();
+                requestAnimationFrame(renderLoop);
+              }
+            }
+            renderLoop();
+          };
+        } else {
+          const img = new Image();
+          img.onload = () => {
+            currentImage = img;
+            compile();
+          };
+          img.src = url;
+        }
+      });
+
+      downloadBtn.addEventListener('click', () => {
+        const link = document.createElement('a');
+        link.download = 'motionloom-preview.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+
+      const compareBtn = document.getElementById('btn-compare');
+      function showOriginal() {
+        if (!currentImage) return;
+        const w = currentImage.width || currentImage.videoWidth || canvas.width;
+        const h = currentImage.height || currentImage.videoHeight || canvas.height;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(currentImage, 0, 0, w, h);
+      }
+      function showEffect() {
+        compile();
+      }
+      compareBtn.addEventListener('mousedown', showOriginal);
+      compareBtn.addEventListener('mouseup', showEffect);
+      compareBtn.addEventListener('mouseleave', showEffect);
+      compareBtn.addEventListener('touchstart', (e) => { e.preventDefault(); showOriginal(); });
+      compareBtn.addEventListener('touchend', (e) => { e.preventDefault(); showEffect(); });
+
+      compileBtn.addEventListener('click', compile);
+      resetBtn.addEventListener('click', reset);
+      editor.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) compile();
+      });
+    })();
+  </script>
+</BaseLayout>
