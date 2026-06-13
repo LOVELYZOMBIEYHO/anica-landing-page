@@ -44,7 +44,7 @@ import { withBase } from '@utils/url';
       </div>
       <div>
         <p class="font-mono text-xs uppercase tracking-[0.28em] text-anica-lime">Media</p>
-        <p class="mt-2 text-xl font-black tracking-[-0.04em]">GStreamer + FFmpeg</p>
+        <p class="mt-2 text-xl font-black tracking-[-0.04em]">FFmpeg</p>
       </div>
       <div>
         <p class="font-mono text-xs uppercase tracking-[0.28em] text-anica-lime">Intelligence</p>
@@ -81,6 +81,54 @@ import { withBase } from '@utils/url';
             <p class="self-center text-lg font-bold leading-7 text-anica-ink">{step}</p>
           </div>
         ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="page-shell py-12">
+    <div class="rounded-[2.5rem] border-2 border-anica-ink bg-anica-signal p-6 ink-panel md:p-10">
+      <div class="grid gap-8 lg:grid-cols-[0.85fr_1.15fr]">
+        <div>
+          <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-white/70">
+            Motion Graphics & VFX
+          </p>
+          <h2 class="mt-5 text-4xl font-black tracking-[-0.06em] text-white md:text-5xl">
+            Generate motion graphics with natural language.
+          </h2>
+          <p class="mt-5 text-lg leading-8 text-white/72">
+            Anica includes MotionLoom, a GPU-powered motion graphics and VFX runtime built on WGPU. It supports timeline-aware compositing, animated text, overlays, transitions, and procedural effects — all drivable by AI agents from natural language prompts.
+          </p>
+          <div class="mt-8 flex flex-col gap-4 sm:flex-row">
+            <a
+              href={withBase('/motionloom')}
+              class="rounded-full border-2 border-white bg-white px-7 py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-anica-signal shadow-[6px_6px_0_#ffffff40] transition hover:-translate-y-1"
+            >
+              Try MotionLoom
+            </a>
+            <a
+              href="https://github.com/LOVELYZOMBIEYHO/anica/tree/main/crates/motionloom"
+              target="_blank"
+              rel="noreferrer"
+              class="rounded-full border-2 border-white/30 px-7 py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-white transition hover:-translate-y-1 hover:bg-white hover:text-anica-signal"
+            >
+              View Rust source
+            </a>
+          </div>
+        </div>
+
+        <div class="rounded-[2rem] border-2 border-white bg-anica-ink p-4 text-anica-paper">
+          <div class="flex items-center gap-2 border-b border-white/10 pb-4">
+            <span class="size-3 rounded-full bg-anica-signal"></span>
+            <span class="size-3 rounded-full bg-anica-lime"></span>
+            <span class="size-3 rounded-full bg-anica-blue"></span>
+            <span class="ml-auto font-mono text-xs uppercase tracking-[0.24em] text-anica-paper/40">
+              prompt → motionloom dsl
+            </span>
+          </div>
+          <pre class="overflow-x-auto whitespace-pre-wrap p-5 text-sm leading-7"><code>Create an 8-second cyber-style motion graphic using the MotionLoom DSL: black background, white text, typewriter-style reveal for the word "ANICA", with subtle floating movement and slow drifting motion in the air.
+
+The prompt generates MotionLoom DSL code, which you can copy and paste on any compatible computer to reproduce the same motion graphics and VFX.</code></pre>
+        </div>
       </div>
     </div>
   </section>

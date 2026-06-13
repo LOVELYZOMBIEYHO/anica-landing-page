@@ -3,6 +3,29 @@ import BaseLayout from '@components/BaseLayout.astro';
 import SectionHeader from '@components/SectionHeader.astro';
 import { platformStatus, site } from '@data/site';
 
+const buildFromSourceCommand = `git clone https://github.com/LOVELYZOMBIEYHO/anica.git
+cd anica
+cargo run
+
+# or build release binaries
+cargo build --release --bins`;
+
+const cloneAgentPrompt = `Clone the Anica repository and build it from source.
+
+Repository: https://github.com/LOVELYZOMBIEYHO/anica
+
+Run these commands:
+
+${buildFromSourceCommand}
+
+Requirements to check first:
+- Rust toolchain (version pinned in rust-toolchain.toml)
+- FFmpeg and FFprobe available
+- On macOS: Xcode command-line tools installed
+
+If cargo is missing, install Rust via rustup first.
+If FFmpeg is missing, the first cargo run may attempt to bootstrap it, or run the setup script at scripts/setup_media_tools.sh.`;
+
 const installCommand = `URL=$(curl -s https://api.github.com/repos/LOVELYZOMBIEYHO/anica/releases \\
   | grep "browser_download_url" \\
   | grep "macos-apple-silicon.zip" \\
@@ -58,11 +81,97 @@ Note:
           Current status
         </p>
         <p class="mt-4 text-3xl font-black leading-tight tracking-[-0.05em] text-anica-ink">
-          macOS Apple Silicon alpha is available now.
+          Open source. Build from source today.
         </p>
         <p class="mt-4 leading-7 text-anica-ink/72">
-          Anica is currently available only for macOS Apple Silicon. This is an early alpha build and is not notarized yet, so macOS may block it on first launch.
+          Clone the repo and run cargo run to get started for the latest version. A pre-built macOS Apple Silicon alpha is also available for direct download.
         </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-shell py-24">
+    <div class="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+      <div>
+        <SectionHeader
+          eyebrow="Build from source"
+          title="Start here. Clone and build locally."
+          text="The fastest way to get Anica today is to clone the repository and build from source. You get the latest code, can inspect everything, and run right away with cargo."
+        />
+
+        <div class="mt-8 flex flex-col gap-4 sm:flex-row">
+          <a
+            href={site.repoUrl}
+            target="_blank"
+            rel="noreferrer"
+            class="rounded-full border-2 border-anica-ink bg-anica-ink px-7 py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-anica-lime shadow-[6px_6px_0_#d8ff3e] transition hover:-translate-y-1"
+          >
+            Open GitHub
+          </a>
+
+          <a
+            href={site.installDocsUrl}
+            target="_blank"
+            rel="noreferrer"
+            class="rounded-full border-2 border-anica-ink bg-anica-cream px-7 py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-anica-ink shadow-[6px_6px_0_#11120d] transition hover:-translate-y-1"
+          >
+            Install docs
+          </a>
+        </div>
+      </div>
+
+      <div class="rounded-[2rem] border-2 border-anica-ink bg-anica-ink p-4 text-anica-paper ink-panel">
+        <div class="flex items-center gap-2 border-b border-white/10 pb-4">
+          <span class="size-3 rounded-full bg-anica-signal"></span>
+          <span class="size-3 rounded-full bg-anica-lime"></span>
+          <span class="size-3 rounded-full bg-anica-blue"></span>
+          <span class="ml-auto font-mono text-xs uppercase tracking-[0.24em] text-anica-paper/40">
+            build from source
+          </span>
+        </div>
+        <pre class="overflow-x-auto p-5 text-sm leading-7"><code id="build-code">{buildFromSourceCommand}</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-shell py-12">
+    <div class="rounded-[2.5rem] border-2 border-anica-ink bg-anica-blue p-6 ink-panel md:p-10">
+      <div class="grid gap-8 lg:grid-cols-[0.85fr_1.15fr]">
+        <div>
+          <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-ink/70">
+            Codex CLI / Claude Code / Gemini CLI / Cursor
+          </p>
+          <h2 class="mt-5 text-4xl font-black tracking-[-0.06em] text-anica-ink md:text-5xl">
+            Ask your AI coding agent to clone and build.
+          </h2>
+          <p class="mt-5 text-lg leading-8 text-anica-ink/72">
+            Copy this prompt into Codex CLI, Claude Code, Gemini CLI, Cursor, or another coding agent. It tells the agent to clone the Anica repo and build from source for you.
+          </p>
+
+          <button
+            id="copy-clone-prompt-btn"
+            type="button"
+            class="mt-8 rounded-full border-2 border-anica-ink bg-anica-ink px-7 py-4 text-sm font-black uppercase tracking-[0.18em] text-anica-lime shadow-[6px_6px_0_#d8ff3e] transition hover:-translate-y-1"
+          >
+            Copy clone prompt
+          </button>
+
+          <p id="copy-clone-prompt-status" class="mt-4 hidden font-mono text-xs font-bold uppercase tracking-[0.2em] text-anica-ink/70">
+            Clone prompt copied.
+          </p>
+        </div>
+
+        <div class="rounded-[2rem] border-2 border-anica-ink bg-anica-ink p-4 text-anica-paper">
+          <div class="flex items-center gap-2 border-b border-white/10 pb-4">
+            <span class="size-3 rounded-full bg-anica-signal"></span>
+            <span class="size-3 rounded-full bg-anica-lime"></span>
+            <span class="size-3 rounded-full bg-anica-blue"></span>
+            <span class="ml-auto font-mono text-xs uppercase tracking-[0.24em] text-anica-paper/40">
+              prompt
+            </span>
+          </div>
+          <pre class="overflow-x-auto whitespace-pre-wrap p-5 text-sm leading-7"><code id="clone-prompt-code">{cloneAgentPrompt}</code></pre>
+        </div>
       </div>
     </div>
   </section>
@@ -172,33 +281,33 @@ Note:
   </section>
 
   <section class="page-shell py-12">
-    <div class="rounded-[2.5rem] border-2 border-anica-ink bg-anica-blue p-6 ink-panel md:p-10">
+    <div class="rounded-[2.5rem] border-2 border-anica-ink bg-anica-signal p-6 ink-panel md:p-10">
       <div class="grid gap-8 lg:grid-cols-[0.85fr_1.15fr]">
         <div>
-          <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-ink/70">
-            Codex CLI / Claude Code / Gemini CLI
+          <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-white/70">
+            Codex CLI / Claude Code / Gemini CLI / Cursor
           </p>
-          <h2 class="mt-5 text-4xl font-black tracking-[-0.06em] text-anica-ink md:text-5xl">
-            Ask your AI coding agent to install Anica.
+          <h2 class="mt-5 text-4xl font-black tracking-[-0.06em] text-white md:text-5xl">
+            Ask your AI coding agent to install the alpha.
           </h2>
-          <p class="mt-5 text-lg leading-8 text-anica-ink/72">
+          <p class="mt-5 text-lg leading-8 text-white/72">
             Copy this prompt into Codex CLI, Claude Code, Gemini CLI, Cursor, or another coding agent. It tells the agent to fetch the latest macOS Apple Silicon release and run the install command.
           </p>
 
           <button
             id="copy-prompt-btn"
             type="button"
-            class="mt-8 rounded-full border-2 border-anica-ink bg-anica-ink px-7 py-4 text-sm font-black uppercase tracking-[0.18em] text-anica-lime shadow-[6px_6px_0_#d8ff3e] transition hover:-translate-y-1"
+            class="mt-8 rounded-full border-2 border-white bg-white px-7 py-4 text-sm font-black uppercase tracking-[0.18em] text-anica-signal shadow-[6px_6px_0_#ffffff40] transition hover:-translate-y-1"
           >
-            Copy prompt
+            Copy install prompt
           </button>
 
-          <p id="copy-prompt-status" class="mt-4 hidden font-mono text-xs font-bold uppercase tracking-[0.2em] text-anica-ink/70">
-            Prompt copied.
+          <p id="copy-prompt-status" class="mt-4 hidden font-mono text-xs font-bold uppercase tracking-[0.2em] text-white/70">
+            Install prompt copied.
           </p>
         </div>
 
-        <div class="rounded-[2rem] border-2 border-anica-ink bg-anica-ink p-4 text-anica-paper">
+        <div class="rounded-[2rem] border-2 border-white bg-anica-ink p-4 text-anica-paper">
           <div class="flex items-center gap-2 border-b border-white/10 pb-4">
             <span class="size-3 rounded-full bg-anica-signal"></span>
             <span class="size-3 rounded-full bg-anica-lime"></span>
@@ -262,46 +371,6 @@ Note:
     </div>
   </section>
 
-  <section class="page-shell py-24">
-    <div class="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-      <div>
-        <SectionHeader
-          eyebrow="Build from source"
-          title="Prefer source? Build it locally."
-          text="Anica is open source. Developers can still clone the repository, inspect the code, and build from source."
-        />
-
-        <div class="mt-8 flex flex-col gap-4 sm:flex-row">
-          <a
-            href={site.installDocsUrl}
-            target="_blank"
-            rel="noreferrer"
-            class="rounded-full border-2 border-anica-ink bg-anica-cream px-7 py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-anica-ink shadow-[6px_6px_0_#11120d] transition hover:-translate-y-1"
-          >
-            Install docs
-          </a>
-        </div>
-      </div>
-
-      <div class="rounded-[2rem] border-2 border-anica-ink bg-anica-ink p-4 text-anica-paper ink-panel">
-        <div class="flex items-center gap-2 border-b border-white/10 pb-4">
-          <span class="size-3 rounded-full bg-anica-signal"></span>
-          <span class="size-3 rounded-full bg-anica-lime"></span>
-          <span class="size-3 rounded-full bg-anica-blue"></span>
-          <span class="ml-auto font-mono text-xs uppercase tracking-[0.24em] text-anica-paper/40">
-            build from source
-          </span>
-        </div>
-        <pre class="overflow-x-auto p-5 text-sm leading-7"><code>git clone https://github.com/LOVELYZOMBIEYHO/anica.git
-cd anica
-cargo run
-
-# or build release binaries
-cargo build --release --bins</code></pre>
-      </div>
-    </div>
-  </section>
-
   <section class="page-shell py-24 text-center">
     <div class="rounded-[2.5rem] border-2 border-anica-ink bg-anica-ink px-6 py-14 text-anica-paper soft-panel md:px-12">
       <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-lime">
@@ -324,7 +393,7 @@ cargo build --release --bins</code></pre>
     </div>
   </section>
 
-  <script define:vars={{ installCommand, agentPrompt }}>
+  <script define:vars={{ installCommand, agentPrompt, cloneAgentPrompt }}>
     const terminalLabel = document.getElementById('terminal-label');
 
     const installBtn = document.getElementById('install-btn');
@@ -339,6 +408,10 @@ cargo build --release --bins</code></pre>
     const copyPromptBtn = document.getElementById('copy-prompt-btn');
     const copyPromptStatus = document.getElementById('copy-prompt-status');
     const agentPromptCode = document.getElementById('agent-prompt-code');
+
+    const copyClonePromptBtn = document.getElementById('copy-clone-prompt-btn');
+    const copyClonePromptStatus = document.getElementById('copy-clone-prompt-status');
+    const clonePromptCode = document.getElementById('clone-prompt-code');
 
     const activeClasses = [
       'border-anica-lime',
@@ -428,7 +501,12 @@ cargo build --release --bins</code></pre>
 
     copyPromptBtn?.addEventListener('click', () => {
       const promptText = agentPromptCode?.textContent || agentPrompt;
-      copyText(promptText, copyPromptStatus, 'Prompt copied.');
+      copyText(promptText, copyPromptStatus, 'Install prompt copied.');
+    });
+
+    copyClonePromptBtn?.addEventListener('click', () => {
+      const promptText = clonePromptCode?.textContent || cloneAgentPrompt;
+      copyText(promptText, copyClonePromptStatus, 'Clone prompt copied.');
     });
 
     showInstallCommand();
