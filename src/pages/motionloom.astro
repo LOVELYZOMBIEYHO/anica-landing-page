@@ -35,7 +35,6 @@ import BaseLayout from '@components/BaseLayout.astro';
             <div class="flex items-center justify-between">
             <p class="font-mono text-xs font-bold uppercase tracking-wider text-anica-lime">MotionLoom Graph</p>
             <div class="flex gap-2">
-              <button id="btn-compile" class="rounded-full border-2 border-anica-lime bg-anica-lime px-3 py-1 text-xs font-black uppercase tracking-wider text-anica-ink transition hover:-translate-y-0.5">Compile</button>
               <button id="btn-reset" class="rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Process</button>
               <button id="btn-scene" class="rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Scene</button>
             </div>
@@ -123,7 +122,6 @@ import BaseLayout from '@components/BaseLayout.astro';
     (function() {
       const canvas = document.getElementById('motionloom-canvas');
       const editor = document.getElementById('dsl-editor');
-      const compileBtn = document.getElementById('btn-compile');
       const resetBtn = document.getElementById('btn-reset');
       const compileStatus = document.getElementById('compile-status');
       const fileUpload = document.getElementById('file-upload');
@@ -229,6 +227,7 @@ import BaseLayout from '@components/BaseLayout.astro';
       const motionLoomWasmVersion = '2026-06-14-6';
       let motionLoomWasmPromise = null;
       let motionLoomWasmUnavailable = false;
+      let compileDebounceId = null;
 
       let currentImage = new Image();
       let isVideo = false;
@@ -954,6 +953,27 @@ import BaseLayout from '@components/BaseLayout.astro';
       function mix(a, b, t) { return a + (b - a) * t; }
 
       // ---------- UI handlers ----------
+      function scheduleCompile() {
+        if (compileDebounceId) {
+          window.clearTimeout(compileDebounceId);
+        }
+        compileStatus.textContent = 'Editing... compiling in 1s';
+        compileStatus.classList.remove('text-anica-signal');
+        compileStatus.classList.add('text-anica-lime/80');
+        compileDebounceId = window.setTimeout(() => {
+          compileDebounceId = null;
+          compile();
+        }, 1000);
+      }
+
+      function compileNow() {
+        if (compileDebounceId) {
+          window.clearTimeout(compileDebounceId);
+          compileDebounceId = null;
+        }
+        compile();
+      }
+
       async function compile() {
         try {
           stopSceneLoop();
@@ -1014,14 +1034,14 @@ import BaseLayout from '@components/BaseLayout.astro';
       function reset() {
         defaultScript = processScript;
         editor.value = defaultScript;
-        compile();
+        compileNow();
       }
 
       const sceneBtn = document.getElementById('btn-scene');
       sceneBtn.addEventListener('click', () => {
         defaultScript = sceneScript;
         editor.value = sceneScript;
-        compile();
+        compileNow();
       });
 
       fileUpload.addEventListener('change', (e) => {
@@ -1085,10 +1105,10 @@ import BaseLayout from '@components/BaseLayout.astro';
       compareBtn.addEventListener('touchstart', (e) => { e.preventDefault(); showOriginal(); });
       compareBtn.addEventListener('touchend', (e) => { e.preventDefault(); showEffect(); });
 
-      compileBtn.addEventListener('click', compile);
       resetBtn.addEventListener('click', reset);
+      editor.addEventListener('input', scheduleCompile);
       editor.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) compile();
+        if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) compileNow();
       });
     })();
   </script>
