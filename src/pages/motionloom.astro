@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '@components/BaseLayout.astro';
-import { withBase } from '@utils/url';
 ---
 
 <BaseLayout
@@ -71,7 +70,7 @@ import { withBase } from '@utils/url';
             Source: <span id="source-name">demo.jpg</span> (public domain)
           </p>
           <p class="mt-1 text-[0.65rem] italic text-anica-paper/35">
-            This is a MotionLoom demo showcase. It does not mean MotionLoom can currently run in the browser.
+            If a MotionLoom WASM package is deployed, Scene graphs render through Rust/WASM; otherwise this page falls back to the Canvas 2D showcase.
           </p>
         </div>
       </div>
@@ -117,7 +116,7 @@ import { withBase } from '@utils/url';
     </div>
   </section>
 
-  <script define:vars={{ baseUrl: import.meta.env.BASE_URL }}>
+  <script is:inline define:vars={{ baseUrl: import.meta.env.BASE_URL }}>
     window.MOTIONLOOM_BASE = baseUrl;
   </script>
   <script is:inline>
@@ -130,6 +129,7 @@ import { withBase } from '@utils/url';
       const fileUpload = document.getElementById('file-upload');
       const sourceName = document.getElementById('source-name');
       const downloadBtn = document.getElementById('btn-download');
+      const webgpuStatus = document.getElementById('webgpu-status');
       const ctx = canvas.getContext('2d');
 
       const processScript = `<Graph fps={60} size={[1920,1080]}>
@@ -225,6 +225,10 @@ import { withBase } from '@utils/url';
 
       const base = (typeof window !== 'undefined' && window.MOTIONLOOM_BASE) ? window.MOTIONLOOM_BASE : '/';
       const demoImageUrl = base.replace(/\/$/, '') + '/demo.jpg';
+      const wasmPkgBase = base.replace(/\/$/, '') + '/motionloom-wasm/pkg';
+      const motionLoomWasmVersion = '2026-06-14-6';
+      let motionLoomWasmPromise = null;
+      let motionLoomWasmUnavailable = false;
 
       let currentImage = new Image();
       let isVideo = false;
@@ -235,6 +239,132 @@ import { withBase } from '@utils/url';
         compileStatus.textContent = 'Failed to load default image';
         compileStatus.classList.add('text-anica-signal');
       };
+
+      async function loadMotionLoomWasm() {
+        if (motionLoomWasmUnavailable) return null;
+        if (motionLoomWasmPromise) return motionLoomWasmPromise;
+
+        const wasmJsUrl = `${wasmPkgBase}/motionloom.js?v=${motionLoomWasmVersion}`;
+        const wasmBinaryUrl = `${wasmPkgBase}/motionloom_bg.wasm?v=${motionLoomWasmVersion}`;
+
+        motionLoomWasmPromise = import(/* @vite-ignore */ wasmJsUrl)
+          .then(async (mod) => {
+            if (typeof mod.default === 'function') {
+              await mod.default({ module_or_path: wasmBinaryUrl });
+            }
+            return mod;
+          })
+          .catch((err) => {
+            motionLoomWasmUnavailable = true;
+            console.info('MotionLoom WASM package unavailable; using Canvas fallback.', err);
+            return null;
+          });
+
+        return motionLoomWasmPromise;
+      }
+
+      function formatWasmError(err) {
+        if (!err) return 'unknown error';
+        if (typeof err === 'string') return err;
+        return err.message || err.toString();
+      }
+
+      function drawRgbaBuffer(rgba, width, height) {
+        canvas.width = width;
+        canvas.height = height;
+        const clamped = rgba instanceof Uint8ClampedArray
+          ? rgba
+          : ArrayBuffer.isView(rgba)
+            ? new Uint8ClampedArray(rgba.buffer, rgba.byteOffset, rgba.byteLength)
+            : new Uint8ClampedArray(rgba);
+        ctx.putImageData(new ImageData(clamped, width, height), 0, 0);
+      }
+
+      async function withTimeout(promise, ms, message) {
+        let timeoutId;
+        const timeout = new Promise((_, reject) => {
+          timeoutId = window.setTimeout(() => reject(new Error(message)), ms);
+        });
+        try {
+          return await Promise.race([promise, timeout]);
+        } finally {
+          window.clearTimeout(timeoutId);
+        }
+      }
+
+      async function tryRenderSceneWithWasm(script, graph) {
+        let renderer = null;
+        try {
+          webgpuStatus.textContent = 'Loading MotionLoom WASM...';
+          const mod = await withTimeout(
+            loadMotionLoomWasm(),
+            15000,
+            'MotionLoom WASM load timed out'
+          );
+          if (!mod || typeof mod.WasmSceneRenderer !== 'function') {
+            webgpuStatus.textContent = 'Canvas 2D fallback';
+            return false;
+          }
+
+          const size = graph.renderSize || graph.size;
+          renderer = new mod.WasmSceneRenderer(script, 'cpu');
+          startWasmSceneLoop(renderer, graph, size);
+          renderer = null;
+          webgpuStatus.textContent = 'MotionLoom WASM CPU';
+          return true;
+        } catch (err) {
+          window.__motionloomWasmError = err;
+          console.warn('MotionLoom WASM render failed; using Canvas fallback.', err);
+          webgpuStatus.textContent = `Canvas fallback: ${formatWasmError(err)}`;
+          return false;
+        } finally {
+          if (renderer && typeof renderer.free === 'function') {
+            renderer.free();
+          }
+        }
+      }
+
+      function readSourceRgba(sourceImage) {
+        const width = sourceImage.width || sourceImage.videoWidth || 1920;
+        const height = sourceImage.height || sourceImage.videoHeight || 1080;
+        const off = document.createElement('canvas');
+        off.width = width;
+        off.height = height;
+        const offCtx = off.getContext('2d');
+        offCtx.drawImage(sourceImage, 0, 0, width, height);
+        return {
+          width,
+          height,
+          rgba: offCtx.getImageData(0, 0, width, height).data
+        };
+      }
+
+      async function tryRenderProcessWithWasm(script, sourceImage) {
+        try {
+          webgpuStatus.textContent = 'Loading MotionLoom WASM...';
+          const mod = await withTimeout(
+            loadMotionLoomWasm(),
+            15000,
+            'MotionLoom WASM load timed out'
+          );
+          if (!mod || typeof mod.motionloom_render_process_frame !== 'function') {
+            webgpuStatus.textContent = 'Canvas 2D pipeline';
+            return false;
+          }
+
+          const { width, height, rgba } = readSourceRgba(sourceImage);
+          webgpuStatus.textContent = 'Rendering process with MotionLoom WASM...';
+          const rendered = mod.motionloom_render_process_frame(script, 0, width, height, rgba);
+          drawRgbaBuffer(rendered, width, height);
+          webgpuStatus.textContent = 'MotionLoom WASM Process CPU';
+          return true;
+        } catch (err) {
+          window.__motionloomWasmProcessError = err;
+          console.warn('MotionLoom WASM process render failed; using Canvas fallback.', err);
+          webgpuStatus.textContent = `Canvas process fallback: ${formatWasmError(err)}`;
+          return false;
+        }
+      }
 
       // ---------- Simple MotionLoom Graph Parser ----------
       function parseGraph(src) {
@@ -549,7 +679,8 @@ import { withBase } from '@utils/url';
       let sceneAnimationId = null;
       let sceneStartTime = 0;
       let isScenePlaying = false;
-      let currentGraph = null;
+      let sceneLoopToken = 0;
+      let wasmSceneRenderer = null;
 
       function executeScene(graph, time) {
         const size = graph.renderSize || graph.size;
@@ -673,11 +804,48 @@ import { withBase } from '@utils/url';
         return t; // linear
       }
 
-      function startSceneLoop(graph) {
-        if (sceneAnimationId) cancelAnimationFrame(sceneAnimationId);
+      function startWasmSceneLoop(renderer, graph, size) {
+        stopSceneLoop();
+        wasmSceneRenderer = renderer;
         isScenePlaying = true;
         sceneStartTime = performance.now();
-        currentGraph = graph;
+        const token = ++sceneLoopToken;
+        const fps = Math.max(1, graph.fps || 30);
+        const totalFrames = Math.max(1, renderer.total_frames || Math.round((graph.duration || 1) * fps));
+        let renderInFlight = false;
+
+        async function loop() {
+          if (!isScenePlaying || token !== sceneLoopToken) return;
+          if (!renderInFlight) {
+            renderInFlight = true;
+            const elapsed = (performance.now() - sceneStartTime) / 1000;
+            const frame = Math.floor(elapsed * fps) % totalFrames;
+            try {
+              const rgba = await renderer.render_frame(frame);
+              if (isScenePlaying && token === sceneLoopToken) {
+                drawRgbaBuffer(rgba, size[0], size[1]);
+              }
+            } catch (err) {
+              window.__motionloomWasmError = err;
+              console.warn('MotionLoom WASM scene loop failed; stopping.', err);
+              webgpuStatus.textContent = `WASM stopped: ${formatWasmError(err)}`;
+              stopSceneLoop();
+              return;
+            } finally {
+              renderInFlight = false;
+            }
+          }
+          sceneAnimationId = requestAnimationFrame(loop);
+        }
+
+        sceneAnimationId = requestAnimationFrame(loop);
+      }
+
+      function startSceneLoop(graph) {
+        if (sceneAnimationId) cancelAnimationFrame(sceneAnimationId);
+        sceneLoopToken++;
+        isScenePlaying = true;
+        sceneStartTime = performance.now();
         function loop() {
           if (!isScenePlaying) return;
           const elapsed = (performance.now() - sceneStartTime) / 1000;
@@ -688,11 +856,16 @@ import { withBase } from '@utils/url';
       }
 
       function stopSceneLoop() {
+        sceneLoopToken++;
         isScenePlaying = false;
         if (sceneAnimationId) {
           cancelAnimationFrame(sceneAnimationId);
           sceneAnimationId = null;
         }
+        if (wasmSceneRenderer && typeof wasmSceneRenderer.free === 'function') {
+          wasmSceneRenderer.free();
+        }
+        wasmSceneRenderer = null;
       }
 
       function applyHslaOverlay(ctx, w, h, params) {
@@ -781,7 +954,7 @@ import { withBase } from '@utils/url';
       function mix(a, b, t) { return a + (b - a) * t; }
 
       // ---------- UI handlers ----------
-      function compile() {
+      async function compile() {
         try {
           stopSceneLoop();
           const graph = parseGraph(editor.value);
@@ -796,6 +969,10 @@ import { withBase } from '@utils/url';
             compileStatus.textContent = `Compiled: ${graph.scenes.length} scene(s), ${layerCount} layer(s) | ${graph.fps}fps, ${graph.duration}s`;
             compileStatus.classList.remove('text-anica-signal');
             compileStatus.classList.add('text-anica-lime/80');
+            if (await tryRenderSceneWithWasm(editor.value, graph)) {
+              compileStatus.textContent += ' | rendered by MotionLoom WASM';
+              return;
+            }
             startSceneLoop(graph);
           } else {
             // Process graph mode
@@ -819,6 +996,11 @@ import { withBase } from '@utils/url';
             compileStatus.classList.add('text-anica-lime/80');
 
             if (currentImage.complete || isVideo) {
+              if (await tryRenderProcessWithWasm(editor.value, currentImage)) {
+                compileStatus.textContent += ' | rendered by MotionLoom WASM';
+                return;
+              }
+              webgpuStatus.textContent = 'Canvas 2D pipeline';
               executeGraph(graph, currentImage);
             }
           }

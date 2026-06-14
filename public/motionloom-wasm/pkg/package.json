@@ -1,0 +1,22 @@
+{
+  "name": "motionloom",
+  "type": "module",
+  "description": "MotionLoom DSL parser and renderer for video effects, scene graphs, motion graphics, and world graphs.",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LOVELYZOMBIEYHO/anica"
+  },
+  "files": [
+    "motionloom_bg.wasm",
+    "motionloom.js",
+    "motionloom.d.ts"
+  ],
+  "main": "motionloom.js",
+  "homepage": "https://github.com/LOVELYZOMBIEYHO/anica",
+  "types": "motionloom.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
