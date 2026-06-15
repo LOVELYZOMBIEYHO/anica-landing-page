@@ -250,6 +250,8 @@ const __wbindgen_enum_GpuBlendOperation = ["add", "subtract", "reverse-subtract"
 
 const __wbindgen_enum_GpuBufferBindingType = ["uniform", "storage", "read-only-storage"];
 
+const __wbindgen_enum_GpuCanvasAlphaMode = ["opaque", "premultiplied"];
+
 const __wbindgen_enum_GpuCompareFunction = ["never", "less", "equal", "less-equal", "greater", "not-equal", "greater-equal", "always"];
 
 const __wbindgen_enum_GpuCullMode = ["none", "front", "back"];
@@ -306,6 +308,13 @@ const WasmWorldRendererFinalization = (typeof FinalizationRegistry === 'undefine
  * renderer do not affect any other renderer or the global state.
  */
 export class WasmSceneRenderer {
+    static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(WasmSceneRenderer.prototype);
+        obj.__wbg_ptr = ptr;
+        WasmSceneRendererFinalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+    }
     __destroy_into_raw() {
         const ptr = this.__wbg_ptr;
         this.__wbg_ptr = 0;
@@ -335,6 +344,23 @@ export class WasmSceneRenderer {
         return this;
     }
     /**
+     * Asynchronously parse `script` and initialize the persistent renderer.
+     *
+     * Browser hosts should prefer this factory for animated GPU preview loops
+     * because repeated frame renders reuse the same Rust/WGPU renderer.
+     * @param {string} script
+     * @param {string} profile
+     * @returns {Promise<WasmSceneRenderer>}
+     */
+    static create(script, profile) {
+        const ptr0 = passStringToWasm0(script, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(profile, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.wasmscenerenderer_create(ptr0, len0, ptr1, len1);
+        return ret;
+    }
+    /**
      * Register an in-memory asset for this renderer only.
      *
      * The `name` should match the `src` attribute used in `<Image>` or `<Svg>`
@@ -362,6 +388,52 @@ export class WasmSceneRenderer {
      */
     render_frame(frame) {
         const ret = wasm.wasmscenerenderer_render_frame(this.__wbg_ptr, frame);
+        return ret;
+    }
+    /**
+     * Render `frame` directly into an HTML canvas using the GPU canvas path.
+     *
+     * The renderer profile must be `"gpu"`. CPU profiles continue to use
+     * `render_frame`, which returns RGBA bytes for Canvas2D/ImageData hosts.
+     * @param {number} frame
+     * @param {HTMLCanvasElement} canvas
+     * @returns {Promise<void>}
+     */
+    render_frame_to_canvas(frame, canvas) {
+        const ret = wasm.wasmscenerenderer_render_frame_to_canvas(this.__wbg_ptr, frame, canvas);
+        return ret;
+    }
+    /**
+     * Draw a solid WebGPU color into the canvas using this renderer's GPU device.
+     * @param {HTMLCanvasElement} canvas
+     * @param {number} width
+     * @param {number} height
+     * @returns {Promise<void>}
+     */
+    debug_solid_to_canvas(canvas, width, height) {
+        const ret = wasm.wasmscenerenderer_debug_solid_to_canvas(this.__wbg_ptr, canvas, width, height);
+        return ret;
+    }
+    /**
+     * Upload a blue WebGPU texture and present it to the canvas.
+     * @param {HTMLCanvasElement} canvas
+     * @param {number} width
+     * @param {number} height
+     * @returns {Promise<void>}
+     */
+    debug_uploaded_texture_to_canvas(canvas, width, height) {
+        const ret = wasm.wasmscenerenderer_debug_uploaded_texture_to_canvas(this.__wbg_ptr, canvas, width, height);
+        return ret;
+    }
+    /**
+     * Render a white empty scene texture and present it to the canvas.
+     * @param {HTMLCanvasElement} canvas
+     * @param {number} width
+     * @param {number} height
+     * @returns {Promise<void>}
+     */
+    debug_empty_scene_texture_to_canvas(canvas, width, height) {
+        const ret = wasm.wasmscenerenderer_debug_empty_scene_texture_to_canvas(this.__wbg_ptr, canvas, width, height);
         return ret;
     }
     /**
@@ -515,6 +587,25 @@ export function motionloom_render_process_frame(script, frame, width, height, rg
 }
 
 /**
+ * Render one frame of a process graph directly to an HTML canvas with WebGPU.
+ * @param {string} script
+ * @param {number} frame
+ * @param {number} width
+ * @param {number} height
+ * @param {Uint8Array} rgba
+ * @param {HTMLCanvasElement} canvas
+ * @returns {Promise<void>}
+ */
+export function motionloom_render_process_frame_to_canvas_gpu(script, frame, width, height, rgba, canvas) {
+    const ptr0 = passStringToWasm0(script, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passArray8ToWasm0(rgba, wasm.__wbindgen_malloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ret = wasm.motionloom_render_process_frame_to_canvas_gpu(ptr0, len0, frame, width, height, ptr1, len1, canvas);
+    return ret;
+}
+
+/**
  * Render one frame of a scene graph script to an RGBA byte buffer.
  *
  * The returned `Vec<u8>` is row-major RGBA with dimensions `(width, height)`.
@@ -533,6 +624,26 @@ export function motionloom_render_scene_frame(script, frame, width, height) {
     const ptr0 = passStringToWasm0(script, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     const len0 = WASM_VECTOR_LEN;
     const ret = wasm.motionloom_render_scene_frame(ptr0, len0, frame, width, height);
+    return ret;
+}
+
+/**
+ * Render one scene frame directly into an HTML canvas using the WASM WebGPU path.
+ *
+ * This is the first no-readback canvas path. It is strict: only GPU-native
+ * scene graphs are accepted, and unsupported nodes return an error instead of
+ * silently falling back to CPU.
+ * @param {string} script
+ * @param {number} frame
+ * @param {number} width
+ * @param {number} height
+ * @param {HTMLCanvasElement} canvas
+ * @returns {Promise<void>}
+ */
+export function motionloom_render_scene_frame_to_canvas_gpu(script, frame, width, height, canvas) {
+    const ptr0 = passStringToWasm0(script, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ret = wasm.motionloom_render_scene_frame_to_canvas_gpu(ptr0, len0, frame, width, height, canvas);
     return ret;
 }
 
@@ -578,6 +689,42 @@ export function motionloom_render_world_frame(script, frame, asset_root) {
     var v3 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
     wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
     return v3;
+}
+
+/**
+ * Render a white empty scene texture and present it to an HTML canvas for debugging.
+ * @param {HTMLCanvasElement} canvas
+ * @param {number} width
+ * @param {number} height
+ * @returns {Promise<void>}
+ */
+export function motionloom_webgpu_debug_empty_scene_texture_to_canvas(canvas, width, height) {
+    const ret = wasm.motionloom_webgpu_debug_empty_scene_texture_to_canvas(canvas, width, height);
+    return ret;
+}
+
+/**
+ * Draw a solid WebGPU color into an HTML canvas for debugging browser surface presentation.
+ * @param {HTMLCanvasElement} canvas
+ * @param {number} width
+ * @param {number} height
+ * @returns {Promise<void>}
+ */
+export function motionloom_webgpu_debug_solid_to_canvas(canvas, width, height) {
+    const ret = wasm.motionloom_webgpu_debug_solid_to_canvas(canvas, width, height);
+    return ret;
+}
+
+/**
+ * Upload a blue WebGPU texture and present it to an HTML canvas for debugging.
+ * @param {HTMLCanvasElement} canvas
+ * @param {number} width
+ * @param {number} height
+ * @returns {Promise<void>}
+ */
+export function motionloom_webgpu_debug_uploaded_texture_to_canvas(canvas, width, height) {
+    const ret = wasm.motionloom_webgpu_debug_uploaded_texture_to_canvas(canvas, width, height);
+    return ret;
 }
 
 const EXPECTED_RESPONSE_TYPES = new Set(['basic', 'cors', 'default']);
@@ -668,6 +815,9 @@ function __wbg_get_imports() {
         const ret = arg0.call(arg1);
         return ret;
     }, arguments) };
+    imports.wbg.__wbg_configure_86dd92dde48d105a = function() { return handleError(function (arg0, arg1) {
+        arg0.configure(arg1);
+    }, arguments) };
     imports.wbg.__wbg_copyTextureToBuffer_bb350c95b19e5999 = function() { return handleError(function (arg0, arg1, arg2, arg3) {
         arg0.copyTextureToBuffer(arg1, arg2, arg3);
     }, arguments) };
@@ -721,6 +871,10 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_dispatchWorkgroups_6558b6463978b7da = function(arg0, arg1, arg2, arg3) {
         arg0.dispatchWorkgroups(arg1 >>> 0, arg2 >>> 0, arg3 >>> 0);
     };
+    imports.wbg.__wbg_document_5b745e82ba551ca5 = function(arg0) {
+        const ret = arg0.document;
+        return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
+    };
     imports.wbg.__wbg_draw_d38c9207eb049f56 = function(arg0, arg1, arg2, arg3, arg4) {
         arg0.draw(arg1 >>> 0, arg2 >>> 0, arg3 >>> 0, arg4 >>> 0);
     };
@@ -738,10 +892,30 @@ function __wbg_get_imports() {
         const ret = arg0.finish(arg1);
         return ret;
     };
+    imports.wbg.__wbg_getContext_01f42b234e833f0a = function() { return handleError(function (arg0, arg1, arg2) {
+        const ret = arg0.getContext(getStringFromWasm0(arg1, arg2));
+        return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
+    }, arguments) };
+    imports.wbg.__wbg_getContext_2f210d0a58d43d95 = function() { return handleError(function (arg0, arg1, arg2) {
+        const ret = arg0.getContext(getStringFromWasm0(arg1, arg2));
+        return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
+    }, arguments) };
+    imports.wbg.__wbg_getCurrentTexture_6ee19b05d6ba43ba = function() { return handleError(function (arg0) {
+        const ret = arg0.getCurrentTexture();
+        return ret;
+    }, arguments) };
     imports.wbg.__wbg_getMappedRange_b986a889b6b53379 = function() { return handleError(function (arg0, arg1, arg2) {
         const ret = arg0.getMappedRange(arg1, arg2);
         return ret;
     }, arguments) };
+    imports.wbg.__wbg_getPreferredCanvasFormat_c56b5a9a243fe942 = function(arg0) {
+        const ret = arg0.getPreferredCanvasFormat();
+        return (__wbindgen_enum_GpuTextureFormat.indexOf(ret) + 1 || 96) - 1;
+    };
+    imports.wbg.__wbg_get_c53d381635aa3929 = function(arg0, arg1) {
+        const ret = arg0[arg1 >>> 0];
+        return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
+    };
     imports.wbg.__wbg_gpu_1b22165b67dd5a59 = function(arg0) {
         const ret = arg0.gpu;
         return ret;
@@ -750,6 +924,26 @@ function __wbg_get_imports() {
         let result;
         try {
             result = arg0 instanceof GPUAdapter;
+        } catch (_) {
+            result = false;
+        }
+        const ret = result;
+        return ret;
+    };
+    imports.wbg.__wbg_instanceof_GpuCanvasContext_4ea475a10f693c29 = function(arg0) {
+        let result;
+        try {
+            result = arg0 instanceof GPUCanvasContext;
+        } catch (_) {
+            result = false;
+        }
+        const ret = result;
+        return ret;
+    };
+    imports.wbg.__wbg_instanceof_Window_b5cf7783caa68180 = function(arg0) {
+        let result;
+        try {
+            result = arg0 instanceof Window;
         } catch (_) {
             result = false;
         }
@@ -948,6 +1142,10 @@ function __wbg_get_imports() {
         const ret = arg0.push(arg1);
         return ret;
     };
+    imports.wbg.__wbg_querySelectorAll_aa1048eae18f6f1a = function() { return handleError(function (arg0, arg1, arg2) {
+        const ret = arg0.querySelectorAll(getStringFromWasm0(arg1, arg2));
+        return ret;
+    }, arguments) };
     imports.wbg.__wbg_queueMicrotask_9b549dfce8865860 = function(arg0) {
         const ret = arg0.queueMicrotask;
         return ret;
@@ -1016,6 +1214,9 @@ function __wbg_get_imports() {
     };
     imports.wbg.__wbg_set_alpha_2c7bdc9da833b6c2 = function(arg0, arg1) {
         arg0.alpha = arg1;
+    };
+    imports.wbg.__wbg_set_alpha_mode_fc3528d234b1fefa = function(arg0, arg1) {
+        arg0.alphaMode = __wbindgen_enum_GpuCanvasAlphaMode[arg1];
     };
     imports.wbg.__wbg_set_alpha_to_coverage_enabled_314ce1ca1759b395 = function(arg0, arg1) {
         arg0.alphaToCoverageEnabled = arg1 !== 0;
@@ -1146,6 +1347,9 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_set_depth_write_enabled_4368a2fe5d258cb0 = function(arg0, arg1) {
         arg0.depthWriteEnabled = arg1 !== 0;
     };
+    imports.wbg.__wbg_set_device_d372d6aa06f20cae = function(arg0, arg1) {
+        arg0.device = arg1;
+    };
     imports.wbg.__wbg_set_dimension_268b2b7bfc3e2bb8 = function(arg0, arg1) {
         arg0.dimension = __wbindgen_enum_GpuTextureDimension[arg1];
     };
@@ -1179,6 +1383,9 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_set_fail_op_d55bda42958efa98 = function(arg0, arg1) {
         arg0.failOp = __wbindgen_enum_GpuStencilOperation[arg1];
     };
+    imports.wbg.__wbg_set_format_69ba449c0e080708 = function(arg0, arg1) {
+        arg0.format = __wbindgen_enum_GpuTextureFormat[arg1];
+    };
     imports.wbg.__wbg_set_format_713b9e90b13df6aa = function(arg0, arg1) {
         arg0.format = __wbindgen_enum_GpuVertexFormat[arg1];
     };
@@ -1209,7 +1416,13 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_set_has_dynamic_offset_b34dfdba692a7959 = function(arg0, arg1) {
         arg0.hasDynamicOffset = arg1 !== 0;
     };
+    imports.wbg.__wbg_set_height_6f8f8ef4cb40e496 = function(arg0, arg1) {
+        arg0.height = arg1 >>> 0;
+    };
     imports.wbg.__wbg_set_height_a7439239ff109215 = function(arg0, arg1) {
+        arg0.height = arg1 >>> 0;
+    };
+    imports.wbg.__wbg_set_height_afe09c24165867f7 = function(arg0, arg1) {
         arg0.height = arg1 >>> 0;
     };
     imports.wbg.__wbg_set_label_0fab35538b0283a8 = function(arg0, arg1, arg2) {
@@ -1458,6 +1671,9 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_set_usage_44ebc3b496e60ff4 = function(arg0, arg1) {
         arg0.usage = arg1 >>> 0;
     };
+    imports.wbg.__wbg_set_usage_4cf7b16df5617a46 = function(arg0, arg1) {
+        arg0.usage = arg1 >>> 0;
+    };
     imports.wbg.__wbg_set_usage_c45cca4a5b9f8376 = function(arg0, arg1) {
         arg0.usage = arg1 >>> 0;
     };
@@ -1479,6 +1695,9 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_set_view_dimension_f5d4b5336a27d302 = function(arg0, arg1) {
         arg0.viewDimension = __wbindgen_enum_GpuTextureViewDimension[arg1];
     };
+    imports.wbg.__wbg_set_view_formats_0cfe174ac882efaf = function(arg0, arg1) {
+        arg0.viewFormats = arg1;
+    };
     imports.wbg.__wbg_set_view_formats_c566feb1da7b1925 = function(arg0, arg1) {
         arg0.viewFormats = arg1;
     };
@@ -1486,6 +1705,12 @@ function __wbg_get_imports() {
         arg0.visibility = arg1 >>> 0;
     };
     imports.wbg.__wbg_set_width_056381a7176ba440 = function(arg0, arg1) {
+        arg0.width = arg1 >>> 0;
+    };
+    imports.wbg.__wbg_set_width_0a22c810f06a5152 = function(arg0, arg1) {
+        arg0.width = arg1 >>> 0;
+    };
+    imports.wbg.__wbg_set_width_7ff7a22c6e9f423e = function(arg0, arg1) {
         arg0.width = arg1 >>> 0;
     };
     imports.wbg.__wbg_set_write_mask_c381ff702509999c = function(arg0, arg1) {
@@ -1530,6 +1755,10 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_unmap_7b299155f31a9d79 = function(arg0) {
         arg0.unmap();
     };
+    imports.wbg.__wbg_wasmscenerenderer_new = function(arg0) {
+        const ret = WasmSceneRenderer.__wrap(arg0);
+        return ret;
+    };
     imports.wbg.__wbg_writeBuffer_3193eaacefdcf39a = function() { return handleError(function (arg0, arg1, arg2, arg3, arg4, arg5) {
         arg0.writeBuffer(arg1, arg2, arg3, arg4, arg5);
     }, arguments) };
@@ -1539,11 +1768,6 @@ function __wbg_get_imports() {
     imports.wbg.__wbindgen_cast_2241b6af4c4b2941 = function(arg0, arg1) {
         // Cast intrinsic for `Ref(String) -> Externref`.
         const ret = getStringFromWasm0(arg0, arg1);
-        return ret;
-    };
-    imports.wbg.__wbindgen_cast_4c7cfc910d5ce480 = function(arg0, arg1) {
-        // Cast intrinsic for `Closure(Closure { dtor_idx: 676, function: Function { arguments: [Externref], shim_idx: 677, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
-        const ret = makeMutClosure(arg0, arg1, wasm.wasm_bindgen__closure__destroy__he641b6fd31452946, wasm_bindgen__convert__closures_____invoke__hc3b6624aebeecb55);
         return ret;
     };
     imports.wbg.__wbindgen_cast_77bc3e92745e9a35 = function(arg0, arg1) {
@@ -1561,6 +1785,11 @@ function __wbg_get_imports() {
     imports.wbg.__wbindgen_cast_d6cd19b81560fd6e = function(arg0) {
         // Cast intrinsic for `F64 -> Externref`.
         const ret = arg0;
+        return ret;
+    };
+    imports.wbg.__wbindgen_cast_d871b54798cd90af = function(arg0, arg1) {
+        // Cast intrinsic for `Closure(Closure { dtor_idx: 725, function: Function { arguments: [Externref], shim_idx: 726, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
+        const ret = makeMutClosure(arg0, arg1, wasm.wasm_bindgen__closure__destroy__he641b6fd31452946, wasm_bindgen__convert__closures_____invoke__hc3b6624aebeecb55);
         return ret;
     };
     imports.wbg.__wbindgen_init_externref_table = function() {

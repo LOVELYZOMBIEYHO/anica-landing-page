@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "astro dev --base /",
     "start": "astro dev --base /",
+    "build:motionloom-wasm": "wasm-pack build ../anica/crates/motionloom --target web --out-dir ../../../anica-landing-page/public/motionloom-wasm/pkg",
     "build": "astro check && astro build",
     "check": "astro check",
     "preview": "astro preview"

@@ -60,7 +60,8 @@ import BaseLayout from '@components/BaseLayout.astro';
             </div>
           </div>
           <div class="relative flex-1 min-h-[320px] overflow-hidden rounded-2xl border-2 border-anica-ink/40 bg-black">
-            <canvas id="motionloom-canvas" class="h-full w-full object-contain"></canvas>
+            <canvas id="motionloom-canvas-webgpu" class="absolute inset-0 h-full w-full object-contain opacity-0"></canvas>
+            <canvas id="motionloom-canvas" class="absolute inset-0 h-full w-full object-contain opacity-100"></canvas>
             <div id="webgpu-status" class="absolute bottom-3 left-3 rounded-full border border-anica-lime/30 bg-anica-ink/80 px-3 py-1 font-mono text-xs text-anica-lime backdrop-blur-md">
               Canvas 2D pipeline
             </div>
@@ -121,6 +122,7 @@ import BaseLayout from '@components/BaseLayout.astro';
   <script is:inline>
     (function() {
       const canvas = document.getElementById('motionloom-canvas');
+      const gpuCanvas = document.getElementById('motionloom-canvas-webgpu');
       const editor = document.getElementById('dsl-editor');
       const resetBtn = document.getElementById('btn-reset');
       const compileStatus = document.getElementById('compile-status');
@@ -129,6 +131,7 @@ import BaseLayout from '@components/BaseLayout.astro';
       const downloadBtn = document.getElementById('btn-download');
       const webgpuStatus = document.getElementById('webgpu-status');
       const ctx = canvas.getContext('2d');
+      let activePreviewCanvas = canvas;
 
       const processScript = `<Graph fps={60} size={[1920,1080]}>
   <Process id="layer_fx">
@@ -146,7 +149,7 @@ import BaseLayout from '@components/BaseLayout.astro';
           alpha: "0.25"
         }} />
     <Pass id="fx_blur" kind="compute"
-        effect="gaussian_5tap_h"
+        effect="gaussian_5tap_blur"
         in={["stage1"]} out={["out"]}
         params={{
           sigma: "5.0"
@@ -224,7 +227,7 @@ import BaseLayout from '@components/BaseLayout.astro';
       const base = (typeof window !== 'undefined' && window.MOTIONLOOM_BASE) ? window.MOTIONLOOM_BASE : '/';
       const demoImageUrl = base.replace(/\/$/, '') + '/demo.jpg';
       const wasmPkgBase = base.replace(/\/$/, '') + '/motionloom-wasm/pkg';
-      const motionLoomWasmVersion = '2026-06-14-6';
+      const motionLoomWasmVersion = '2026-06-14-8';
       let motionLoomWasmPromise = null;
       let motionLoomWasmUnavailable = false;
       let compileDebounceId = null;
@@ -269,6 +272,7 @@ import BaseLayout from '@components/BaseLayout.astro';
       }
 
       function drawRgbaBuffer(rgba, width, height) {
+        showCanvas2dPreview();
         canvas.width = width;
         canvas.height = height;
         const clamped = rgba instanceof Uint8ClampedArray
@@ -277,6 +281,24 @@ import BaseLayout from '@components/BaseLayout.astro';
             ? new Uint8ClampedArray(rgba.buffer, rgba.byteOffset, rgba.byteLength)
             : new Uint8ClampedArray(rgba);
         ctx.putImageData(new ImageData(clamped, width, height), 0, 0);
+      }
+
+      function showCanvas2dPreview() {
+        activePreviewCanvas = canvas;
+        gpuCanvas.classList.add('opacity-0');
+        gpuCanvas.classList.remove('opacity-100');
+        canvas.classList.add('opacity-100');
+        canvas.classList.remove('opacity-0');
+      }
+
+      function showWebGpuPreview(width, height) {
+        activePreviewCanvas = gpuCanvas;
+        gpuCanvas.width = width;
+        gpuCanvas.height = height;
+        canvas.classList.add('opacity-0');
+        canvas.classList.remove('opacity-100');
+        gpuCanvas.classList.add('opacity-100');
+        gpuCanvas.classList.remove('opacity-0');
       }
 
       async function withTimeout(promise, ms, message) {
@@ -306,11 +328,38 @@ import BaseLayout from '@components/BaseLayout.astro';
           }
 
           const size = graph.renderSize || graph.size;
+
+          if (navigator.gpu) {
+            try {
+              renderer = typeof mod.WasmSceneRenderer.create === 'function'
+                ? await mod.WasmSceneRenderer.create(script, 'gpu')
+                : new mod.WasmSceneRenderer(script, 'gpu');
+              if (typeof renderer.render_frame_to_canvas !== 'function') {
+                throw new Error('WASM package does not expose render_frame_to_canvas');
+              }
+              showWebGpuPreview(size[0], size[1]);
+              await renderer.render_frame_to_canvas(0, gpuCanvas);
+              startWasmSceneLoop(renderer, graph, size, 'webgpu');
+              renderer = null;
+              webgpuStatus.textContent = 'MotionLoom WASM WebGPU';
+              return 'MotionLoom WASM WebGPU';
+            } catch (err) {
+              if (renderer && typeof renderer.free === 'function') {
+                renderer.free();
+              }
+              renderer = null;
+              console.info('MotionLoom WASM WebGPU unavailable; trying WASM CPU.', err);
+              showCanvas2dPreview();
+            }
+          }
+
           renderer = new mod.WasmSceneRenderer(script, 'cpu');
-          startWasmSceneLoop(renderer, graph, size);
+          const rgba = await renderer.render_frame(0);
+          drawRgbaBuffer(rgba, size[0], size[1]);
+          startWasmSceneLoop(renderer, graph, size, 'cpu');
           renderer = null;
           webgpuStatus.textContent = 'MotionLoom WASM CPU';
-          return true;
+          return 'MotionLoom WASM CPU';
         } catch (err) {
           window.__motionloomWasmError = err;
           console.warn('MotionLoom WASM render failed; using Canvas fallback.', err);
@@ -352,7 +401,30 @@ import BaseLayout from '@components/BaseLayout.astro';
           }
 
           const { width, height, rgba } = readSourceRgba(sourceImage);
-          webgpuStatus.textContent = 'Rendering process with MotionLoom WASM...';
+          if (
+            navigator.gpu &&
+            typeof mod.motionloom_render_process_frame_to_canvas_gpu === 'function'
+          ) {
+            try {
+              webgpuStatus.textContent = 'Rendering process with MotionLoom WASM WebGPU...';
+              showWebGpuPreview(width, height);
+              await mod.motionloom_render_process_frame_to_canvas_gpu(
+                script,
+                0,
+                width,
+                height,
+                rgba,
+                gpuCanvas
+              );
+              webgpuStatus.textContent = 'MotionLoom WASM Process WebGPU';
+              return true;
+            } catch (err) {
+              console.info('MotionLoom WASM process WebGPU unavailable; trying WASM CPU.', err);
+              showCanvas2dPreview();
+            }
+          }
+
+          webgpuStatus.textContent = 'Rendering process with MotionLoom WASM CPU...';
           const rendered = mod.motionloom_render_process_frame(script, 0, width, height, rgba);
           drawRgbaBuffer(rendered, width, height);
           webgpuStatus.textContent = 'MotionLoom WASM Process CPU';
@@ -637,6 +709,7 @@ import BaseLayout from '@components/BaseLayout.astro';
 
         const w = sourceImage.width || sourceImage.videoWidth || 1920;
         const h = sourceImage.height || sourceImage.videoHeight || 1080;
+        showCanvas2dPreview();
         canvas.width = w;
         canvas.height = h;
 
@@ -660,7 +733,7 @@ import BaseLayout from '@components/BaseLayout.astro';
 
           if (pass.effect === 'hsla_overlay') {
             applyHslaOverlay(offCtx, outW, outH, pass.params);
-          } else if (pass.effect === 'gaussian_5tap_h' || pass.effect === 'blur') {
+          } else if (pass.effect === 'gaussian_5tap_blur' || pass.effect === 'gaussian_5tap_h' || pass.effect === 'gaussian_5tap_v' || pass.effect === 'blur') {
             applyBlur(offCtx, outW, outH, pass.params);
           }
 
@@ -685,6 +758,7 @@ import BaseLayout from '@components/BaseLayout.astro';
         const size = graph.renderSize || graph.size;
         const w = size[0];
         const h = size[1];
+        showCanvas2dPreview();
         canvas.width = w;
         canvas.height = h;
 
@@ -803,7 +877,7 @@ import BaseLayout from '@components/BaseLayout.astro';
         return t; // linear
       }
 
-      function startWasmSceneLoop(renderer, graph, size) {
+      function startWasmSceneLoop(renderer, graph, size, mode) {
         stopSceneLoop();
         wasmSceneRenderer = renderer;
         isScenePlaying = true;
@@ -820,9 +894,19 @@ import BaseLayout from '@components/BaseLayout.astro';
             const elapsed = (performance.now() - sceneStartTime) / 1000;
             const frame = Math.floor(elapsed * fps) % totalFrames;
             try {
-              const rgba = await renderer.render_frame(frame);
+              if (mode === 'webgpu') {
+                showWebGpuPreview(size[0], size[1]);
+                await renderer.render_frame_to_canvas(frame, gpuCanvas);
+              } else {
+                const rgba = await renderer.render_frame(frame);
+                if (isScenePlaying && token === sceneLoopToken) {
+                  drawRgbaBuffer(rgba, size[0], size[1]);
+                }
+              }
               if (isScenePlaying && token === sceneLoopToken) {
-                drawRgbaBuffer(rgba, size[0], size[1]);
+                webgpuStatus.textContent = mode === 'webgpu'
+                  ? 'MotionLoom WASM WebGPU'
+                  : 'MotionLoom WASM CPU';
               }
             } catch (err) {
               window.__motionloomWasmError = err;
@@ -957,13 +1041,13 @@ import BaseLayout from '@components/BaseLayout.astro';
         if (compileDebounceId) {
           window.clearTimeout(compileDebounceId);
         }
-        compileStatus.textContent = 'Editing... compiling in 1s';
+        compileStatus.textContent = 'Editing... compiling in 0.3s';
         compileStatus.classList.remove('text-anica-signal');
         compileStatus.classList.add('text-anica-lime/80');
         compileDebounceId = window.setTimeout(() => {
           compileDebounceId = null;
           compile();
-        }, 1000);
+        }, 300);
       }
 
       function compileNow() {
@@ -989,8 +1073,9 @@ import BaseLayout from '@components/BaseLayout.astro';
             compileStatus.textContent = `Compiled: ${graph.scenes.length} scene(s), ${layerCount} layer(s) | ${graph.fps}fps, ${graph.duration}s`;
             compileStatus.classList.remove('text-anica-signal');
             compileStatus.classList.add('text-anica-lime/80');
-            if (await tryRenderSceneWithWasm(editor.value, graph)) {
-              compileStatus.textContent += ' | rendered by MotionLoom WASM';
+            const sceneWasmMode = await tryRenderSceneWithWasm(editor.value, graph);
+            if (sceneWasmMode) {
+              compileStatus.textContent += ` | rendered by ${sceneWasmMode}`;
               return;
             }
             startSceneLoop(graph);
@@ -1084,7 +1169,7 @@ import BaseLayout from '@components/BaseLayout.astro';
       downloadBtn.addEventListener('click', () => {
         const link = document.createElement('a');
         link.download = 'motionloom-preview.png';
-        link.href = canvas.toDataURL('image/png');
+        link.href = activePreviewCanvas.toDataURL('image/png');
         link.click();
       });
 
@@ -1093,6 +1178,7 @@ import BaseLayout from '@components/BaseLayout.astro';
         if (!currentImage) return;
         const w = currentImage.width || currentImage.videoWidth || canvas.width;
         const h = currentImage.height || currentImage.videoHeight || canvas.height;
+        showCanvas2dPreview();
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(currentImage, 0, 0, w, h);
       }
