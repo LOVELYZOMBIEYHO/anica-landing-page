@@ -227,7 +227,7 @@ import BaseLayout from '@components/BaseLayout.astro';
       const base = (typeof window !== 'undefined' && window.MOTIONLOOM_BASE) ? window.MOTIONLOOM_BASE : '/';
       const demoImageUrl = base.replace(/\/$/, '') + '/demo.jpg';
       const wasmPkgBase = base.replace(/\/$/, '') + '/motionloom-wasm/pkg';
-      const motionLoomWasmVersion = '2026-06-14-8';
+      const motionLoomWasmVersion = '2026-06-15-1';
       let motionLoomWasmPromise = null;
       let motionLoomWasmUnavailable = false;
       let compileDebounceId = null;
@@ -293,8 +293,10 @@ import BaseLayout from '@components/BaseLayout.astro';
 
       function showWebGpuPreview(width, height) {
         activePreviewCanvas = gpuCanvas;
-        gpuCanvas.width = width;
-        gpuCanvas.height = height;
+        // Resizing a canvas clears its backing store and can invalidate the
+        // WebGPU surface. Only resize when the graph dimensions really change.
+        if (gpuCanvas.width !== width) gpuCanvas.width = width;
+        if (gpuCanvas.height !== height) gpuCanvas.height = height;
         canvas.classList.add('opacity-0');
         canvas.classList.remove('opacity-100');
         gpuCanvas.classList.add('opacity-100');
@@ -344,9 +346,6 @@ import BaseLayout from '@components/BaseLayout.astro';
               webgpuStatus.textContent = 'MotionLoom WASM WebGPU';
               return 'MotionLoom WASM WebGPU';
             } catch (err) {
-              if (renderer && typeof renderer.free === 'function') {
-                renderer.free();
-              }
               renderer = null;
               console.info('MotionLoom WASM WebGPU unavailable; trying WASM CPU.', err);
               showCanvas2dPreview();
@@ -366,9 +365,9 @@ import BaseLayout from '@components/BaseLayout.astro';
           webgpuStatus.textContent = `Canvas fallback: ${formatWasmError(err)}`;
           return false;
         } finally {
-          if (renderer && typeof renderer.free === 'function') {
-            renderer.free();
-          }
+          // Do not manually free the WASM renderer here. The animation loop may
+          // still hold it across async frame renders; explicit free can race and
+          // cause "null pointer passed to rust" on the next frame.
         }
       }
 
@@ -753,6 +752,7 @@ import BaseLayout from '@components/BaseLayout.astro';
       let isScenePlaying = false;
       let sceneLoopToken = 0;
       let wasmSceneRenderer = null;
+      let compileRunToken = 0;
 
       function executeScene(graph, time) {
         const size = graph.renderSize || graph.size;
@@ -945,9 +945,8 @@ import BaseLayout from '@components/BaseLayout.astro';
           cancelAnimationFrame(sceneAnimationId);
           sceneAnimationId = null;
         }
-        if (wasmSceneRenderer && typeof wasmSceneRenderer.free === 'function') {
-          wasmSceneRenderer.free();
-        }
+        // Let JavaScript GC release the WASM wrapper. Manual `.free()` is unsafe
+        // here because render_frame_to_canvas is async and may still be in-flight.
         wasmSceneRenderer = null;
       }
 
@@ -1059,9 +1058,11 @@ import BaseLayout from '@components/BaseLayout.astro';
       }
 
       async function compile() {
+        const compileToken = ++compileRunToken;
         try {
           stopSceneLoop();
           const graph = parseGraph(editor.value);
+          const rawScript = editor.value;
 
           if (graph.scenes.length > 0) {
             // Scene mode
@@ -1073,13 +1074,18 @@ import BaseLayout from '@components/BaseLayout.astro';
             compileStatus.textContent = `Compiled: ${graph.scenes.length} scene(s), ${layerCount} layer(s) | ${graph.fps}fps, ${graph.duration}s`;
             compileStatus.classList.remove('text-anica-signal');
             compileStatus.classList.add('text-anica-lime/80');
-            const sceneWasmMode = await tryRenderSceneWithWasm(editor.value, graph);
+            const sceneWasmMode = await tryRenderSceneWithWasm(rawScript, graph);
+            if (compileToken !== compileRunToken) return;
             if (sceneWasmMode) {
               compileStatus.textContent += ` | rendered by ${sceneWasmMode}`;
               return;
             }
             startSceneLoop(graph);
           } else {
+            if (/<Scene\b/i.test(rawScript)) {
+              compileStatus.textContent = 'Waiting for complete Scene graph...';
+              return;
+            }
             // Process graph mode
             const passCount = graph.processes.reduce((s, p) => s + p.passes.length, 0);
 
@@ -1101,7 +1107,9 @@ import BaseLayout from '@components/BaseLayout.astro';
             compileStatus.classList.add('text-anica-lime/80');
 
             if (currentImage.complete || isVideo) {
-              if (await tryRenderProcessWithWasm(editor.value, currentImage)) {
+              const processWasmMode = await tryRenderProcessWithWasm(rawScript, currentImage);
+              if (compileToken !== compileRunToken) return;
+              if (processWasmMode) {
                 compileStatus.textContent += ' | rendered by MotionLoom WASM';
                 return;
               }

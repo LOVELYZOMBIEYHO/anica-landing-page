@@ -82,6 +82,103 @@ Selects the renderer/output path:
 
 Scene `zDepth` uses camera-space depth: negative is closer, positive is farther.
 
+## Preview Surfaces
+
+`SceneRenderer::render_frame_to_preview_surface(graph, frame, options)`
+
+Renders a scene frame to the fastest preview surface available on the current
+platform. This is the intended integration point for host applications such as
+Anica that want to display live previews without choosing between CPU, GPU, and
+platform interop code themselves.
+
+`ScenePreviewSurfaceOptions::default()` uses `ScenePreviewBackend::Auto`, which
+picks a platform surface when available, otherwise falls back to a wgpu texture
+or CPU BGRA bytes.
+
+Supported backends:
+
+- `ScenePreviewBackend::Auto` — prefer platform surface, then wgpu texture, then
+  CPU BGRA.
+- `ScenePreviewBackend::WgpuTexture` — return a `SceneGpuTexture` wrapping an
+  `Arc<wgpu::Texture>` in `Rgba8Unorm`.
+- `ScenePreviewBackend::PlatformSurface` — return a platform display surface.
+- `ScenePreviewBackend::CpuBgra` — return CPU BGRA bytes for compatibility.
+
+Platform surfaces are host-consumable descriptors. MotionLoom produces the
+surface; it is the downstream application's responsibility to import and paint
+it (for example through GPUI, DirectComposition, Wayland, or Metal).
+
+- **macOS** — `ScenePlatformPreviewSurface::MacOs { surface: CVPixelBuffer, ... }`
+  in `Bgra8Unorm`. The pixel buffer is Metal-compatible.
+- **Windows** — `ScenePlatformPreviewSurface::WindowsD3D(WindowsD3DSharedSurface)`
+  in `Bgra8Unorm`. The contained `WindowsD3DSharedSurface` keeps the
+  `ID3D11Texture2D` alive so the legacy DXGI shared handle remains valid. The
+  host can open `shared_handle` on another D3D10/11 device on the same adapter;
+  the handle is owned by the OS and does not need to be closed by the caller.
+- **Linux** — `ScenePlatformPreviewSurface::LinuxDmabuf { ... }` is the planned
+  DMA-BUF BGRA descriptor. As long as real fd/export is not implemented,
+  `PlatformSurface` returns a clear error and `Auto` falls back to `CpuBgra`.
+
+```rust
+use motionloom::{
+    ScenePreviewBackend, ScenePreviewSurface, ScenePreviewSurfaceOptions, SceneRenderer,
+    SceneRenderProfile, parse_graph_script,
+};
+
+let graph = parse_graph_script(script)?;
+let mut renderer = pollster::block_on(SceneRenderer::new(SceneRenderProfile::Gpu))?;
+let surface = pollster::block_on(renderer.render_frame_to_preview_surface(
+    &graph,
+    0,
+    ScenePreviewSurfaceOptions::default(),
+))?;
+
+match surface {
+    ScenePreviewSurface::PlatformSurface(platform) => {
+        // Hand the platform surface off to the host compositor/GPUI.
+    }
+    ScenePreviewSurface::WgpuTexture(tex) => {
+        // Consume tex.texture as a wgpu texture.
+    }
+    ScenePreviewSurface::CpuBgra { width, height, data, .. } => {
+        // Upload data (width x height BGRA bytes) to the UI.
+    }
+}
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
+## Standalone WGPU Live Preview Example
+
+`crates/motionloom/examples/wgpu_live_preview.rs` is a native diagnostic viewer
+for testing MotionLoom's direct wgpu preview path without Anica, ffmpeg, video
+encoding, or CPU readback. Use it to measure scene/process GPU render cost,
+surface format behavior, and preview quality tradeoffs.
+
+Run the live preview:
+
+```bash
+cargo run --release -p motionloom --example wgpu_live_preview -- ../motionloom-example/showcase/s-000005/main.motionloom
+```
+
+Print copyable timing stats once per second with `--print-stats` or `--stats`:
+
+```bash
+cargo run --release -p motionloom --example wgpu_live_preview -- --print-stats ../motionloom-example/showcase/s-000005/main.motionloom
+```
+
+Keyboard controls:
+
+- `1` — Full quality, 100% render target.
+- `2` — Balanced quality, 50% render target.
+- `3` — Speed quality, 25% render target.
+- `4` — High Speed quality, 10% render target.
+- `5` — Ultra Speed quality, 5% render target.
+- `Esc` — close the preview window.
+
+The window title reports frame index, render time, blit/present time, tick rate,
+target size, surface format, quality mode, and script path. `--print-stats`
+prints rows such as `quality=... target=... render_ms=...` for benchmark notes.
+
 ## World Rendering
 
 `render_world_frame(graph: &WorldGraph, frame: u32, asset_root)`
@@ -126,6 +223,91 @@ Evaluates effect parameters at an explicit normalized time and second value.
 
 Evaluates MotionLoom time expressions such as `$time.sec`, `curve(...)`, and
 math expressions used in effect parameters.
+
+## GPU Compatibility Inspector
+
+`inspect_gpu_compatibility(script: &str) -> Result<GpuCompatibilityReport, GraphParseError>`
+
+Inspects a MotionLoom script and reports whether it is likely to run on the
+strict GPU preview paths or fall back to CPU. This is a static diagnostic tool:
+it parses and analyzes the DSL, but it does not render frames and does not
+allocate GPU resources.
+
+Use this before choosing a preview/render path in host applications:
+
+```rust
+use motionloom::{GpuCompatibilitySeverity, inspect_gpu_compatibility};
+
+let report = inspect_gpu_compatibility(script)?;
+
+if report.likely_cpu_fallback {
+    for issue in report.blocking_issues() {
+        eprintln!("[{:?}] {}: {}", issue.target, issue.code, issue.message);
+    }
+}
+
+// `likely_preview_path` predicts what `ScenePreviewBackend::Auto` will pick
+// on the current platform: `MacOsCVPixelBuffer`, `WindowsD3D`, `WgpuTexture`,
+// or `CpuBgra`. (Linux DMA-BUF is planned but reports `CpuBgra` for now.)
+match report.likely_preview_path {
+    _ => {}
+}
+
+if report.can_use_wasm_scene_canvas {
+    // Browser/WASM can try the direct WebGPU scene canvas path.
+} else if report.can_use_wasm_process_webgpu {
+    // Browser/WASM can try the process WebGPU path for supported process effects.
+} else {
+    // Use CPU/WASM fallback or a compatibility renderer.
+}
+
+# let _ = GpuCompatibilitySeverity::Blocking;
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
+The report is intentionally conservative. It only flags known limitations, so a
+script that passes inspection can still fail at runtime because of the user's
+GPU, driver, browser, missing assets, or platform-specific surface integration.
+
+Current report targets:
+
+- `NativeScenePreview` — Anica/native live scene preview.
+- `WasmSceneCanvas` — browser direct WebGPU scene-to-canvas render.
+- `WasmProcessWebGpu` — browser WebGPU process/effect render.
+- `WgpuTextureOutput` — `SceneRenderer::render_frame_to_wgpu_texture`.
+
+Common CPU-fallback reasons:
+
+- Mixed `<Scene>` + `<Process>` graphs need scene-to-process composition.
+- `Tex` / `Pass` / `Output` composition is not supported by the strict direct
+  scene canvas path yet.
+- `Tex from="scene:..."` requires scene output to become a process input.
+- Some process effects are not implemented in the WASM process WebGPU path yet.
+
+Important distinction: Anica/native and WASM/browser do not have identical GPU
+paths. A script can be GPU-compatible in one target and CPU fallback in another.
+Use the per-target booleans and issue list instead of assuming one target's
+result applies to every platform.
+
+## Cinematic Light Process Effects
+
+MotionLoom exposes cinematic lighting as process effects. They use the existing
+`<Pass effect="...">` surface, so host applications can use them by updating the
+MotionLoom crate and rendering the script; no new scene node schema is required.
+
+Supported effect ids:
+
+- `glow_stack` — multi-radius glow stack with threshold, intensity, radii, and
+  tint controls.
+- `tone_map` — exposure, contrast, filmic shoulder, gamma, and saturation.
+- `light_sweep` — animated directional sweep highlight for text, logos, and
+  energy reveals.
+
+Copyable examples live in `motionloom-example/core/process/`:
+
+- `cp-000008` — `glow_stack`
+- `cp-000009` — `tone_map`
+- `cp-000010` — `light_sweep`
 
 ## Process Catalog
 
@@ -175,7 +357,7 @@ Diagnoses one actor in an world graph at a specific frame.
 use motionloom::{SceneRenderProfile, parse_graph_script, render_scene_frame};
 
 let script = r##"
-<Graph fps={60} duration="1s" size={[640,360]}>
+<Graph fps={30} duration="1s" size={[640,360]}>
   <Background color="#101827" />
   <Scene id="example_scene">
     <Circle x="320" y="180" radius="96" color="#4cc9f0" />

@@ -1,80 +1,90 @@
 /* tslint:disable */
 /* eslint-disable */
 
+/**
+ * WASM-facing wrapper around a parsed scene graph. Keeps the parsed script
+ * alive across JS calls so that repeated frame renders avoid re-parsing.
+ *
+ * Each renderer owns its own `MemoryAssetResolver`; assets added to one
+ * renderer do not affect any other renderer or the global state.
+ */
 export class WasmSceneRenderer {
-  free(): void;
-  [Symbol.dispose](): void;
-  /**
-   * Parse `script` and prepare a renderer.
-   */
-  constructor(script: string, profile: string);
-  /**
-   * Asynchronously parse `script` and initialize the persistent renderer.
-   *
-   * Browser hosts should prefer this factory for animated GPU preview loops
-   * because repeated frame renders reuse the same Rust/WGPU renderer.
-   */
-  static create(script: string, profile: string): Promise<WasmSceneRenderer>;
-  /**
-   * Register an in-memory asset for this renderer only.
-   *
-   * The `name` should match the `src` attribute used in `<Image>` or `<Svg>`
-   * nodes (e.g. `"logo.png"`). The `bytes` argument is the raw file content.
-   */
-  add_asset(name: string, bytes: Uint8Array): void;
-  /**
-   * Clear all assets previously registered on this renderer.
-   */
-  clear_assets(): void;
-  /**
-   * Render `frame` to an RGBA byte buffer.
-   */
-  render_frame(frame: number): Promise<Uint8Array>;
-  /**
-   * Render `frame` directly into an HTML canvas using the GPU canvas path.
-   *
-   * The renderer profile must be `"gpu"`. CPU profiles continue to use
-   * `render_frame`, which returns RGBA bytes for Canvas2D/ImageData hosts.
-   */
-  render_frame_to_canvas(frame: number, canvas: HTMLCanvasElement): Promise<void>;
-  /**
-   * Draw a solid WebGPU color into the canvas using this renderer's GPU device.
-   */
-  debug_solid_to_canvas(canvas: HTMLCanvasElement, width: number, height: number): Promise<void>;
-  /**
-   * Upload a blue WebGPU texture and present it to the canvas.
-   */
-  debug_uploaded_texture_to_canvas(canvas: HTMLCanvasElement, width: number, height: number): Promise<void>;
-  /**
-   * Render a white empty scene texture and present it to the canvas.
-   */
-  debug_empty_scene_texture_to_canvas(canvas: HTMLCanvasElement, width: number, height: number): Promise<void>;
-  /**
-   * Total number of frames for the graph's duration and fps.
-   */
-  readonly total_frames: number;
+    free(): void;
+    [Symbol.dispose](): void;
+    /**
+     * Register an in-memory asset for this renderer only.
+     *
+     * The `name` should match the `src` attribute used in `<Image>` or `<Svg>`
+     * nodes (e.g. `"logo.png"`). The `bytes` argument is the raw file content.
+     */
+    add_asset(name: string, bytes: Uint8Array): void;
+    /**
+     * Clear all assets previously registered on this renderer.
+     */
+    clear_assets(): void;
+    /**
+     * Asynchronously parse `script` and initialize the persistent renderer.
+     *
+     * Browser hosts should prefer this factory for animated GPU preview loops
+     * because repeated frame renders reuse the same Rust/WGPU renderer.
+     */
+    static create(script: string, profile: string): Promise<WasmSceneRenderer>;
+    /**
+     * Render a white empty scene texture and present it to the canvas.
+     */
+    debug_empty_scene_texture_to_canvas(canvas: HTMLCanvasElement, width: number, height: number): Promise<void>;
+    /**
+     * Draw a solid WebGPU color into the canvas using this renderer's GPU device.
+     */
+    debug_solid_to_canvas(canvas: HTMLCanvasElement, width: number, height: number): Promise<void>;
+    /**
+     * Upload a blue WebGPU texture and present it to the canvas.
+     */
+    debug_uploaded_texture_to_canvas(canvas: HTMLCanvasElement, width: number, height: number): Promise<void>;
+    /**
+     * Parse `script` and prepare a renderer.
+     */
+    constructor(script: string, profile: string);
+    /**
+     * Render `frame` to an RGBA byte buffer.
+     */
+    render_frame(frame: number): Promise<Uint8Array>;
+    /**
+     * Render `frame` directly into an HTML canvas using the GPU canvas path.
+     *
+     * The renderer profile must be `"gpu"`. CPU profiles continue to use
+     * `render_frame`, which returns RGBA bytes for Canvas2D/ImageData hosts.
+     */
+    render_frame_to_canvas(frame: number, canvas: HTMLCanvasElement): Promise<void>;
+    /**
+     * Total number of frames for the graph's duration and fps.
+     */
+    readonly total_frames: number;
 }
 
+/**
+ * WASM-facing wrapper around a parsed world graph with renderer-owned assets.
+ */
 export class WasmWorldRenderer {
-  free(): void;
-  [Symbol.dispose](): void;
-  /**
-   * Parse `script` and prepare a renderer.
-   */
-  constructor(script: string);
-  /**
-   * Register an in-memory asset for this renderer only.
-   */
-  add_asset(name: string, bytes: Uint8Array): void;
-  /**
-   * Clear all assets previously registered on this renderer.
-   */
-  clear_assets(): void;
-  /**
-   * Render `frame` to an RGBA byte buffer using the provided asset root for
-   * relative-path fallback.
-   */
-  render_frame(frame: number, asset_root: string): Uint8Array;
+    free(): void;
+    [Symbol.dispose](): void;
+    /**
+     * Register an in-memory asset for this renderer only.
+     */
+    add_asset(name: string, bytes: Uint8Array): void;
+    /**
+     * Clear all assets previously registered on this renderer.
+     */
+    clear_assets(): void;
+    /**
+     * Parse `script` and prepare a renderer.
+     */
+    constructor(script: string);
+    /**
+     * Render `frame` to an RGBA byte buffer using the provided asset root for
+     * relative-path fallback.
+     */
+    render_frame(frame: number, asset_root: string): Uint8Array;
 }
 
 /**
@@ -153,65 +163,66 @@ export function motionloom_webgpu_debug_uploaded_texture_to_canvas(canvas: HTMLC
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
-  readonly memory: WebAssembly.Memory;
-  readonly motionloom_parse_summary: (a: number, b: number) => [number, number, number, number];
-  readonly motionloom_render_scene_frame: (a: number, b: number, c: number, d: number, e: number) => any;
-  readonly motionloom_render_scene_frame_with_profile: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => any;
-  readonly motionloom_render_scene_frame_to_canvas_gpu: (a: number, b: number, c: number, d: number, e: number, f: any) => any;
-  readonly motionloom_webgpu_debug_solid_to_canvas: (a: any, b: number, c: number) => any;
-  readonly motionloom_webgpu_debug_uploaded_texture_to_canvas: (a: any, b: number, c: number) => any;
-  readonly motionloom_webgpu_debug_empty_scene_texture_to_canvas: (a: any, b: number, c: number) => any;
-  readonly motionloom_render_process_frame: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => [number, number, number, number];
-  readonly motionloom_render_process_frame_to_canvas_gpu: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: any) => any;
-  readonly motionloom_render_world_frame: (a: number, b: number, c: number, d: number, e: number) => [number, number, number, number];
-  readonly motionloom_document_type: (a: number, b: number) => [number, number];
-  readonly __wbg_wasmscenerenderer_free: (a: number, b: number) => void;
-  readonly wasmscenerenderer_new: (a: number, b: number, c: number, d: number) => [number, number, number];
-  readonly wasmscenerenderer_create: (a: number, b: number, c: number, d: number) => any;
-  readonly wasmscenerenderer_add_asset: (a: number, b: number, c: number, d: number, e: number) => void;
-  readonly wasmscenerenderer_clear_assets: (a: number) => void;
-  readonly wasmscenerenderer_render_frame: (a: number, b: number) => any;
-  readonly wasmscenerenderer_render_frame_to_canvas: (a: number, b: number, c: any) => any;
-  readonly wasmscenerenderer_debug_solid_to_canvas: (a: number, b: any, c: number, d: number) => any;
-  readonly wasmscenerenderer_debug_uploaded_texture_to_canvas: (a: number, b: any, c: number, d: number) => any;
-  readonly wasmscenerenderer_debug_empty_scene_texture_to_canvas: (a: number, b: any, c: number, d: number) => any;
-  readonly wasmscenerenderer_total_frames: (a: number) => number;
-  readonly __wbg_wasmworldrenderer_free: (a: number, b: number) => void;
-  readonly wasmworldrenderer_new: (a: number, b: number) => [number, number, number];
-  readonly wasmworldrenderer_add_asset: (a: number, b: number, c: number, d: number, e: number) => void;
-  readonly wasmworldrenderer_clear_assets: (a: number) => void;
-  readonly wasmworldrenderer_render_frame: (a: number, b: number, c: number, d: number) => [number, number, number, number];
-  readonly wasm_bindgen__convert__closures_____invoke__hc3b6624aebeecb55: (a: number, b: number, c: any) => void;
-  readonly wasm_bindgen__closure__destroy__he641b6fd31452946: (a: number, b: number) => void;
-  readonly wasm_bindgen__convert__closures_____invoke__h0cda4798cae695a6: (a: number, b: number, c: any, d: any) => void;
-  readonly __wbindgen_malloc: (a: number, b: number) => number;
-  readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
-  readonly __wbindgen_exn_store: (a: number) => void;
-  readonly __externref_table_alloc: () => number;
-  readonly __wbindgen_externrefs: WebAssembly.Table;
-  readonly __wbindgen_free: (a: number, b: number, c: number) => void;
-  readonly __externref_table_dealloc: (a: number) => void;
-  readonly __wbindgen_start: () => void;
+    readonly memory: WebAssembly.Memory;
+    readonly motionloom_parse_summary: (a: number, b: number) => [number, number, number, number];
+    readonly motionloom_render_scene_frame: (a: number, b: number, c: number, d: number, e: number) => any;
+    readonly motionloom_render_scene_frame_with_profile: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => any;
+    readonly motionloom_render_scene_frame_to_canvas_gpu: (a: number, b: number, c: number, d: number, e: number, f: any) => any;
+    readonly motionloom_webgpu_debug_solid_to_canvas: (a: any, b: number, c: number) => any;
+    readonly motionloom_webgpu_debug_uploaded_texture_to_canvas: (a: any, b: number, c: number) => any;
+    readonly motionloom_webgpu_debug_empty_scene_texture_to_canvas: (a: any, b: number, c: number) => any;
+    readonly motionloom_render_process_frame: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => [number, number, number, number];
+    readonly motionloom_render_process_frame_to_canvas_gpu: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: any) => any;
+    readonly motionloom_render_world_frame: (a: number, b: number, c: number, d: number, e: number) => [number, number, number, number];
+    readonly motionloom_document_type: (a: number, b: number) => [number, number];
+    readonly __wbg_wasmscenerenderer_free: (a: number, b: number) => void;
+    readonly wasmscenerenderer_new: (a: number, b: number, c: number, d: number) => [number, number, number];
+    readonly wasmscenerenderer_create: (a: number, b: number, c: number, d: number) => any;
+    readonly wasmscenerenderer_add_asset: (a: number, b: number, c: number, d: number, e: number) => void;
+    readonly wasmscenerenderer_clear_assets: (a: number) => void;
+    readonly wasmscenerenderer_render_frame: (a: number, b: number) => any;
+    readonly wasmscenerenderer_render_frame_to_canvas: (a: number, b: number, c: any) => any;
+    readonly wasmscenerenderer_debug_solid_to_canvas: (a: number, b: any, c: number, d: number) => any;
+    readonly wasmscenerenderer_debug_uploaded_texture_to_canvas: (a: number, b: any, c: number, d: number) => any;
+    readonly wasmscenerenderer_debug_empty_scene_texture_to_canvas: (a: number, b: any, c: number, d: number) => any;
+    readonly wasmscenerenderer_total_frames: (a: number) => number;
+    readonly __wbg_wasmworldrenderer_free: (a: number, b: number) => void;
+    readonly wasmworldrenderer_new: (a: number, b: number) => [number, number, number];
+    readonly wasmworldrenderer_add_asset: (a: number, b: number, c: number, d: number, e: number) => void;
+    readonly wasmworldrenderer_clear_assets: (a: number) => void;
+    readonly wasmworldrenderer_render_frame: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+    readonly wasm_bindgen__convert__closures_____invoke__h4aa3e05baac20cce: (a: number, b: number, c: any) => [number, number];
+    readonly wasm_bindgen__convert__closures_____invoke__h45c32c0111268609: (a: number, b: number, c: any, d: any) => void;
+    readonly wasm_bindgen__convert__closures_____invoke__h243f2faf0789ca71: (a: number, b: number, c: any) => void;
+    readonly __wbindgen_malloc: (a: number, b: number) => number;
+    readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
+    readonly __wbindgen_exn_store: (a: number) => void;
+    readonly __externref_table_alloc: () => number;
+    readonly __wbindgen_externrefs: WebAssembly.Table;
+    readonly __wbindgen_destroy_closure: (a: number, b: number) => void;
+    readonly __wbindgen_free: (a: number, b: number, c: number) => void;
+    readonly __externref_table_dealloc: (a: number) => void;
+    readonly __wbindgen_start: () => void;
 }
 
 export type SyncInitInput = BufferSource | WebAssembly.Module;
 
 /**
-* Instantiates the given `module`, which can either be bytes or
-* a precompiled `WebAssembly.Module`.
-*
-* @param {{ module: SyncInitInput }} module - Passing `SyncInitInput` directly is deprecated.
-*
-* @returns {InitOutput}
-*/
+ * Instantiates the given `module`, which can either be bytes or
+ * a precompiled `WebAssembly.Module`.
+ *
+ * @param {{ module: SyncInitInput }} module - Passing `SyncInitInput` directly is deprecated.
+ *
+ * @returns {InitOutput}
+ */
 export function initSync(module: { module: SyncInitInput } | SyncInitInput): InitOutput;
 
 /**
-* If `module_or_path` is {RequestInfo} or {URL}, makes a request and
-* for everything else, calls `WebAssembly.instantiate` directly.
-*
-* @param {{ module_or_path: InitInput | Promise<InitInput> }} module_or_path - Passing `InitInput` directly is deprecated.
-*
-* @returns {Promise<InitOutput>}
-*/
+ * If `module_or_path` is {RequestInfo} or {URL}, makes a request and
+ * for everything else, calls `WebAssembly.instantiate` directly.
+ *
+ * @param {{ module_or_path: InitInput | Promise<InitInput> }} module_or_path - Passing `InitInput` directly is deprecated.
+ *
+ * @returns {Promise<InitOutput>}
+ */
 export default function __wbg_init (module_or_path?: { module_or_path: InitInput | Promise<InitInput> } | InitInput | Promise<InitInput>): Promise<InitOutput>;
