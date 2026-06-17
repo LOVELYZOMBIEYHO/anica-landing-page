@@ -39,6 +39,18 @@ import BaseLayout from '@components/BaseLayout.astro';
               <button id="btn-scene" class="rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Scene</button>
             </div>
           </div>
+          <div class="flex flex-wrap items-center gap-2 rounded-2xl border border-anica-paper/15 bg-anica-paper/5 px-3 py-2">
+            <span class="font-mono text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper/60">GitHub showcase</span>
+            <input
+              id="showcase-number"
+              class="w-16 rounded-full border border-anica-paper/25 bg-anica-ink/70 px-3 py-1 font-mono text-xs font-bold text-anica-paper outline-none transition focus:border-anica-lime"
+              inputmode="numeric"
+              min="1"
+              placeholder="7"
+              type="number"
+            />
+            <button id="btn-load-showcase" class="rounded-full border border-anica-paper/30 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Load</button>
+          </div>
           <textarea
             id="dsl-editor"
             class="min-h-[420px] flex-1 rounded-2xl border-2 border-anica-ink/40 bg-anica-ink/60 p-4 font-mono text-xs leading-relaxed text-anica-paper shadow-inner outline-none transition focus:border-anica-lime"
@@ -125,6 +137,8 @@ import BaseLayout from '@components/BaseLayout.astro';
       const gpuCanvas = document.getElementById('motionloom-canvas-webgpu');
       const editor = document.getElementById('dsl-editor');
       const resetBtn = document.getElementById('btn-reset');
+      const showcaseNumber = document.getElementById('showcase-number');
+      const loadShowcaseBtn = document.getElementById('btn-load-showcase');
       const compileStatus = document.getElementById('compile-status');
       const fileUpload = document.getElementById('file-upload');
       const sourceName = document.getElementById('source-name');
@@ -132,6 +146,9 @@ import BaseLayout from '@components/BaseLayout.astro';
       const webgpuStatus = document.getElementById('webgpu-status');
       const ctx = canvas.getContext('2d');
       let activePreviewCanvas = canvas;
+      let lastPreviewWidth = canvas.width || 1920;
+      let lastPreviewHeight = canvas.height || 1080;
+      let isComparingOriginal = false;
 
       const processScript = `<Graph fps={60} size={[1920,1080]}>
   <Process id="layer_fx">
@@ -227,10 +244,13 @@ import BaseLayout from '@components/BaseLayout.astro';
       const base = (typeof window !== 'undefined' && window.MOTIONLOOM_BASE) ? window.MOTIONLOOM_BASE : '/';
       const demoImageUrl = base.replace(/\/$/, '') + '/demo.jpg';
       const wasmPkgBase = base.replace(/\/$/, '') + '/motionloom-wasm/pkg';
-      const motionLoomWasmVersion = '2026-06-15-1';
+      const motionLoomWasmVersion = '2026-06-17-1';
+      const showcaseRawBase = 'https://raw.githubusercontent.com/LOVELYZOMBIEYHO/motionloom-example/refs/heads/main/showcase';
       let motionLoomWasmPromise = null;
       let motionLoomWasmUnavailable = false;
       let compileDebounceId = null;
+      let lastLoadedShowcaseNumber = null;
+      let showcaseLoadDebounceId = null;
 
       let currentImage = new Image();
       let isVideo = false;
@@ -241,6 +261,51 @@ import BaseLayout from '@components/BaseLayout.astro';
         compileStatus.textContent = 'Failed to load default image';
         compileStatus.classList.add('text-anica-signal');
       };
+
+      function showcaseIdFromNumber(value) {
+        const number = Number.parseInt(String(value || '').trim(), 10);
+        if (!Number.isFinite(number) || number <= 0) return null;
+        return `s-${String(number).padStart(6, '0')}`;
+      }
+
+      function showcaseUrlFromNumber(value) {
+        const id = showcaseIdFromNumber(value);
+        return id ? `${showcaseRawBase}/${id}/main.motionloom` : null;
+      }
+
+      async function loadShowcaseExample(value) {
+        const url = showcaseUrlFromNumber(value);
+        const id = showcaseIdFromNumber(value);
+        if (!url || !id) {
+          compileStatus.textContent = 'Enter a valid showcase number.';
+          compileStatus.classList.remove('text-anica-lime/80');
+          compileStatus.classList.add('text-anica-signal');
+          return;
+        }
+
+        stopSceneLoop();
+        compileStatus.textContent = `Loading ${id} from GitHub...`;
+        compileStatus.classList.remove('text-anica-signal');
+        compileStatus.classList.add('text-anica-lime/80');
+
+        try {
+          const response = await fetch(url, { cache: 'no-store' });
+          if (!response.ok) {
+            throw new Error(`${response.status} ${response.statusText}`);
+          }
+          const script = await response.text();
+          defaultScript = script;
+          editor.value = script;
+          sourceName.textContent = `${id} from motionloom-example`;
+          showcaseNumber.value = String(Number.parseInt(String(value), 10));
+          lastLoadedShowcaseNumber = showcaseNumber.value;
+          compileNow();
+        } catch (err) {
+          compileStatus.textContent = `Failed to load ${id}: ${formatWasmError(err)}`;
+          compileStatus.classList.remove('text-anica-lime/80');
+          compileStatus.classList.add('text-anica-signal');
+        }
+      }
 
       async function loadMotionLoomWasm() {
         if (motionLoomWasmUnavailable) return null;
@@ -275,6 +340,8 @@ import BaseLayout from '@components/BaseLayout.astro';
         showCanvas2dPreview();
         canvas.width = width;
         canvas.height = height;
+        lastPreviewWidth = width;
+        lastPreviewHeight = height;
         const clamped = rgba instanceof Uint8ClampedArray
           ? rgba
           : ArrayBuffer.isView(rgba)
@@ -293,6 +360,8 @@ import BaseLayout from '@components/BaseLayout.astro';
 
       function showWebGpuPreview(width, height) {
         activePreviewCanvas = gpuCanvas;
+        lastPreviewWidth = width;
+        lastPreviewHeight = height;
         // Resizing a canvas clears its backing store and can invalidate the
         // WebGPU surface. Only resize when the graph dimensions really change.
         if (gpuCanvas.width !== width) gpuCanvas.width = width;
@@ -711,6 +780,8 @@ import BaseLayout from '@components/BaseLayout.astro';
         showCanvas2dPreview();
         canvas.width = w;
         canvas.height = h;
+        lastPreviewWidth = w;
+        lastPreviewHeight = h;
 
         const texMap = {};
         // Load source into texture
@@ -761,6 +832,8 @@ import BaseLayout from '@components/BaseLayout.astro';
         showCanvas2dPreview();
         canvas.width = w;
         canvas.height = h;
+        lastPreviewWidth = w;
+        lastPreviewHeight = h;
 
         // Background
         ctx.fillStyle = graph.background || '#000000';
@@ -889,6 +962,10 @@ import BaseLayout from '@components/BaseLayout.astro';
 
         async function loop() {
           if (!isScenePlaying || token !== sceneLoopToken) return;
+          if (isComparingOriginal) {
+            sceneAnimationId = requestAnimationFrame(loop);
+            return;
+          }
           if (!renderInFlight) {
             renderInFlight = true;
             const elapsed = (performance.now() - sceneStartTime) / 1000;
@@ -931,6 +1008,10 @@ import BaseLayout from '@components/BaseLayout.astro';
         sceneStartTime = performance.now();
         function loop() {
           if (!isScenePlaying) return;
+          if (isComparingOriginal) {
+            sceneAnimationId = requestAnimationFrame(loop);
+            return;
+          }
           const elapsed = (performance.now() - sceneStartTime) / 1000;
           executeScene(graph, elapsed);
           sceneAnimationId = requestAnimationFrame(loop);
@@ -1127,6 +1208,7 @@ import BaseLayout from '@components/BaseLayout.astro';
       function reset() {
         defaultScript = processScript;
         editor.value = defaultScript;
+        sourceName.textContent = 'demo.jpg';
         compileNow();
       }
 
@@ -1134,7 +1216,30 @@ import BaseLayout from '@components/BaseLayout.astro';
       sceneBtn.addEventListener('click', () => {
         defaultScript = sceneScript;
         editor.value = sceneScript;
+        sourceName.textContent = 'built-in scene';
         compileNow();
+      });
+
+      loadShowcaseBtn.addEventListener('click', () => {
+        loadShowcaseExample(showcaseNumber.value || '7');
+      });
+
+      function scheduleShowcaseLoad() {
+        window.clearTimeout(showcaseLoadDebounceId);
+        showcaseLoadDebounceId = window.setTimeout(() => {
+          if (!showcaseNumber.value || showcaseNumber.value === lastLoadedShowcaseNumber) return;
+          loadShowcaseExample(showcaseNumber.value);
+        }, 300);
+      }
+
+      showcaseNumber.addEventListener('input', scheduleShowcaseLoad);
+
+      showcaseNumber.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          window.clearTimeout(showcaseLoadDebounceId);
+          loadShowcaseExample(showcaseNumber.value || '7');
+        }
       });
 
       fileUpload.addEventListener('change', (e) => {
@@ -1184,13 +1289,20 @@ import BaseLayout from '@components/BaseLayout.astro';
       const compareBtn = document.getElementById('btn-compare');
       function showOriginal() {
         if (!currentImage) return;
-        const w = currentImage.width || currentImage.videoWidth || canvas.width;
-        const h = currentImage.height || currentImage.videoHeight || canvas.height;
+        const sourceWidth = currentImage.naturalWidth || currentImage.videoWidth || currentImage.width || 0;
+        const sourceHeight = currentImage.naturalHeight || currentImage.videoHeight || currentImage.height || 0;
+        if (!sourceWidth || !sourceHeight) return;
+        isComparingOriginal = true;
+        const w = lastPreviewWidth || sourceWidth;
+        const h = lastPreviewHeight || sourceHeight;
         showCanvas2dPreview();
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (canvas.width !== w) canvas.width = w;
+        if (canvas.height !== h) canvas.height = h;
+        ctx.clearRect(0, 0, w, h);
         ctx.drawImage(currentImage, 0, 0, w, h);
       }
       function showEffect() {
+        isComparingOriginal = false;
         compile();
       }
       compareBtn.addEventListener('mousedown', showOriginal);
@@ -1204,6 +1316,7 @@ import BaseLayout from '@components/BaseLayout.astro';
       editor.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) compileNow();
       });
+      loadShowcaseExample('7');
     })();
   </script>
 </BaseLayout>
