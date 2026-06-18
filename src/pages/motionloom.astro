@@ -244,10 +244,14 @@ import BaseLayout from '@components/BaseLayout.astro';
       const base = (typeof window !== 'undefined' && window.MOTIONLOOM_BASE) ? window.MOTIONLOOM_BASE : '/';
       const demoImageUrl = base.replace(/\/$/, '') + '/demo.jpg';
       const wasmPkgBase = base.replace(/\/$/, '') + '/motionloom-wasm/pkg';
-      const motionLoomWasmVersion = '2026-06-17-1';
+      const motionLoomWasmVersion = '2026-06-17-8';
       const showcaseRawBase = 'https://raw.githubusercontent.com/LOVELYZOMBIEYHO/motionloom-example/refs/heads/main/showcase';
+      const motionLoomFontUrls = [
+        'https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/OTF/TraditionalChinese/NotoSansCJKtc-Regular.otf',
+      ];
       let motionLoomWasmPromise = null;
       let motionLoomWasmUnavailable = false;
+      let motionLoomFontPromise = null;
       let compileDebounceId = null;
       let lastLoadedShowcaseNumber = null;
       let showcaseLoadDebounceId = null;
@@ -330,6 +334,34 @@ import BaseLayout from '@components/BaseLayout.astro';
         return motionLoomWasmPromise;
       }
 
+      async function loadMotionLoomFontBytes() {
+        if (motionLoomFontPromise) return motionLoomFontPromise;
+        motionLoomFontPromise = Promise.all(motionLoomFontUrls.map((url) =>
+          fetch(url, { mode: 'cors' })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error(`font fetch failed: ${response.status}`);
+              }
+              return response.arrayBuffer();
+            })
+            .then((buffer) => new Uint8Array(buffer))
+        ))
+          .catch((err) => {
+            console.info('MotionLoom web fonts unavailable; using bundled fallback only.', err);
+            return [];
+          });
+        return motionLoomFontPromise;
+      }
+
+      async function attachMotionLoomFonts(renderer) {
+        if (!renderer || typeof renderer.add_font !== 'function') return;
+        const fontByteSets = await loadMotionLoomFontBytes();
+        for (const fontBytes of fontByteSets) {
+          await renderer.add_font(fontBytes);
+          console.info(`MotionLoom web font registered (${fontBytes.byteLength} bytes).`);
+        }
+      }
+
       function formatWasmError(err) {
         if (!err) return 'unknown error';
         if (typeof err === 'string') return err;
@@ -405,6 +437,7 @@ import BaseLayout from '@components/BaseLayout.astro';
               renderer = typeof mod.WasmSceneRenderer.create === 'function'
                 ? await mod.WasmSceneRenderer.create(script, 'gpu')
                 : new mod.WasmSceneRenderer(script, 'gpu');
+              await attachMotionLoomFonts(renderer);
               if (typeof renderer.render_frame_to_canvas !== 'function') {
                 throw new Error('WASM package does not expose render_frame_to_canvas');
               }
@@ -422,6 +455,7 @@ import BaseLayout from '@components/BaseLayout.astro';
           }
 
           renderer = new mod.WasmSceneRenderer(script, 'cpu');
+          await attachMotionLoomFonts(renderer);
           const rgba = await renderer.render_frame(0);
           drawRgbaBuffer(rgba, size[0], size[1]);
           startWasmSceneLoop(renderer, graph, size, 'cpu');

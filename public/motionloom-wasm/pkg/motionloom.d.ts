@@ -19,6 +19,14 @@ export class WasmSceneRenderer {
      */
     add_asset(name: string, bytes: Uint8Array): void;
     /**
+     * Register an in-memory font for this renderer only.
+     *
+     * Browser hosts should use this for CJK or brand-specific text because
+     * WASM cannot discover OS fonts and browser CSS fonts are not visible to
+     * the Rust text rasterizer.
+     */
+    add_font(bytes: Uint8Array): Promise<void>;
+    /**
      * Clear all assets previously registered on this renderer.
      */
     clear_assets(): void;
@@ -179,6 +187,7 @@ export interface InitOutput {
     readonly wasmscenerenderer_new: (a: number, b: number, c: number, d: number) => [number, number, number];
     readonly wasmscenerenderer_create: (a: number, b: number, c: number, d: number) => any;
     readonly wasmscenerenderer_add_asset: (a: number, b: number, c: number, d: number, e: number) => void;
+    readonly wasmscenerenderer_add_font: (a: number, b: number, c: number) => any;
     readonly wasmscenerenderer_clear_assets: (a: number) => void;
     readonly wasmscenerenderer_render_frame: (a: number, b: number) => any;
     readonly wasmscenerenderer_render_frame_to_canvas: (a: number, b: number, c: any) => any;
