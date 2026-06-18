@@ -8,9 +8,12 @@ const baseHome = withBase('/').replace(/\/$/, '') || '/';
 <header class="sticky top-0 z-50 border-b-2 border-anica-ink/10 bg-anica-paper/82 backdrop-blur-xl">
   <div class="page-shell flex items-center justify-between gap-5 py-4">
     <a href={withBase('/')} class="group flex items-center gap-3" aria-label="Anica home">
-      <span class="grid size-11 place-items-center rounded-2xl border-2 border-anica-ink bg-anica-ink text-lg font-black text-anica-lime shadow-[4px_4px_0_#d8ff3e] transition-transform group-hover:-rotate-6">
-        A
-      </span>
+      <img
+        src={withBase('/anica-navbar-logo.png')}
+        alt="Anica logo"
+        class="h-11 w-24 rounded-2xl object-contain transition-transform group-hover:-rotate-3"
+        loading="eager"
+      />
       <span class="leading-none">
         <span class="block text-xl font-black tracking-[-0.04em]">{site.name}</span>
         <span class="hidden font-mono text-[0.62rem] uppercase tracking-[0.32em] text-anica-steel sm:block">agentic video editor</span>

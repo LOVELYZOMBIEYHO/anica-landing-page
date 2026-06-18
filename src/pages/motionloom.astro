@@ -39,15 +39,26 @@ import BaseLayout from '@components/BaseLayout.astro';
               <button id="btn-scene" class="rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Scene</button>
             </div>
           </div>
-          <div class="flex flex-wrap items-center gap-2 rounded-2xl border border-anica-paper/15 bg-anica-paper/5 px-3 py-2">
-            <span class="font-mono text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper/60">GitHub showcase</span>
+          <div id="github-example-bar" class="flex flex-wrap items-center gap-2 rounded-2xl border border-anica-paper/15 bg-anica-paper/5 px-3 py-2">
+            <span class="font-mono text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper/60">GitHub example</span>
+            <select
+              id="example-category"
+              class="rounded-full border border-anica-paper/25 bg-anica-ink/70 px-3 py-1 font-mono text-xs font-bold text-anica-paper outline-none transition focus:border-anica-lime"
+            >
+              <option value="showcase">showcase</option>
+              <option value="scene">scene</option>
+              <option value="process">process</option>
+              <option value="text">text</option>
+              <option value="material_and_texture">material_and_texture</option>
+            </select>
             <input
               id="showcase-number"
               class="w-16 rounded-full border border-anica-paper/25 bg-anica-ink/70 px-3 py-1 font-mono text-xs font-bold text-anica-paper outline-none transition focus:border-anica-lime"
               inputmode="numeric"
               min="1"
-              placeholder="7"
+              placeholder="1"
               type="number"
+              value="1"
             />
             <button id="btn-load-showcase" class="rounded-full border border-anica-paper/30 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Load</button>
           </div>
@@ -63,11 +74,13 @@ import BaseLayout from '@components/BaseLayout.astro';
           <div class="flex items-center justify-between">
             <p class="font-mono text-xs font-bold uppercase tracking-wider text-anica-lime">Preview</p>
             <div class="flex items-center gap-2">
-              <label class="cursor-pointer rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">
-                <input id="file-upload" type="file" accept="image/*,video/*" class="hidden" />
-                Upload
-              </label>
-              <button id="btn-compare" class="rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10 select-none">Compare Original</button>
+              <div id="process-source-controls" class="flex items-center gap-2">
+                <label class="cursor-pointer rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">
+                  <input id="file-upload" type="file" accept="image/*,video/*" class="hidden" />
+                  Upload
+                </label>
+                <button id="btn-compare" class="rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10 select-none">Compare Original</button>
+              </div>
               <button id="btn-download" class="rounded-full border-2 border-anica-lime/50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-lime transition hover:bg-anica-lime/10">Save</button>
             </div>
           </div>
@@ -137,7 +150,10 @@ import BaseLayout from '@components/BaseLayout.astro';
       const gpuCanvas = document.getElementById('motionloom-canvas-webgpu');
       const editor = document.getElementById('dsl-editor');
       const resetBtn = document.getElementById('btn-reset');
+      const githubExampleBar = document.getElementById('github-example-bar');
+      const processSourceControls = document.getElementById('process-source-controls');
       const showcaseNumber = document.getElementById('showcase-number');
+      const exampleCategory = document.getElementById('example-category');
       const loadShowcaseBtn = document.getElementById('btn-load-showcase');
       const compileStatus = document.getElementById('compile-status');
       const fileUpload = document.getElementById('file-upload');
@@ -238,14 +254,14 @@ import BaseLayout from '@components/BaseLayout.astro';
   <Present from="PinwheelZDepthLogo" />
 </Graph>`;
 
-      let defaultScript = processScript;
+      let defaultScript = sceneScript;
       editor.value = defaultScript;
 
       const base = (typeof window !== 'undefined' && window.MOTIONLOOM_BASE) ? window.MOTIONLOOM_BASE : '/';
       const demoImageUrl = base.replace(/\/$/, '') + '/demo.jpg';
       const wasmPkgBase = base.replace(/\/$/, '') + '/motionloom-wasm/pkg';
-      const motionLoomWasmVersion = '2026-06-17-8';
-      const showcaseRawBase = 'https://raw.githubusercontent.com/LOVELYZOMBIEYHO/motionloom-example/refs/heads/main/showcase';
+      const motionLoomWasmVersion = '2026-06-18-1';
+      const exampleRawRoot = 'https://raw.githubusercontent.com/LOVELYZOMBIEYHO/motionloom-example/refs/heads/main';
       const motionLoomFontUrls = [
         'https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/OTF/TraditionalChinese/NotoSansCJKtc-Regular.otf',
       ];
@@ -253,7 +269,7 @@ import BaseLayout from '@components/BaseLayout.astro';
       let motionLoomWasmUnavailable = false;
       let motionLoomFontPromise = null;
       let compileDebounceId = null;
-      let lastLoadedShowcaseNumber = null;
+      let lastLoadedExampleKey = null;
       let showcaseLoadDebounceId = null;
 
       let currentImage = new Image();
@@ -266,22 +282,68 @@ import BaseLayout from '@components/BaseLayout.astro';
         compileStatus.classList.add('text-anica-signal');
       };
 
-      function showcaseIdFromNumber(value) {
+      function exampleConfig(category) {
+        switch (category) {
+          case 'process':
+            return {
+              label: 'process',
+              folder: 'core/process',
+              prefix: 'cp',
+              entry: 'main_with_scene.motionloom',
+            };
+          case 'scene':
+            return {
+              label: 'scene',
+              folder: 'core/scene',
+              prefix: 'cs',
+              entry: 'main.motionloom',
+            };
+          case 'text':
+            return {
+              label: 'text',
+              folder: 'core/text',
+              prefix: 'ct',
+              entry: 'main.motionloom',
+            };
+          case 'material_and_texture':
+            return {
+              label: 'material_and_texture',
+              folder: 'core/material_and_texture',
+              prefix: 'cm',
+              entry: 'main.motionloom',
+            };
+          case 'showcase':
+          default:
+            return {
+              label: 'showcase',
+              folder: 'showcase',
+              prefix: 's',
+              entry: 'main.motionloom',
+            };
+        }
+      }
+
+      function exampleIdFromNumber(category, value) {
         const number = Number.parseInt(String(value || '').trim(), 10);
         if (!Number.isFinite(number) || number <= 0) return null;
-        return `s-${String(number).padStart(6, '0')}`;
+        const config = exampleConfig(category);
+        return `${config.prefix}-${String(number).padStart(6, '0')}`;
       }
 
-      function showcaseUrlFromNumber(value) {
-        const id = showcaseIdFromNumber(value);
-        return id ? `${showcaseRawBase}/${id}/main.motionloom` : null;
+      function exampleUrlFromNumber(category, value) {
+        const id = exampleIdFromNumber(category, value);
+        if (!id) return null;
+        const config = exampleConfig(category);
+        return `${exampleRawRoot}/${config.folder}/${id}/${config.entry}`;
       }
 
-      async function loadShowcaseExample(value) {
-        const url = showcaseUrlFromNumber(value);
-        const id = showcaseIdFromNumber(value);
+      async function loadRemoteExample(value, options = {}) {
+        const category = options.category || exampleCategory.value || 'showcase';
+        const url = exampleUrlFromNumber(category, value);
+        const id = exampleIdFromNumber(category, value);
+        const config = exampleConfig(category);
         if (!url || !id) {
-          compileStatus.textContent = 'Enter a valid showcase number.';
+          compileStatus.textContent = 'Enter a valid example number.';
           compileStatus.classList.remove('text-anica-lime/80');
           compileStatus.classList.add('text-anica-signal');
           return;
@@ -300,11 +362,27 @@ import BaseLayout from '@components/BaseLayout.astro';
           const script = await response.text();
           defaultScript = script;
           editor.value = script;
-          sourceName.textContent = `${id} from motionloom-example`;
+          setEditorMode(script.includes('<Process') && !script.includes('<Scene') ? 'process' : 'scene');
+          sourceName.textContent = `${id} ${config.label} from motionloom-example`;
           showcaseNumber.value = String(Number.parseInt(String(value), 10));
-          lastLoadedShowcaseNumber = showcaseNumber.value;
+          exampleCategory.value = category;
+          lastLoadedExampleKey = `${category}:${showcaseNumber.value}`;
           compileNow();
         } catch (err) {
+          if (options.fallbackScript) {
+            defaultScript = options.fallbackScript;
+            editor.value = options.fallbackScript;
+            setEditorMode('scene');
+            sourceName.textContent = `${id} fallback scene`;
+            exampleCategory.value = category;
+            showcaseNumber.value = String(Number.parseInt(String(value), 10));
+            lastLoadedExampleKey = `${category}:${showcaseNumber.value}`;
+            compileStatus.textContent = `Failed to load ${id}; using built-in fallback.`;
+            compileStatus.classList.remove('text-anica-lime/80');
+            compileStatus.classList.add('text-anica-signal');
+            compileNow();
+            return;
+          }
           compileStatus.textContent = `Failed to load ${id}: ${formatWasmError(err)}`;
           compileStatus.classList.remove('text-anica-lime/80');
           compileStatus.classList.add('text-anica-signal');
@@ -858,6 +936,14 @@ import BaseLayout from '@components/BaseLayout.astro';
       let sceneLoopToken = 0;
       let wasmSceneRenderer = null;
       let compileRunToken = 0;
+      let activeEditorMode = 'scene';
+
+      function setEditorMode(mode) {
+        activeEditorMode = mode === 'process' ? 'process' : 'scene';
+        const isProcess = activeEditorMode === 'process';
+        githubExampleBar.classList.toggle('hidden', isProcess);
+        processSourceControls.classList.toggle('hidden', !isProcess);
+      }
 
       function executeScene(graph, time) {
         const size = graph.renderSize || graph.size;
@@ -1180,6 +1266,7 @@ import BaseLayout from '@components/BaseLayout.astro';
           const rawScript = editor.value;
 
           if (graph.scenes.length > 0) {
+            setEditorMode('scene');
             // Scene mode
             const layerCount = graph.scenes.reduce((sum, s) => {
               return sum + s.timelines.reduce((t, tl) => {
@@ -1201,6 +1288,7 @@ import BaseLayout from '@components/BaseLayout.astro';
               compileStatus.textContent = 'Waiting for complete Scene graph...';
               return;
             }
+            setEditorMode('process');
             // Process graph mode
             const passCount = graph.processes.reduce((s, p) => s + p.passes.length, 0);
 
@@ -1240,6 +1328,7 @@ import BaseLayout from '@components/BaseLayout.astro';
       }
 
       function reset() {
+        setEditorMode('process');
         defaultScript = processScript;
         editor.value = defaultScript;
         sourceName.textContent = 'demo.jpg';
@@ -1248,6 +1337,7 @@ import BaseLayout from '@components/BaseLayout.astro';
 
       const sceneBtn = document.getElementById('btn-scene');
       sceneBtn.addEventListener('click', () => {
+        setEditorMode('scene');
         defaultScript = sceneScript;
         editor.value = sceneScript;
         sourceName.textContent = 'built-in scene';
@@ -1255,24 +1345,29 @@ import BaseLayout from '@components/BaseLayout.astro';
       });
 
       loadShowcaseBtn.addEventListener('click', () => {
-        loadShowcaseExample(showcaseNumber.value || '7');
+        loadRemoteExample(showcaseNumber.value || '1');
       });
 
       function scheduleShowcaseLoad() {
         window.clearTimeout(showcaseLoadDebounceId);
         showcaseLoadDebounceId = window.setTimeout(() => {
-          if (!showcaseNumber.value || showcaseNumber.value === lastLoadedShowcaseNumber) return;
-          loadShowcaseExample(showcaseNumber.value);
+          const key = `${exampleCategory.value || 'showcase'}:${showcaseNumber.value}`;
+          if (!showcaseNumber.value || key === lastLoadedExampleKey) return;
+          loadRemoteExample(showcaseNumber.value);
         }, 300);
       }
 
       showcaseNumber.addEventListener('input', scheduleShowcaseLoad);
+      exampleCategory.addEventListener('change', () => {
+        if (!showcaseNumber.value) showcaseNumber.value = '1';
+        loadRemoteExample(showcaseNumber.value);
+      });
 
       showcaseNumber.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
           event.preventDefault();
           window.clearTimeout(showcaseLoadDebounceId);
-          loadShowcaseExample(showcaseNumber.value || '7');
+          loadRemoteExample(showcaseNumber.value || '1');
         }
       });
 
@@ -1350,7 +1445,11 @@ import BaseLayout from '@components/BaseLayout.astro';
       editor.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) compileNow();
       });
-      loadShowcaseExample('7');
+      setEditorMode('scene');
+      loadRemoteExample('1', {
+        category: 'showcase',
+        fallbackScript: sceneScript,
+      });
     })();
   </script>
 </BaseLayout>
