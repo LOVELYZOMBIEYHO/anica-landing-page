@@ -18,5 +18,12 @@
   "types": "motionloom.d.ts",
   "sideEffects": [
     "./snippets/*"
+  ],
+  "keywords": [
+    "video",
+    "vfx",
+    "webgpu",
+    "motion-graphics",
+    "dsl"
   ]
 }
