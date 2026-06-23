@@ -21,7 +21,7 @@ import BaseLayout from '@components/BaseLayout.astro';
   </section>
 
   <section class="page-shell py-4 md:py-8">
-    <div class="grid gap-4 rounded-[2.5rem] border-2 border-anica-ink bg-anica-ink p-4 ink-panel md:gap-6 md:p-10">
+    <div id="motionloom-playground-panel" class="grid gap-4 rounded-[2.5rem] border-2 border-anica-ink bg-anica-ink p-4 ink-panel md:gap-6 md:p-10">
       <div class="hidden text-center lg:block">
         <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-lime">Live playground</p>
         <h2 class="mt-3 text-3xl font-black tracking-[0.06em] text-anica-paper md:text-4xl">Graph &rarr; Pipeline &rarr; Preview</h2>
@@ -30,7 +30,7 @@ import BaseLayout from '@components/BaseLayout.astro';
         </p>
       </div>
 
-      <div class="grid gap-4 lg:grid-cols-[1fr_1fr]">
+      <div id="motionloom-workspace" class="grid gap-4 lg:grid-cols-[1fr_1fr]">
         <div class="order-2 flex flex-col gap-3 lg:order-1">
             <div class="flex items-center justify-between">
             <p class="font-mono text-xs font-bold uppercase tracking-wider text-anica-lime">MotionLoom Graph</p>
@@ -74,6 +74,7 @@ import BaseLayout from '@components/BaseLayout.astro';
           <div class="flex items-center justify-between">
             <p class="font-mono text-xs font-bold uppercase tracking-wider text-anica-lime">Preview</p>
             <div class="flex items-center gap-2">
+              <button id="btn-expand-playground" class="rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Expand</button>
               <div id="process-source-controls" class="flex items-center gap-2">
                 <label class="cursor-pointer rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">
                   <input id="file-upload" type="file" accept="image/*,video/*" class="hidden" />
@@ -107,6 +108,64 @@ import BaseLayout from '@components/BaseLayout.astro';
       </div>
     </div>
   </section>
+
+  <style>
+    :global(body.motionloom-playground-expanded) {
+      overflow: hidden;
+    }
+
+    #motionloom-playground-panel.motionloom-expanded {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      display: flex;
+      width: 100vw;
+      height: 100dvh;
+      max-height: 100dvh;
+      flex-direction: column;
+      gap: 0.75rem;
+      overflow: hidden;
+      border-radius: 0;
+      border-width: 0;
+      padding: 0.75rem;
+      box-shadow: none;
+    }
+
+    #motionloom-playground-panel.motionloom-expanded > .hidden {
+      display: none !important;
+    }
+
+    #motionloom-playground-panel.motionloom-expanded #motionloom-workspace {
+      min-height: 0;
+      flex: 1;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    #motionloom-playground-panel.motionloom-expanded #motionloom-workspace > div {
+      min-height: 0;
+    }
+
+    #motionloom-playground-panel.motionloom-expanded #dsl-editor {
+      min-height: 0;
+      height: 100%;
+    }
+
+    #motionloom-playground-panel.motionloom-expanded #motionloom-canvas,
+    #motionloom-playground-panel.motionloom-expanded #motionloom-canvas-webgpu {
+      object-fit: contain;
+    }
+
+    @media (max-width: 1023px) {
+      #motionloom-playground-panel.motionloom-expanded #motionloom-workspace {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+      }
+
+      #motionloom-playground-panel.motionloom-expanded #dsl-editor {
+        min-height: 0;
+      }
+    }
+  </style>
 
   <section class="page-shell py-16">
     <div class="mx-auto max-w-4xl">
@@ -163,6 +222,8 @@ import BaseLayout from '@components/BaseLayout.astro';
       const editor = document.getElementById('dsl-editor');
       const resetBtn = document.getElementById('btn-reset');
       const githubExampleBar = document.getElementById('github-example-bar');
+      const playgroundPanel = document.getElementById('motionloom-playground-panel');
+      const expandPlaygroundBtn = document.getElementById('btn-expand-playground');
       const processSourceControls = document.getElementById('process-source-controls');
       const showcaseNumber = document.getElementById('showcase-number');
       const exampleCategory = document.getElementById('example-category');
@@ -178,6 +239,17 @@ import BaseLayout from '@components/BaseLayout.astro';
       let lastPreviewWidth = canvas.width || 1920;
       let lastPreviewHeight = canvas.height || 1080;
       let isComparingOriginal = false;
+      let playgroundExpanded = false;
+
+      function setPlaygroundExpanded(expanded) {
+        playgroundExpanded = Boolean(expanded);
+        playgroundPanel.classList.toggle('motionloom-expanded', playgroundExpanded);
+        document.body.classList.toggle('motionloom-playground-expanded', playgroundExpanded);
+        expandPlaygroundBtn.textContent = playgroundExpanded ? 'Close' : 'Expand';
+        window.setTimeout(() => {
+          compileNow();
+        }, 60);
+      }
 
       const processScript = `<Graph fps={60} size={[1920,1080]}>
   <Process id="layer_fx">
@@ -1603,6 +1675,15 @@ import BaseLayout from '@components/BaseLayout.astro';
       compareBtn.addEventListener('mouseleave', showEffect);
       compareBtn.addEventListener('touchstart', (e) => { e.preventDefault(); showOriginal(); });
       compareBtn.addEventListener('touchend', (e) => { e.preventDefault(); showEffect(); });
+
+      expandPlaygroundBtn.addEventListener('click', () => {
+        setPlaygroundExpanded(!playgroundExpanded);
+      });
+      window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && playgroundExpanded) {
+          setPlaygroundExpanded(false);
+        }
+      });
 
       resetBtn.addEventListener('click', reset);
       editor.addEventListener('input', scheduleCompile);
