@@ -27,8 +27,33 @@ import { withBase } from '@utils/url';
       <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-anica-lime">Project</h2>
       <div class="mt-4 grid gap-3 text-sm font-bold">
         <a class="text-anica-paper/72 transition hover:text-anica-lime" href={site.repoUrl} target="_blank" rel="noreferrer">Repository</a>
+        <a class="text-anica-paper/72 transition hover:text-anica-lime" href={site.youtubeUrl} target="_blank" rel="noreferrer">YouTube</a>
         <a class="text-anica-paper/72 transition hover:text-anica-lime" href={site.contributingUrl} target="_blank" rel="noreferrer">Contributing</a>
         <a class="text-anica-paper/72 transition hover:text-anica-lime" href={site.licenseUrl} target="_blank" rel="noreferrer">License</a>
+      </div>
+      <div class="mt-6 flex items-center gap-3">
+        <a
+          href={site.repoUrl}
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Open Anica on GitHub"
+          class="grid size-11 place-items-center rounded-full border-2 border-anica-paper/45 text-anica-paper transition hover:border-anica-lime hover:bg-anica-lime hover:text-anica-ink"
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24" class="size-5 fill-current">
+            <path d="M12 .5A11.5 11.5 0 0 0 8.36 22.9c.58.11.79-.25.79-.56v-2.15c-3.22.7-3.9-1.38-3.9-1.38-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.2 1.77 1.2 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.57-.29-5.27-1.28-5.27-5.72 0-1.26.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.06 0 0 .98-.31 3.18 1.19A11.1 11.1 0 0 1 12 5.94c.98 0 1.96.13 2.88.39 2.2-1.5 3.17-1.19 3.17-1.19.64 1.59.24 2.77.12 3.06.74.81 1.18 1.85 1.18 3.11 0 4.45-2.71 5.42-5.29 5.71.42.36.79 1.07.79 2.16v3.16c0 .31.21.68.8.56A11.5 11.5 0 0 0 12 .5Z" />
+          </svg>
+        </a>
+        <a
+          href={site.youtubeUrl}
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Open Anica on YouTube"
+          class="grid size-11 place-items-center rounded-full border-2 border-anica-paper/45 text-anica-paper transition hover:border-anica-lime hover:bg-anica-lime hover:text-anica-ink"
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24" class="size-6 fill-current">
+            <path d="M23.5 6.2a3 3 0 0 0-2.1-2.12C19.55 3.58 12 3.58 12 3.58s-7.55 0-9.4.5A3 3 0 0 0 .5 6.2 31.1 31.1 0 0 0 0 12a31.1 31.1 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.12c1.85.5 9.4.5 9.4.5s7.55 0 9.4-.5a3 3 0 0 0 2.1-2.12A31.1 31.1 0 0 0 24 12a31.1 31.1 0 0 0-.5-5.8ZM9.6 15.56V8.44L15.86 12 9.6 15.56Z" />
+          </svg>
+        </a>
       </div>
     </div>
   </div>

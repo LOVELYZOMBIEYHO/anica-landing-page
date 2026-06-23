@@ -4,6 +4,7 @@ export const site = {
   description:
     'Anica is an agentic-first video editor built with Rust for native, AI-assisted video workflows.',
   repoUrl: 'https://github.com/LOVELYZOMBIEYHO/anica',
+  youtubeUrl: 'https://www.youtube.com/@AnicaEditor',
   installDocsUrl: 'https://github.com/LOVELYZOMBIEYHO/anica/blob/main/docs/INSTALL.md',
   macosBundleDocsUrl: 'https://github.com/LOVELYZOMBIEYHO/anica/blob/main/docs/MACOS_APP_BUNDLE.md',
   contributingUrl: 'https://github.com/LOVELYZOMBIEYHO/anica/blob/main/CONTRIBUTING.md',
