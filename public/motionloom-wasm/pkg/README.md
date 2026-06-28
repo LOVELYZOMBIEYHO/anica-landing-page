@@ -139,6 +139,118 @@ graphs unless the process wraps a self-contained `<Scene>` or `<World>` source.
 
 Scene `zDepth` uses camera-space depth: negative is closer, positive is farther.
 
+## Scene DSL Feature Map For Editors And LLMs
+
+The scene DSL now has a set of editor-oriented controls intended for Anica VFX
+Studio and LLM-generated examples:
+
+For UI property panels, use the ACP schema at
+`docs/acp/motionloom/scene-ui-schema.json`. It is the machine-readable source
+for Scene Camera and Layer3D labels, groups, property types, and animatability.
+
+| Need | DSL | Notes |
+| --- | --- | --- |
+| Compact numeric animation | `curve("time:value:ease, ...")` | Use for hand-authored numeric properties. |
+| UI/time keyframes | `<AnimationTarget>` + `<Key>` | Direct graph children targeting a node id and property. |
+| Editable path shape keys | `AnimationTarget property="d"` | Use path-string keys; do not use `curve(...)` for `Path.d`. |
+| Puppet deformation | `<Puppet>` + `<Pin>` | AE-style pin deformation with auto mesh by default. |
+| Manual topology | `<MeshTopology>` + `<Vertex>` + `<Triangle>` | Optional expert path when auto mesh is not enough. |
+| Character rigs | `<Skeleton>`, `<Action>`, `<Character>`, `<Part>`, `<ApplyAction>` | Bone-attached scene artwork. |
+| IK controls | `<IK root mid end ...>` or `<IK chain="..." ...>` | Two-bone and CCD-chain solvers. |
+| Scene camera motion | `<Track role="camera"><Sequence><Camera ... /></Sequence></Track>` | 2D pan/zoom/rotation/follow camera; do not use `mode`. |
+| 2.5D scene cards | `<Layer3D>` | Flat card/panel depth and tilt, not true 3D mesh rendering. |
+| Moving masks | `<Mask follow="node:id">` | Follow/reveal style masks. |
+| Procedural face outline | `<FaceJaw>` | Parameterized jaw/face curve generation. |
+
+### AnimationTarget
+
+`AnimationTarget` is a keyframe layer for editor and UI workflows.
+It is evaluated before rendering and reuses the existing transform, opacity,
+path morph, puppet, and skeleton pipelines.
+
+Editor integrations can use `extract_editable_animation_timeline`,
+`replace_editable_animation_targets`, and `upsert_editable_animation_target`
+to read UI-editable keys from `.motionloom` text and write them back as
+parser-validated DSL.
+
+Supported properties are `x`, `y`, `rotation`, `scale`, `scaleX`, `scaleY`, `skewX`, `skewY`, `transformOriginX`, `transformOriginY`, `opacity`, and `d`.
+All properties except `d` require numeric key values. `property="d"` accepts SVG path
+strings for editable path morph keys. Each `<Key>` must use exactly one timing
+attribute: `time="1.5s"`/`time="500ms"` or `frame="45"`. Internally both forms
+are sampled in seconds; `frame` is converted through the graph `fps`. Writers
+preserve whichever form the input used, while new UI keys should prefer `time`
+so edits survive FPS changes. `Key.ease` uses the same easing parser as
+`curve(...)`: `linear`, `ease_in`, `ease_out`, `ease_in_out`, or
+`ease(x1,y1,x2,y2)`.
+
+```xml
+<AnimationTarget node="card" property="rotation">
+  <Key time="0s" value="0" ease="linear" />
+  <Key time="0.5s" value="18" ease="ease_in_out" />
+  <Key time="1s" value="0" ease="ease_out" />
+</AnimationTarget>
+```
+
+For a UI edit, build an `EditableAnimationTarget` for one `node/property`
+channel and call `upsert_editable_animation_target(script, target)`. For a full
+timeline save, call `replace_editable_animation_targets(script, targets)`.
+
+For Puppet pins, `AnimationTarget node="pin_id" property="x/y"` animates the
+pin target position. The pin's own `x/y` are the rest/source anchor.
+
+### Puppet, Pin, and MeshTopology
+
+`Puppet` defaults to auto mesh. Keep visual children and pins in the same local
+coordinate system as `width` and `height` (`0..width`, `0..height`), then move
+the whole puppet with `Puppet x/y`. Use `density="high"` or a larger pin
+`radius` for smoother deformation.
+
+Use `MeshTopology` only for advanced cases that need explicit vertices,
+triangles, edges, or regions. Pins can attach to topology vertices with
+`vertex="vertex_id"`.
+
+### Character Sources
+
+`Character` can draw vector children and/or a raster source with `src`,
+`image`, or `path`. Character raster loading uses the same loader as `<Image>`,
+including PNG/JPG asset paths and `data:image/png;base64,...` or
+`data:image/jpeg;base64,...` self-contained sources. SVG data URIs should use
+`<Svg>`.
+
+## Scene Character IK
+
+Scene `<Action>` supports optional IK targets for 2D `<Skeleton>` rigs. Use it
+when a chain endpoint must reach a target while keeping FK poses as the base
+motion:
+
+```xml
+<Skeleton id="arm">
+  <Bone id="upper" x="0" y="0" />
+  <Bone id="lower" parent="upper" x="40" y="0" />
+  <Bone id="hand" parent="lower" x="40" y="0" />
+</Skeleton>
+
+<Action id="reach" skeleton="arm" duration="1s">
+  <IK root="upper" mid="lower" end="hand"
+      targetX="40" targetY="40" bend="1" weight="1" />
+</Action>
+```
+
+`root`, `mid`, and `end` must be a direct parented chain. `targetX` and
+`targetY` use the skeleton's local coordinate space and may be numeric
+expressions or `curve(...)` values. `bend` chooses the elbow/finger bend side
+(`1` or `-1`), and `weight` blends between FK and IK.
+
+For longer chains, use CCD IK with `chain`:
+
+```xml
+<IK chain="finger_1,finger_2,finger_3,finger_tip"
+    targetX="24" targetY="-120" iterations="10" weight="1" />
+```
+
+`chain` ids must be direct parent-child bones. The last id is the end effector;
+all earlier ids can rotate during the solve.
+
 ## Preview Surfaces
 
 `SceneRenderer::render_frame_to_preview_surface(graph, frame, options)`
