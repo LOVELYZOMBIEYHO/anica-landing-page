@@ -1,13 +1,14 @@
 import {
   BufferTarget,
   CanvasSource,
+  Mp4OutputFormat,
   Output,
   QUALITY_HIGH,
   WebMOutputFormat,
   canEncodeVideo,
 } from 'mediabunny';
 
-export type MotionLoomWebExportFormat = 'webm-vp8' | 'webm-vp9' | 'webm-av1';
+export type MotionLoomWebExportFormat = 'webm-vp8' | 'webm-vp9' | 'webm-av1' | 'mp4-h264';
 
 type MotionLoomWebExportOptions = {
   format?: MotionLoomWebExportFormat;
@@ -28,20 +29,24 @@ declare global {
 }
 
 const FORMAT_META: Record<MotionLoomWebExportFormat, {
-  codec: 'av1' | 'vp8' | 'vp9';
+  codec: 'av1' | 'avc' | 'vp8' | 'vp9';
   extension: string;
   mimeType: string;
 }> = {
   'webm-vp8': { codec: 'vp8', extension: 'webm', mimeType: 'video/webm' },
   'webm-vp9': { codec: 'vp9', extension: 'webm', mimeType: 'video/webm' },
   'webm-av1': { codec: 'av1', extension: 'webm', mimeType: 'video/webm' },
+  'mp4-h264': { codec: 'avc', extension: 'mp4', mimeType: 'video/mp4' },
 };
 
 const nextAnimationFrame = () => new Promise<void>((resolve) => {
   requestAnimationFrame(() => resolve());
 });
 
-function buildOutputFormat() {
+function buildOutputFormat(format: MotionLoomWebExportFormat) {
+  if (format === 'mp4-h264') {
+    return new Mp4OutputFormat();
+  }
   return new WebMOutputFormat();
 }
 
@@ -68,7 +73,8 @@ async function assertVideoEncoderSupport(
     height: canvas.height,
   });
   if (!supported) {
-    throw new Error(`This browser cannot encode ${meta.codec} at ${canvas.width}x${canvas.height}.`);
+    const codecLabel = format === 'mp4-h264' ? 'H.264 MP4' : meta.codec;
+    throw new Error(`This browser cannot encode ${codecLabel} at ${canvas.width}x${canvas.height}.`);
   }
 }
 
@@ -90,7 +96,7 @@ export function installMotionLoomWebExport() {
 
     const target = new BufferTarget();
     const output = new Output({
-      format: buildOutputFormat(),
+      format: buildOutputFormat(format),
       target,
     });
     const videoSource = new CanvasSource(canvas, {

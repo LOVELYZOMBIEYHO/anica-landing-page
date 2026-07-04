@@ -85,6 +85,7 @@ import BaseLayout from '@components/BaseLayout.astro';
               </div>
               <select id="export-format" class="rounded-full border-2 border-anica-lime/40 bg-anica-ink px-3 py-1 font-mono text-xs font-bold uppercase tracking-wider text-anica-lime">
                 <option value="png">PNG</option>
+                <option value="mp4-h264">MP4 H.264</option>
                 <option value="webm-vp8">WebM VP8</option>
                 <option value="webm-vp9">WebM VP9</option>
                 <option value="webm-av1">WebM AV1</option>
@@ -97,6 +98,18 @@ import BaseLayout from '@components/BaseLayout.astro';
             <canvas id="motionloom-canvas" class="absolute inset-0 h-full w-full object-contain opacity-100"></canvas>
             <div id="webgpu-status" class="absolute bottom-3 left-3 rounded-full border border-anica-lime/30 bg-anica-ink/80 px-3 py-1 font-mono text-xs text-anica-lime backdrop-blur-md">
               Canvas 2D pipeline
+            </div>
+          </div>
+          <div id="preview-timeline-panel" class="rounded-2xl border border-anica-paper/15 bg-anica-paper/5 p-3">
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <button id="btn-preview-play" type="button" class="rounded-full border-2 border-anica-lime/40 px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-anica-lime transition hover:bg-anica-lime/10">
+                Pause
+              </button>
+              <input id="preview-timeline" type="range" min="0" max="0" value="0" step="1" class="motionloom-timeline-range min-w-0 flex-1" />
+              <div class="flex items-center justify-between gap-3 font-mono text-[0.65rem] text-anica-paper/60 sm:min-w-[190px]">
+                <span id="preview-time">00:00.00 / 00:00.00</span>
+                <span id="preview-frame">f0 / 0</span>
+              </div>
             </div>
           </div>
           <p class="text-xs text-anica-paper/50">
@@ -154,6 +167,27 @@ import BaseLayout from '@components/BaseLayout.astro';
     #motionloom-playground-panel.motionloom-expanded #motionloom-canvas,
     #motionloom-playground-panel.motionloom-expanded #motionloom-canvas-webgpu {
       object-fit: contain;
+    }
+
+    .motionloom-timeline-range {
+      accent-color: #B9FF39;
+      cursor: pointer;
+    }
+
+    .motionloom-timeline-range::-webkit-slider-runnable-track {
+      height: 0.4rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    .motionloom-timeline-range::-webkit-slider-thumb {
+      margin-top: -0.38rem;
+    }
+
+    .motionloom-timeline-range::-moz-range-track {
+      height: 0.4rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
     }
 
     @media (max-width: 1023px) {
@@ -235,12 +269,26 @@ import BaseLayout from '@components/BaseLayout.astro';
       const downloadBtn = document.getElementById('btn-download');
       const exportFormat = document.getElementById('export-format');
       const webgpuStatus = document.getElementById('webgpu-status');
+      const previewTimelinePanel = document.getElementById('preview-timeline-panel');
+      const previewPlayBtn = document.getElementById('btn-preview-play');
+      const previewTimeline = document.getElementById('preview-timeline');
+      const previewTime = document.getElementById('preview-time');
+      const previewFrame = document.getElementById('preview-frame');
       const ctx = canvas.getContext('2d');
       let activePreviewCanvas = canvas;
       let lastPreviewWidth = canvas.width || 1920;
       let lastPreviewHeight = canvas.height || 1080;
       let isComparingOriginal = false;
       let playgroundExpanded = false;
+      const previewPlayback = {
+        fps: 30,
+        totalFrames: 1,
+        duration: 1,
+        frameFloat: 0,
+        playing: true,
+        lastTickMs: 0,
+        needsRender: true,
+      };
 
       function setPlaygroundExpanded(expanded) {
         playgroundExpanded = Boolean(expanded);
@@ -250,6 +298,72 @@ import BaseLayout from '@components/BaseLayout.astro';
         window.setTimeout(() => {
           compileNow();
         }, 60);
+      }
+
+      function formatPreviewTime(seconds) {
+        const safe = Math.max(0, Number(seconds) || 0);
+        const minutes = Math.floor(safe / 60);
+        const remaining = safe - minutes * 60;
+        return `${String(minutes).padStart(2, '0')}:${remaining.toFixed(2).padStart(5, '0')}`;
+      }
+
+      function updatePreviewTimelineControls() {
+        const maxFrame = Math.max(0, previewPlayback.totalFrames - 1);
+        const frame = Math.min(maxFrame, Math.max(0, Math.floor(previewPlayback.frameFloat)));
+        if (previewTimeline) {
+          previewTimeline.max = String(maxFrame);
+          if (document.activeElement !== previewTimeline) {
+            previewTimeline.value = String(frame);
+          }
+        }
+        if (previewTime) {
+          const currentSeconds = Math.min(previewPlayback.duration, frame / previewPlayback.fps);
+          previewTime.textContent = `${formatPreviewTime(currentSeconds)} / ${formatPreviewTime(previewPlayback.duration)}`;
+        }
+        if (previewFrame) {
+          previewFrame.textContent = `f${frame} / ${maxFrame}`;
+        }
+        if (previewPlayBtn) {
+          previewPlayBtn.textContent = previewPlayback.playing ? 'Pause' : 'Play';
+        }
+      }
+
+      function configurePreviewTimeline(graph, totalFrames) {
+        const hasTimeline = Boolean(graph.hasExplicitDuration && graph.duration > 0);
+        if (previewTimelinePanel) {
+          previewTimelinePanel.classList.toggle('hidden', !hasTimeline);
+          previewTimelinePanel.style.display = hasTimeline ? '' : 'none';
+        }
+        previewPlayback.playing = hasTimeline;
+        previewPlayback.fps = Math.max(1, graph.fps || 30);
+        if (!hasTimeline) {
+          previewPlayback.duration = 0;
+          previewPlayback.totalFrames = 1;
+          previewPlayback.frameFloat = 0;
+          previewPlayback.lastTickMs = 0;
+          previewPlayback.needsRender = true;
+          updatePreviewTimelineControls();
+          return;
+        }
+        previewPlayback.duration = Math.max(1 / previewPlayback.fps, graph.duration);
+        previewPlayback.totalFrames = Math.max(1, totalFrames || Math.round(previewPlayback.duration * previewPlayback.fps));
+        previewPlayback.frameFloat = 0;
+        previewPlayback.lastTickMs = 0;
+        previewPlayback.needsRender = true;
+        updatePreviewTimelineControls();
+      }
+
+      function tickPreviewPlayback(nowMs) {
+        if (!previewPlayback.lastTickMs) {
+          previewPlayback.lastTickMs = nowMs;
+        }
+        const deltaSeconds = Math.max(0, (nowMs - previewPlayback.lastTickMs) / 1000);
+        previewPlayback.lastTickMs = nowMs;
+        if (previewPlayback.playing) {
+          previewPlayback.frameFloat = (previewPlayback.frameFloat + deltaSeconds * previewPlayback.fps) % previewPlayback.totalFrames;
+          previewPlayback.needsRender = true;
+        }
+        return Math.min(previewPlayback.totalFrames - 1, Math.max(0, Math.floor(previewPlayback.frameFloat)));
       }
 
       const processScript = `<Graph fps={60} size={[1920,1080]}>
@@ -706,7 +820,7 @@ import BaseLayout from '@components/BaseLayout.astro';
       // ---------- Simple MotionLoom Graph Parser ----------
       function parseGraph(src) {
         const graph = {
-          fps: 30, size: [1920, 1080], duration: 4, renderSize: null,
+          fps: 30, size: [1920, 1080], duration: null, hasExplicitDuration: false, renderSize: null,
           processes: [], scenes: [], present: null, background: null
         };
         // Match both opening <Tag ...> and closing </Tag> tags
@@ -736,7 +850,10 @@ import BaseLayout from '@components/BaseLayout.astro';
           if (tag === 'Graph') {
             if (attrs.fps) graph.fps = Number(attrs.fps);
             if (attrs.size) graph.size = attrs.size;
-            if (attrs.duration) graph.duration = parseDuration(attrs.duration);
+            if (attrs.duration) {
+              graph.duration = parseDuration(attrs.duration);
+              graph.hasExplicitDuration = true;
+            }
             if (attrs.renderSize) graph.renderSize = attrs.renderSize;
           } else if (tag === 'Background') {
             graph.background = attrs.color || '#000000';
@@ -1017,7 +1134,6 @@ import BaseLayout from '@components/BaseLayout.astro';
 
       // ---------- Scene Execution ----------
       let sceneAnimationId = null;
-      let sceneStartTime = 0;
       let isScenePlaying = false;
       let sceneLoopToken = 0;
       let wasmSceneRenderer = null;
@@ -1183,7 +1299,8 @@ import BaseLayout from '@components/BaseLayout.astro';
         }
         const kf = curve.keyframes;
         if (!kf || kf.length === 0) return 0;
-        const t = time % graph.duration;
+        const graphDuration = graph.duration || Math.max(time, 1);
+        const t = time % graphDuration;
         // Find segment
         for (let i = 0; i < kf.length - 1; i++) {
           const a = kf[i];
@@ -1251,22 +1368,22 @@ import BaseLayout from '@components/BaseLayout.astro';
         stopSceneLoop();
         wasmSceneRenderer = renderer;
         isScenePlaying = true;
-        sceneStartTime = performance.now();
         const token = ++sceneLoopToken;
         const fps = Math.max(1, graph.fps || 30);
         const totalFrames = Math.max(1, renderer.total_frames || Math.round((graph.duration || 1) * fps));
+        configurePreviewTimeline(graph, totalFrames);
         let renderInFlight = false;
 
-        async function loop() {
+        async function loop(nowMs) {
           if (!isScenePlaying || token !== sceneLoopToken) return;
           if (isComparingOriginal) {
             sceneAnimationId = requestAnimationFrame(loop);
             return;
           }
-          if (!renderInFlight) {
+          const frame = tickPreviewPlayback(nowMs || performance.now());
+          if (!renderInFlight && previewPlayback.needsRender) {
             renderInFlight = true;
-            const elapsed = (performance.now() - sceneStartTime) / 1000;
-            const frame = Math.floor(elapsed * fps) % totalFrames;
+            previewPlayback.needsRender = false;
             try {
               if (mode === 'webgpu') {
                 showWebGpuPreview(size[0], size[1]);
@@ -1292,6 +1409,7 @@ import BaseLayout from '@components/BaseLayout.astro';
               renderInFlight = false;
             }
           }
+          updatePreviewTimelineControls();
           sceneAnimationId = requestAnimationFrame(loop);
         }
 
@@ -1302,15 +1420,21 @@ import BaseLayout from '@components/BaseLayout.astro';
         if (sceneAnimationId) cancelAnimationFrame(sceneAnimationId);
         sceneLoopToken++;
         isScenePlaying = true;
-        sceneStartTime = performance.now();
-        function loop() {
+        const fps = Math.max(1, graph.fps || 30);
+        const totalFrames = Math.max(1, Math.round((graph.duration || 1) * fps));
+        configurePreviewTimeline(graph, totalFrames);
+        function loop(nowMs) {
           if (!isScenePlaying) return;
           if (isComparingOriginal) {
             sceneAnimationId = requestAnimationFrame(loop);
             return;
           }
-          const elapsed = (performance.now() - sceneStartTime) / 1000;
-          executeScene(graph, elapsed);
+          const frame = tickPreviewPlayback(nowMs || performance.now());
+          if (previewPlayback.needsRender) {
+            previewPlayback.needsRender = false;
+            executeScene(graph, frame / previewPlayback.fps);
+          }
+          updatePreviewTimelineControls();
           sceneAnimationId = requestAnimationFrame(loop);
         }
         sceneAnimationId = requestAnimationFrame(loop);
@@ -1326,6 +1450,9 @@ import BaseLayout from '@components/BaseLayout.astro';
         // Let JavaScript GC release the WASM wrapper. Manual `.free()` is unsafe
         // here because render_frame_to_canvas is async and may still be in-flight.
         wasmSceneRenderer = null;
+        previewPlayback.lastTickMs = 0;
+        previewPlayback.needsRender = false;
+        updatePreviewTimelineControls();
       }
 
       function pauseSceneLoopForExport() {
@@ -1477,7 +1604,7 @@ import BaseLayout from '@components/BaseLayout.astro';
                 return t + tl.tracks.reduce((tr, t) => tr + t.sequences.reduce((sq, seq) => sq + seq.layers.length, 0), 0);
               }, 0);
             }, 0);
-            compileStatus.textContent = `Compiled: ${graph.scenes.length} scene(s), ${layerCount} layer(s) | ${graph.fps}fps, ${graph.duration}s`;
+            compileStatus.textContent = `Compiled: ${graph.scenes.length} scene(s), ${layerCount} layer(s) | ${graph.fps}fps${graph.hasExplicitDuration ? `, ${graph.duration}s` : ''}`;
             compileStatus.classList.remove('text-anica-signal');
             compileStatus.classList.add('text-anica-lime/80');
             const sceneWasmMode = await tryRenderSceneWithWasm(rawScript, graph);
@@ -1494,6 +1621,11 @@ import BaseLayout from '@components/BaseLayout.astro';
             }
             setEditorMode('process');
             // Process graph mode
+            const processTotalFrames = graph.hasExplicitDuration
+              ? Math.max(1, Math.round((graph.duration || 0) * (graph.fps || 30)))
+              : 1;
+            configurePreviewTimeline(graph, processTotalFrames);
+
             const passCount = graph.processes.reduce((s, p) => s + p.passes.length, 0);
 
             const paramTexts = [];
@@ -1611,6 +1743,25 @@ import BaseLayout from '@components/BaseLayout.astro';
           img.src = url;
         }
       });
+
+      if (previewPlayBtn) {
+        previewPlayBtn.addEventListener('click', () => {
+          previewPlayback.playing = !previewPlayback.playing;
+          previewPlayback.lastTickMs = performance.now();
+          previewPlayback.needsRender = true;
+          updatePreviewTimelineControls();
+        });
+      }
+
+      if (previewTimeline) {
+        previewTimeline.addEventListener('input', () => {
+          previewPlayback.playing = false;
+          previewPlayback.frameFloat = Number(previewTimeline.value) || 0;
+          previewPlayback.lastTickMs = performance.now();
+          previewPlayback.needsRender = true;
+          updatePreviewTimelineControls();
+        });
+      }
 
       downloadBtn.addEventListener('click', async () => {
         const selectedFormat = exportFormat?.value || 'png';
