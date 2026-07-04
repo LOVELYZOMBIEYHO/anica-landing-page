@@ -64,12 +64,9 @@ import BaseLayout from '@components/BaseLayout.astro';
             <button id="btn-load-showcase" class="rounded-full border border-anica-paper/30 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Load</button>
           </div>
           <div id="animation-controls-panel" class="rounded-2xl border border-anica-paper/15 bg-anica-paper/5 p-3">
-            <div class="mb-3 flex items-center justify-between gap-3">
-              <div>
-                <p class="font-mono text-[0.65rem] font-bold uppercase tracking-[0.22em] text-anica-lime">Scene controls</p>
-                <p class="mt-1 text-xs text-anica-paper/45">Select a Group by id, then edit its transform attributes in the current DSL.</p>
-              </div>
-              <button id="btn-refresh-group-controls" type="button" class="rounded-full border border-anica-lime/40 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-lime transition hover:bg-anica-lime/10">Refresh groups</button>
+            <div class="mb-3">
+              <p class="font-mono text-[0.65rem] font-bold uppercase tracking-[0.22em] text-anica-lime">Scene controls</p>
+              <p class="mt-1 text-xs text-anica-paper/45">Select a Group id and variable from the current DSL, then edit its value.</p>
             </div>
 
             <label class="mb-3 grid gap-2">
@@ -82,24 +79,18 @@ import BaseLayout from '@components/BaseLayout.astro';
 
             <div class="motionloom-control-grid">
               <label class="motionloom-control">
-                <span>X</span>
-                <input id="ctl-group-x" data-motionloom-control="x" type="number" step="1" />
+                <span>Variable</span>
+                <select id="group-variable-select">
+                  <option value="x">X</option>
+                  <option value="y">Y</option>
+                  <option value="rotation">Rotation</option>
+                  <option value="scale">Scale</option>
+                  <option value="opacity">Opacity</option>
+                </select>
               </label>
               <label class="motionloom-control">
-                <span>Y</span>
-                <input id="ctl-group-y" data-motionloom-control="y" type="number" step="1" />
-              </label>
-              <label class="motionloom-control">
-                <span>Rotation</span>
-                <input id="ctl-group-rotation" data-motionloom-control="rotation" type="number" step="1" />
-              </label>
-              <label class="motionloom-control">
-                <span>Scale</span>
-                <input id="ctl-group-scale" data-motionloom-control="scale" type="number" step="0.01" min="0.01" />
-              </label>
-              <label class="motionloom-control">
-                <span>Opacity</span>
-                <input id="ctl-group-opacity" data-motionloom-control="opacity" type="number" step="0.01" min="0" max="1" />
+                <span>Value</span>
+                <input id="group-variable-value" type="number" step="1" />
               </label>
             </div>
             <p id="group-control-status" class="mt-3 min-h-[1rem] font-mono text-[0.65rem] text-anica-paper/45"></p>
@@ -246,7 +237,8 @@ import BaseLayout from '@components/BaseLayout.astro';
       color: #B9FF39;
     }
 
-    .motionloom-control input {
+    .motionloom-control input,
+    .motionloom-control select {
       width: 100%;
       border: 1px solid rgb(242 237 223 / 0.18);
       border-radius: 0.65rem;
@@ -260,7 +252,8 @@ import BaseLayout from '@components/BaseLayout.astro';
       outline: none;
     }
 
-    .motionloom-control input:focus {
+    .motionloom-control input:focus,
+    .motionloom-control select:focus {
       border-color: #B9FF39;
     }
 
@@ -363,8 +356,9 @@ import BaseLayout from '@components/BaseLayout.astro';
       const resetBtn = document.getElementById('btn-reset');
       const githubExampleBar = document.getElementById('github-example-bar');
       const animationControlsPanel = document.getElementById('animation-controls-panel');
-      const refreshGroupControlsBtn = document.getElementById('btn-refresh-group-controls');
       const groupControlSelect = document.getElementById('group-control-select');
+      const groupVariableSelect = document.getElementById('group-variable-select');
+      const groupVariableValue = document.getElementById('group-variable-value');
       const groupControlStatus = document.getElementById('group-control-status');
       const playgroundPanel = document.getElementById('motionloom-playground-panel');
       const expandPlaygroundBtn = document.getElementById('btn-expand-playground');
@@ -398,9 +392,6 @@ import BaseLayout from '@components/BaseLayout.astro';
         lastTickMs: 0,
         needsRender: true,
       };
-      const groupControlInputs = Array.from(
-        document.querySelectorAll('[data-motionloom-control]')
-      );
       let selectedGroupId = '';
       let cachedGroupControls = [];
 
@@ -511,47 +502,8 @@ import BaseLayout from '@components/BaseLayout.astro';
         return num.toFixed(decimals).replace(/\.?0+$/, '');
       }
 
-      const sceneScript = `<Graph fps={30} duration="4s" size={[800,450]} renderSize={[800,450]}>
-  <Background color="#FFFFFF" />
-
-  <Scene id="SceneControlsExample">
-    <Timeline>
-      <Track id="guide" space="screen" z="0">
-        <Sequence from="0s" duration="4s" out="hold">
-          <Layer>
-            <Text x="32" y="44" value="Scene controls" fontSize="28" color="#111827" />
-            <Text x="32" y="72" value="Select any Group id and edit x, y, rotation, scale, or opacity." fontSize="16" color="#6B7280" />
-            <Line x1="120" y1="342" x2="680" y2="342" stroke="#11182722" strokeWidth="3" />
-            <Text x="120" y="372" value="The textarea remains the source of truth." fontSize="15" color="#6B7280" />
-          </Layer>
-        </Sequence>
-      </Track>
-
-      <Track id="animated_layer" space="world" z="10" zDepth="0">
-        <Sequence from="0s" duration="4s" out="hold">
-          <Layer>
-            <Rect x="96" y="300" width="608" height="84" radius="28" color="#F3F4F6" opacity="0.92" />
-            <Group id="selected_layer"
-                   x="400"
-                   y="222"
-                   rotation={curve("0:-12:linear, 4:28:ease_in_out")}
-                   scale="1"
-                   opacity="0.92">
-              <Rect x="-115" y="-69" width="230" height="138" radius="28" color="#111827" opacity="0.94" />
-              <Circle x="-72" y="0" radius="18" color="#B9FF39" opacity="0.95" />
-              <Text x="-48" y="8" value="selected_layer" fontSize="23" color="#FFFFFF" />
-            </Group>
-          </Layer>
-        </Sequence>
-      </Track>
-    </Timeline>
-  </Scene>
-
-  <Present from="SceneControlsExample" />
-</Graph>`;
-
-      let defaultScript = sceneScript;
-      editor.value = defaultScript;
+      let defaultScript = '';
+      editor.value = 'Loading showcase example 1...';
 
       const base = (typeof window !== 'undefined' && window.MOTIONLOOM_BASE) ? window.MOTIONLOOM_BASE : '/';
       const demoImageUrl = base.replace(/\/$/, '') + '/demo.jpg';
@@ -1720,11 +1672,14 @@ import BaseLayout from '@components/BaseLayout.astro';
         return cachedGroupControls.find((group) => group.id === selectedGroupId) || null;
       }
 
+      function selectedGroupAttr() {
+        return groupVariableSelect?.value || 'x';
+      }
+
       function setGroupControlsDisabled(disabled) {
-        for (const input of groupControlInputs) {
-          input.disabled = disabled;
-        }
         if (groupControlSelect) groupControlSelect.disabled = disabled;
+        if (groupVariableSelect) groupVariableSelect.disabled = disabled;
+        if (groupVariableValue) groupVariableValue.disabled = disabled;
       }
 
       function refreshGroupControls(options = {}) {
@@ -1754,7 +1709,7 @@ import BaseLayout from '@components/BaseLayout.astro';
         const group = selectedGroupTarget();
         setGroupControlsDisabled(!group);
         if (!group) {
-          for (const input of groupControlInputs) input.value = '';
+          if (groupVariableValue) groupVariableValue.value = '';
           if (groupControlStatus) {
             groupControlStatus.textContent = 'No <Group id="..."> found in the current DSL.';
           }
@@ -1769,14 +1724,24 @@ import BaseLayout from '@components/BaseLayout.astro';
           opacity: numericGroupAttr(group.attrs, 'opacity', 1),
         };
 
-        for (const input of groupControlInputs) {
-          const key = input.dataset.motionloomControl;
-          if (!key || values[key] === undefined) continue;
-          input.value = formatDslNumber(values[key], key === 'scale' || key === 'opacity' ? 2 : 1);
+        const attr = selectedGroupAttr();
+        if (groupVariableValue && values[attr] !== undefined) {
+          groupVariableValue.step = attr === 'scale' || attr === 'opacity' ? '0.01' : '1';
+          if (attr === 'scale') {
+            groupVariableValue.min = '0.01';
+            groupVariableValue.max = '';
+          } else if (attr === 'opacity') {
+            groupVariableValue.min = '0';
+            groupVariableValue.max = '1';
+          } else {
+            groupVariableValue.min = '';
+            groupVariableValue.max = '';
+          }
+          groupVariableValue.value = formatDslNumber(values[attr], groupAttrDecimals(attr));
         }
 
         if (groupControlStatus) {
-          groupControlStatus.textContent = `Editing <Group id="${group.id}">. Curve attributes show their first key value; editing replaces that attribute with a constant.`;
+          groupControlStatus.textContent = `Editing ${selectedGroupAttr()} on <Group id="${group.id}">. Curve attributes show their first key value; editing replaces that attribute with a constant.`;
         }
       }
 
@@ -1794,9 +1759,9 @@ import BaseLayout from '@components/BaseLayout.astro';
         return tagText.replace(/\s*(\/?>)$/, ` ${replacement}$1`);
       }
 
-      function applyGroupControlInput(input) {
-        const attr = input.dataset.motionloomControl;
-        const value = Number(input.value);
+      function applyGroupControlInput() {
+        const attr = selectedGroupAttr();
+        const value = Number(groupVariableValue?.value);
         if (!attr || !Number.isFinite(value)) return;
         const group = selectedGroupTarget();
         if (!group) return;
@@ -1914,22 +1879,17 @@ import BaseLayout from '@components/BaseLayout.astro';
 
       const sceneBtn = document.getElementById('btn-scene');
       sceneBtn.addEventListener('click', () => {
-        setEditorMode('scene');
-        defaultScript = sceneScript;
-        editor.value = sceneScript;
-        sourceName.textContent = 'scene controls example';
-        refreshGroupControls({ keepSelection: false });
-        compileNow();
+        if (exampleCategory) exampleCategory.value = 'showcase';
+        if (showcaseNumber) showcaseNumber.value = '1';
+        loadRemoteExample('1', { category: 'showcase' });
       });
 
-      if (refreshGroupControlsBtn) {
-        refreshGroupControlsBtn.addEventListener('click', () => {
-          refreshGroupControls({ keepSelection: true });
-        });
+      if (groupVariableSelect) {
+        groupVariableSelect.addEventListener('change', updateGroupControlInputs);
       }
 
-      for (const input of groupControlInputs) {
-        input.addEventListener('input', () => applyGroupControlInput(input));
+      if (groupVariableValue) {
+        groupVariableValue.addEventListener('input', applyGroupControlInput);
       }
 
       if (groupControlSelect) {
@@ -2101,8 +2061,7 @@ import BaseLayout from '@components/BaseLayout.astro';
       editor.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) compileNow();
       });
-      refreshGroupControls({ keepSelection: false });
-      compileNow();
+      loadRemoteExample('1', { category: 'showcase' });
     })();
   </script>
 </BaseLayout>
