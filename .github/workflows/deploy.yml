@@ -21,11 +21,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v6
+
       - name: Install, build, and upload site
         uses: withastro/action@v6
         with:
           path: .
-          node-version: 24
+          node-version: 22
 
   deploy:
     needs: build

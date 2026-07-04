@@ -393,7 +393,7 @@ Note:
     </div>
   </section>
 
-  <script define:vars={{ installCommand, agentPrompt, cloneAgentPrompt }}>
+  <script is:inline>
     const terminalLabel = document.getElementById('terminal-label');
 
     const installBtn = document.getElementById('install-btn');
@@ -404,6 +404,7 @@ Note:
 
     const copyInstallBtn = document.getElementById('copy-install-btn');
     const copyInstallStatus = document.getElementById('copy-install-status');
+    const installCode = document.getElementById('install-code');
 
     const copyPromptBtn = document.getElementById('copy-prompt-btn');
     const copyPromptStatus = document.getElementById('copy-prompt-status');
@@ -496,16 +497,17 @@ Note:
     });
 
     copyInstallBtn?.addEventListener('click', () => {
-      copyText(installCommand, copyInstallStatus, 'Copied.');
+      const installCommandText = installCode?.textContent || '';
+      copyText(installCommandText, copyInstallStatus, 'Copied.');
     });
 
     copyPromptBtn?.addEventListener('click', () => {
-      const promptText = agentPromptCode?.textContent || agentPrompt;
+      const promptText = agentPromptCode?.textContent || '';
       copyText(promptText, copyPromptStatus, 'Install prompt copied.');
     });
 
     copyClonePromptBtn?.addEventListener('click', () => {
-      const promptText = clonePromptCode?.textContent || cloneAgentPrompt;
+      const promptText = clonePromptCode?.textContent || '';
       copyText(promptText, copyClonePromptStatus, 'Clone prompt copied.');
     });
 
