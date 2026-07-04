@@ -842,10 +842,6 @@ import BaseLayout from '@components/BaseLayout.astro';
 
       async function tryRenderProcessWithWasm(script, sourceImage) {
         try {
-          if (processScriptHasCanvasPreferredEffect(script)) {
-            webgpuStatus.textContent = 'Canvas process pipeline';
-            return false;
-          }
           webgpuStatus.textContent = 'Loading MotionLoom WASM...';
           const mod = await withTimeout(
             loadMotionLoomWasm(),
@@ -892,15 +888,6 @@ import BaseLayout from '@components/BaseLayout.astro';
           webgpuStatus.textContent = `Canvas process fallback: ${formatWasmError(err)}`;
           return false;
         }
-      }
-
-      function processScriptHasCanvasPreferredEffect(script) {
-        const effectRe = /\beffect\s*=\s*"([^"]+)"/g;
-        let match;
-        while ((match = effectRe.exec(script)) !== null) {
-          if (isGlowEffect(match[1])) return true;
-        }
-        return false;
       }
 
       // ---------- Simple MotionLoom Graph Parser ----------
@@ -1223,8 +1210,6 @@ import BaseLayout from '@components/BaseLayout.astro';
             applyHslaOverlay(offCtx, outW, outH, pass.params);
           } else if (isBlurEffect(pass.effect)) {
             applyBlur(offCtx, outW, outH, pass.params);
-          } else if (isGlowEffect(pass.effect)) {
-            applyGlow(offCtx, outW, outH, pass.params);
           }
 
           const outId = pass.out[0];
@@ -1247,17 +1232,6 @@ import BaseLayout from '@components/BaseLayout.astro';
 
       function isBlurEffect(effect) {
         return ['gaussian_5tap_blur', 'gaussian_5tap_h', 'gaussian_5tap_v', 'blur'].includes(normalizeEffectName(effect));
-      }
-
-      function isGlowEffect(effect) {
-        return [
-          'glow',
-          'glow_bloom',
-          'post_glow',
-          'post_glow_bloom',
-          'light_atmosphere_glow',
-          'light_atmosphere_glow_bloom',
-        ].includes(normalizeEffectName(effect));
       }
 
       // ---------- Scene Execution ----------
@@ -1668,55 +1642,6 @@ import BaseLayout from '@components/BaseLayout.astro';
         tCtx.drawImage(ctx.canvas, 0, 0, w, h);
         ctx.clearRect(0, 0, w, h);
         ctx.drawImage(temp, 0, 0, w, h);
-      }
-
-      function applyGlow(ctx, w, h, params) {
-        const threshold = Math.min(1, Math.max(0, parseFloat(params.threshold || 0.7)));
-        const intensity = Math.max(0, parseFloat(params.intensity || 1));
-        const sigma = Math.max(0, parseFloat(params.sigma || 12));
-        const source = ctx.getImageData(0, 0, w, h);
-        const glowCanvas = document.createElement('canvas');
-        glowCanvas.width = w;
-        glowCanvas.height = h;
-        const glowCtx = glowCanvas.getContext('2d');
-        const glowImage = glowCtx.createImageData(w, h);
-        const src = source.data;
-        const dst = glowImage.data;
-
-        for (let i = 0; i < src.length; i += 4) {
-          const r = src[i];
-          const g = src[i + 1];
-          const b = src[i + 2];
-          const a = src[i + 3];
-          const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-          const amount = Math.max(0, (luminance - threshold) / Math.max(0.0001, 1 - threshold));
-          dst[i] = r;
-          dst[i + 1] = g;
-          dst[i + 2] = b;
-          dst[i + 3] = Math.round(a * amount);
-        }
-
-        glowCtx.putImageData(glowImage, 0, 0);
-        const blurred = document.createElement('canvas');
-        blurred.width = w;
-        blurred.height = h;
-        const blurredCtx = blurred.getContext('2d');
-        blurredCtx.filter = `blur(${sigma}px)`;
-        blurredCtx.drawImage(glowCanvas, 0, 0, w, h);
-
-        ctx.save();
-        ctx.globalCompositeOperation = 'screen';
-        const fullPasses = Math.floor(Math.min(4, intensity));
-        for (let i = 0; i < fullPasses; i++) {
-          ctx.globalAlpha = 1;
-          ctx.drawImage(blurred, 0, 0, w, h);
-        }
-        const fractional = Math.min(1, intensity - fullPasses);
-        if (fractional > 0) {
-          ctx.globalAlpha = fractional;
-          ctx.drawImage(blurred, 0, 0, w, h);
-        }
-        ctx.restore();
       }
 
       // Math helpers
