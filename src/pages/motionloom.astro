@@ -80,17 +80,11 @@ import BaseLayout from '@components/BaseLayout.astro';
             <div class="motionloom-control-grid">
               <label class="motionloom-control">
                 <span>Variable</span>
-                <select id="group-variable-select">
-                  <option value="x">X</option>
-                  <option value="y">Y</option>
-                  <option value="rotation">Rotation</option>
-                  <option value="scale">Scale</option>
-                  <option value="opacity">Opacity</option>
-                </select>
+                <select id="group-variable-select"></select>
               </label>
               <label class="motionloom-control">
                 <span>Value</span>
-                <input id="group-variable-value" type="number" step="1" />
+                <input id="group-variable-value" type="text" inputmode="decimal" autocomplete="off" />
               </label>
             </div>
             <p id="group-control-status" class="mt-3 min-h-[1rem] font-mono text-[0.65rem] text-anica-paper/45"></p>
@@ -392,8 +386,22 @@ import BaseLayout from '@components/BaseLayout.astro';
         lastTickMs: 0,
         needsRender: true,
       };
+      let resetPreviewPlaybackOnNextCompile = true;
       let selectedGroupId = '';
       let cachedGroupControls = [];
+      const groupEditableAttrs = [
+        { key: 'x', label: 'X', fallback: 0, decimals: 1, placeholder: 'e.g. -10' },
+        { key: 'y', label: 'Y', fallback: 0, decimals: 1, placeholder: 'e.g. 24' },
+        { key: 'rotation', label: 'Rotation', fallback: 0, decimals: 1, placeholder: 'degrees' },
+        { key: 'scale', label: 'Scale', fallback: 1, decimals: 2, placeholder: 'e.g. 1.25' },
+        { key: 'scaleX', label: 'Scale X', fallback: 1, decimals: 2, placeholder: 'e.g. 1.25' },
+        { key: 'scaleY', label: 'Scale Y', fallback: 1, decimals: 2, placeholder: 'e.g. 0.85' },
+        { key: 'skewX', label: 'Skew X', fallback: 0, decimals: 1, placeholder: 'degrees' },
+        { key: 'skewY', label: 'Skew Y', fallback: 0, decimals: 1, placeholder: 'degrees' },
+        { key: 'opacity', label: 'Opacity', fallback: 1, decimals: 2, placeholder: '0 to 1' },
+        { key: 'transformOriginX', label: 'Transform Origin X', fallback: 0, decimals: 1, placeholder: 'e.g. 0' },
+        { key: 'transformOriginY', label: 'Transform Origin Y', fallback: 0, decimals: 1, placeholder: 'e.g. 0' },
+      ];
 
       function setPlaygroundExpanded(expanded) {
         playgroundExpanded = Boolean(expanded);
@@ -433,18 +441,20 @@ import BaseLayout from '@components/BaseLayout.astro';
         }
       }
 
-      function configurePreviewTimeline(graph, totalFrames) {
+      function configurePreviewTimeline(graph, totalFrames, options = {}) {
         const hasTimeline = Boolean(graph.hasExplicitDuration && graph.duration > 0);
+        const previous = options.previous || null;
+        const preservePlayback = Boolean(options.preservePlayback && previous);
         if (previewTimelinePanel) {
           previewTimelinePanel.classList.toggle('hidden', !hasTimeline);
           previewTimelinePanel.style.display = hasTimeline ? '' : 'none';
         }
-        previewPlayback.playing = hasTimeline;
         previewPlayback.fps = Math.max(1, graph.fps || 30);
         if (!hasTimeline) {
           previewPlayback.duration = 0;
           previewPlayback.totalFrames = 1;
           previewPlayback.frameFloat = 0;
+          previewPlayback.playing = false;
           previewPlayback.lastTickMs = 0;
           previewPlayback.needsRender = true;
           updatePreviewTimelineControls();
@@ -452,8 +462,11 @@ import BaseLayout from '@components/BaseLayout.astro';
         }
         previewPlayback.duration = Math.max(1 / previewPlayback.fps, graph.duration);
         previewPlayback.totalFrames = Math.max(1, totalFrames || Math.round(previewPlayback.duration * previewPlayback.fps));
-        previewPlayback.frameFloat = 0;
-        previewPlayback.lastTickMs = 0;
+        previewPlayback.frameFloat = preservePlayback
+          ? Math.min(previewPlayback.totalFrames - 1, Math.max(0, previous.frameFloat || 0))
+          : 0;
+        previewPlayback.playing = preservePlayback ? Boolean(previous.playing) : true;
+        previewPlayback.lastTickMs = performance.now();
         previewPlayback.needsRender = true;
         updatePreviewTimelineControls();
       }
@@ -469,6 +482,10 @@ import BaseLayout from '@components/BaseLayout.astro';
           previewPlayback.needsRender = true;
         }
         return Math.min(previewPlayback.totalFrames - 1, Math.max(0, Math.floor(previewPlayback.frameFloat)));
+      }
+
+      function requestPreviewPlaybackReset() {
+        resetPreviewPlaybackOnNextCompile = true;
       }
 
       const processScript = `<Graph fps={60} size={[1920,1080]}>
@@ -524,7 +541,11 @@ import BaseLayout from '@components/BaseLayout.astro';
       let isVideo = false;
       currentImage.crossOrigin = 'anonymous';
       currentImage.src = demoImageUrl;
-      currentImage.onload = () => compile();
+      currentImage.onload = () => {
+        if (editor.value !== 'Loading showcase example 1...') {
+          compile();
+        }
+      };
       currentImage.onerror = () => {
         compileStatus.textContent = 'Failed to load default image';
         compileStatus.classList.add('text-anica-signal');
@@ -586,6 +607,7 @@ import BaseLayout from '@components/BaseLayout.astro';
       }
 
       async function loadRemoteExample(value, options = {}) {
+        requestPreviewPlaybackReset();
         const category = options.category || exampleCategory.value || 'showcase';
         const url = exampleUrlFromNumber(category, value);
         const id = exampleIdFromNumber(category, value);
@@ -615,7 +637,7 @@ import BaseLayout from '@components/BaseLayout.astro';
           showcaseNumber.value = String(Number.parseInt(String(value), 10));
           exampleCategory.value = category;
           lastLoadedExampleKey = `${category}:${showcaseNumber.value}`;
-          compileNow();
+          compileNow({ resetPlayback: true });
         } catch (err) {
           if (options.fallbackScript) {
             defaultScript = options.fallbackScript;
@@ -628,7 +650,7 @@ import BaseLayout from '@components/BaseLayout.astro';
             compileStatus.textContent = `Failed to load ${id}; using built-in fallback.`;
             compileStatus.classList.remove('text-anica-lime/80');
             compileStatus.classList.add('text-anica-signal');
-            compileNow();
+            compileNow({ resetPlayback: true });
             return;
           }
           compileStatus.textContent = `Failed to load ${id}: ${formatWasmError(err)}`;
@@ -742,7 +764,7 @@ import BaseLayout from '@components/BaseLayout.astro';
         }
       }
 
-      async function tryRenderSceneWithWasm(script, graph) {
+      async function tryRenderSceneWithWasm(script, graph, playbackOptions = {}) {
         let renderer = null;
         try {
           webgpuStatus.textContent = 'Loading MotionLoom WASM...';
@@ -757,6 +779,9 @@ import BaseLayout from '@components/BaseLayout.astro';
           }
 
           const size = graph.renderSize || graph.size;
+          const initialFrame = playbackOptions.preservePlayback && playbackOptions.previous
+            ? Math.max(0, Math.floor(playbackOptions.previous.frameFloat || 0))
+            : 0;
 
           if (navigator.gpu) {
             try {
@@ -768,8 +793,8 @@ import BaseLayout from '@components/BaseLayout.astro';
                 throw new Error('WASM package does not expose render_frame_to_canvas');
               }
               showWebGpuPreview(size[0], size[1]);
-              await renderer.render_frame_to_canvas(0, gpuCanvas);
-              startWasmSceneLoop(renderer, graph, size, 'webgpu');
+              await renderer.render_frame_to_canvas(initialFrame, gpuCanvas);
+              startWasmSceneLoop(renderer, graph, size, 'webgpu', playbackOptions);
               renderer = null;
               webgpuStatus.textContent = 'MotionLoom WASM WebGPU';
               return 'MotionLoom WASM WebGPU';
@@ -782,9 +807,9 @@ import BaseLayout from '@components/BaseLayout.astro';
 
           renderer = new mod.WasmSceneRenderer(script, 'cpu');
           await attachMotionLoomFonts(renderer);
-          const rgba = await renderer.render_frame(0);
+          const rgba = await renderer.render_frame(initialFrame);
           drawRgbaBuffer(rgba, size[0], size[1]);
-          startWasmSceneLoop(renderer, graph, size, 'cpu');
+          startWasmSceneLoop(renderer, graph, size, 'cpu', playbackOptions);
           renderer = null;
           webgpuStatus.textContent = 'MotionLoom WASM CPU';
           return 'MotionLoom WASM CPU';
@@ -973,6 +998,12 @@ import BaseLayout from '@components/BaseLayout.astro';
               y: parseMotionValue(attrs.y, 0),
               rotation: parseCurve(attrs.rotation) || 0,
               scale: parseMotionValue(attrs.scale, 1),
+              scaleX: parseMotionValue(attrs.scaleX, 1),
+              scaleY: parseMotionValue(attrs.scaleY, 1),
+              skewX: parseMotionValue(attrs.skewX, 0),
+              skewY: parseMotionValue(attrs.skewY, 0),
+              transformOriginX: parseMotionValue(attrs.transformOriginX, 0),
+              transformOriginY: parseMotionValue(attrs.transformOriginY, 0),
               opacity: attrs.opacity !== undefined ? parseCurve(attrs.opacity) || attrs.opacity : undefined,
               shapes: []
             };
@@ -1260,12 +1291,21 @@ import BaseLayout from '@components/BaseLayout.astro';
           const y = evaluateNumber(shape.y, time, graph, 0);
           const rotation = evaluateNumber(shape.rotation, time, graph, 0);
           const scale = evaluateNumber(shape.scale, time, graph, 1);
+          const scaleX = evaluateNumber(shape.scaleX, time, graph, 1);
+          const scaleY = evaluateNumber(shape.scaleY, time, graph, 1);
+          const skewX = evaluateNumber(shape.skewX, time, graph, 0);
+          const skewY = evaluateNumber(shape.skewY, time, graph, 0);
+          const originX = evaluateNumber(shape.transformOriginX, time, graph, 0);
+          const originY = evaluateNumber(shape.transformOriginY, time, graph, 0);
           const opacity = evaluateNumber(shape.opacity, time, graph, 1);
           ctx.save();
           ctx.globalAlpha *= Math.max(0, Math.min(1, opacity));
           ctx.translate(x, y);
+          if (originX || originY) ctx.translate(originX, originY);
           if (rotation) ctx.rotate((rotation * Math.PI) / 180);
-          if (scale && scale !== 1) ctx.scale(scale, scale);
+          if (skewX || skewY) ctx.transform(1, Math.tan((skewY * Math.PI) / 180), Math.tan((skewX * Math.PI) / 180), 1, 0, 0);
+          if (scale !== 1 || scaleX !== 1 || scaleY !== 1) ctx.scale(scale * scaleX, scale * scaleY);
+          if (originX || originY) ctx.translate(-originX, -originY);
           for (const child of shape.shapes) {
             renderShape(child, time, graph);
           }
@@ -1433,14 +1473,14 @@ import BaseLayout from '@components/BaseLayout.astro';
         return t; // linear
       }
 
-      function startWasmSceneLoop(renderer, graph, size, mode) {
+      function startWasmSceneLoop(renderer, graph, size, mode, playbackOptions = {}) {
         stopSceneLoop();
         wasmSceneRenderer = renderer;
         isScenePlaying = true;
         const token = ++sceneLoopToken;
         const fps = Math.max(1, graph.fps || 30);
         const totalFrames = Math.max(1, renderer.total_frames || Math.round((graph.duration || 1) * fps));
-        configurePreviewTimeline(graph, totalFrames);
+        configurePreviewTimeline(graph, totalFrames, playbackOptions);
         let renderInFlight = false;
 
         async function loop(nowMs) {
@@ -1485,13 +1525,13 @@ import BaseLayout from '@components/BaseLayout.astro';
         sceneAnimationId = requestAnimationFrame(loop);
       }
 
-      function startSceneLoop(graph) {
+      function startSceneLoop(graph, playbackOptions = {}) {
         if (sceneAnimationId) cancelAnimationFrame(sceneAnimationId);
         sceneLoopToken++;
         isScenePlaying = true;
         const fps = Math.max(1, graph.fps || 30);
         const totalFrames = Math.max(1, Math.round((graph.duration || 1) * fps));
-        configurePreviewTimeline(graph, totalFrames);
+        configurePreviewTimeline(graph, totalFrames, playbackOptions);
         function loop(nowMs) {
           if (!isScenePlaying) return;
           if (isComparingOriginal) {
@@ -1668,6 +1708,26 @@ import BaseLayout from '@components/BaseLayout.astro';
         return Number.isFinite(num) ? num : fallback;
       }
 
+      function isEditableNumericAttr(attrs, key) {
+        if (key === 'id') return false;
+        const raw = attrs[key];
+        if (raw === undefined || raw === null || raw === '') return false;
+        if (typeof raw === 'number') return Number.isFinite(raw);
+        const curve = parseCurve(raw);
+        if (curve && typeof curve === 'object' && curve.keyframes?.length) return true;
+        return Number.isFinite(Number(raw));
+      }
+
+      function groupAttrDefinition(attr) {
+        return groupEditableAttrs.find((item) => item.key === attr) || {
+          key: attr,
+          label: attr,
+          fallback: 0,
+          decimals: 2,
+          placeholder: 'numeric value',
+        };
+      }
+
       function selectedGroupTarget() {
         return cachedGroupControls.find((group) => group.id === selectedGroupId) || null;
       }
@@ -1705,10 +1765,39 @@ import BaseLayout from '@components/BaseLayout.astro';
         updateGroupControlInputs();
       }
 
+      function editableAttrsForGroup(group) {
+        const attrs = new Map(groupEditableAttrs.map((item) => [item.key, item]));
+        for (const key of Object.keys(group.attrs)) {
+          if (!attrs.has(key) && isEditableNumericAttr(group.attrs, key)) {
+            attrs.set(key, groupAttrDefinition(key));
+          }
+        }
+        return Array.from(attrs.values());
+      }
+
+      function updateGroupVariableOptions(group) {
+        if (!groupVariableSelect) return [];
+        const previousAttr = selectedGroupAttr();
+        const attrs = editableAttrsForGroup(group);
+        groupVariableSelect.innerHTML = '';
+        for (const attr of attrs) {
+          const option = document.createElement('option');
+          option.value = attr.key;
+          option.textContent = attr.label;
+          groupVariableSelect.append(option);
+        }
+        const nextAttr = attrs.some((attr) => attr.key === previousAttr)
+          ? previousAttr
+          : (attrs[0]?.key || 'x');
+        groupVariableSelect.value = nextAttr;
+        return attrs;
+      }
+
       function updateGroupControlInputs() {
         const group = selectedGroupTarget();
         setGroupControlsDisabled(!group);
         if (!group) {
+          if (groupVariableSelect) groupVariableSelect.innerHTML = '';
           if (groupVariableValue) groupVariableValue.value = '';
           if (groupControlStatus) {
             groupControlStatus.textContent = 'No <Group id="..."> found in the current DSL.';
@@ -1716,28 +1805,15 @@ import BaseLayout from '@components/BaseLayout.astro';
           return;
         }
 
-        const values = {
-          x: numericGroupAttr(group.attrs, 'x', 0),
-          y: numericGroupAttr(group.attrs, 'y', 0),
-          rotation: numericGroupAttr(group.attrs, 'rotation', 0),
-          scale: numericGroupAttr(group.attrs, 'scale', 1),
-          opacity: numericGroupAttr(group.attrs, 'opacity', 1),
-        };
-
+        updateGroupVariableOptions(group);
         const attr = selectedGroupAttr();
-        if (groupVariableValue && values[attr] !== undefined) {
-          groupVariableValue.step = attr === 'scale' || attr === 'opacity' ? '0.01' : '1';
-          if (attr === 'scale') {
-            groupVariableValue.min = '0.01';
-            groupVariableValue.max = '';
-          } else if (attr === 'opacity') {
-            groupVariableValue.min = '0';
-            groupVariableValue.max = '1';
-          } else {
-            groupVariableValue.min = '';
-            groupVariableValue.max = '';
-          }
-          groupVariableValue.value = formatDslNumber(values[attr], groupAttrDecimals(attr));
+        const attrDef = groupAttrDefinition(attr);
+        if (groupVariableValue) {
+          groupVariableValue.placeholder = attrDef.placeholder;
+          groupVariableValue.value = formatDslNumber(
+            numericGroupAttr(group.attrs, attr, attrDef.fallback),
+            groupAttrDecimals(attr)
+          );
         }
 
         if (groupControlStatus) {
@@ -1746,7 +1822,7 @@ import BaseLayout from '@components/BaseLayout.astro';
       }
 
       function groupAttrDecimals(attr) {
-        return attr === 'scale' || attr === 'opacity' ? 2 : 1;
+        return groupAttrDefinition(attr).decimals;
       }
 
       function upsertGroupAttribute(tagText, attr, value) {
@@ -1761,8 +1837,10 @@ import BaseLayout from '@components/BaseLayout.astro';
 
       function applyGroupControlInput() {
         const attr = selectedGroupAttr();
-        const value = Number(groupVariableValue?.value);
-        if (!attr || !Number.isFinite(value)) return;
+        const rawValue = String(groupVariableValue?.value || '').trim();
+        if (!attr || rawValue === '' || rawValue === '-' || rawValue === '.' || rawValue === '-.') return;
+        const value = Number(rawValue);
+        if (!Number.isFinite(value)) return;
         const group = selectedGroupTarget();
         if (!group) return;
 
@@ -1786,16 +1864,26 @@ import BaseLayout from '@components/BaseLayout.astro';
         }, 300);
       }
 
-      function compileNow() {
+      function compileNow(options = {}) {
         if (compileDebounceId) {
           window.clearTimeout(compileDebounceId);
           compileDebounceId = null;
         }
-        compile();
+        compile(options);
       }
 
-      async function compile() {
+      async function compile(options = {}) {
         const compileToken = ++compileRunToken;
+        const previousPlayback = {
+          frameFloat: previewPlayback.frameFloat,
+          playing: previewPlayback.playing,
+        };
+        const shouldResetPlayback = Boolean(options.resetPlayback || resetPreviewPlaybackOnNextCompile);
+        resetPreviewPlaybackOnNextCompile = false;
+        const playbackOptions = {
+          preservePlayback: !shouldResetPlayback,
+          previous: previousPlayback,
+        };
         try {
           stopSceneLoop();
           const graph = parseGraph(editor.value);
@@ -1813,13 +1901,13 @@ import BaseLayout from '@components/BaseLayout.astro';
             compileStatus.textContent = `Compiled: ${graph.scenes.length} scene(s), ${layerCount} layer(s) | ${graph.fps}fps${graph.hasExplicitDuration ? `, ${graph.duration}s` : ''}`;
             compileStatus.classList.remove('text-anica-signal');
             compileStatus.classList.add('text-anica-lime/80');
-            const sceneWasmMode = await tryRenderSceneWithWasm(rawScript, graph);
+            const sceneWasmMode = await tryRenderSceneWithWasm(rawScript, graph, playbackOptions);
             if (compileToken !== compileRunToken) return;
             if (sceneWasmMode) {
               compileStatus.textContent += ` | rendered by ${sceneWasmMode}`;
               return;
             }
-            startSceneLoop(graph);
+            startSceneLoop(graph, playbackOptions);
           } else {
             if (/<Scene\b/i.test(rawScript)) {
               compileStatus.textContent = 'Waiting for complete Scene graph...';
@@ -1830,7 +1918,7 @@ import BaseLayout from '@components/BaseLayout.astro';
             const processTotalFrames = graph.hasExplicitDuration
               ? Math.max(1, Math.round((graph.duration || 0) * (graph.fps || 30)))
               : 1;
-            configurePreviewTimeline(graph, processTotalFrames);
+            configurePreviewTimeline(graph, processTotalFrames, playbackOptions);
 
             const passCount = graph.processes.reduce((s, p) => s + p.passes.length, 0);
 
@@ -1870,6 +1958,7 @@ import BaseLayout from '@components/BaseLayout.astro';
       }
 
       function reset() {
+        requestPreviewPlaybackReset();
         setEditorMode('process');
         defaultScript = processScript;
         editor.value = defaultScript;
@@ -2057,7 +2146,10 @@ import BaseLayout from '@components/BaseLayout.astro';
       });
 
       resetBtn.addEventListener('click', reset);
-      editor.addEventListener('input', scheduleCompile);
+      editor.addEventListener('input', () => {
+        requestPreviewPlaybackReset();
+        scheduleCompile();
+      });
       editor.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) compileNow();
       });
