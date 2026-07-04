@@ -16,7 +16,7 @@ import BaseLayout from '@components/BaseLayout.astro';
         MotionLoom
       </h1>
       <p class="mt-6 text-xl leading-8 text-anica-steel">
-        A graph-based video effects and motion graphics engine built on WGPU. This playground shows a real graph execution pipeline — DSL → textures → compute passes → present.
+        A graph-based video effects and motion graphics engine built on WGPU. This playground shows the direction for Anica: visual animation controls that write real MotionLoom DSL.
       </p>
     </div>
   </section>
@@ -25,9 +25,9 @@ import BaseLayout from '@components/BaseLayout.astro';
     <div id="motionloom-playground-panel" class="grid gap-4 rounded-[2.5rem] border-2 border-anica-ink bg-anica-ink p-4 ink-panel md:gap-6 md:p-10">
       <div class="hidden text-center lg:block">
         <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-lime">Live playground</p>
-        <h2 class="mt-3 text-3xl font-black tracking-[0.06em] text-anica-paper md:text-4xl">Graph &rarr; Pipeline &rarr; Preview</h2>
+        <h2 class="mt-3 text-3xl font-black tracking-[0.06em] text-anica-paper md:text-4xl">Controls &rarr; DSL &rarr; Preview</h2>
         <p class="mx-auto mt-3 max-w-xl text-lg leading-8 text-anica-paper/72">
-          Edit the full MotionLoom graph below. The browser parses the DSL, builds a texture pipeline, and executes compute passes on your image in real time.
+          Adjust animation values in the control panel, inspect the generated XML-like graph, then render the same DSL in the browser preview.
         </p>
       </div>
 
@@ -62,6 +62,47 @@ import BaseLayout from '@components/BaseLayout.astro';
               value="1"
             />
             <button id="btn-load-showcase" class="rounded-full border border-anica-paper/30 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Load</button>
+          </div>
+          <div id="animation-controls-panel" class="rounded-2xl border border-anica-paper/15 bg-anica-paper/5 p-3">
+            <div class="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <p class="font-mono text-[0.65rem] font-bold uppercase tracking-[0.22em] text-anica-lime">Scene controls</p>
+                <p class="mt-1 text-xs text-anica-paper/45">Select a Group by id, then edit its transform attributes in the current DSL.</p>
+              </div>
+              <button id="btn-refresh-group-controls" type="button" class="rounded-full border border-anica-lime/40 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-lime transition hover:bg-anica-lime/10">Refresh groups</button>
+            </div>
+
+            <label class="mb-3 grid gap-2">
+              <span class="font-mono text-[0.65rem] font-bold uppercase tracking-[0.18em] text-anica-paper/60">Group id</span>
+              <select
+                id="group-control-select"
+                class="rounded-xl border border-anica-paper/25 bg-anica-ink/70 px-3 py-2 font-mono text-xs font-bold text-anica-paper outline-none transition focus:border-anica-lime"
+              ></select>
+            </label>
+
+            <div class="motionloom-control-grid">
+              <label class="motionloom-control">
+                <span>X</span>
+                <input id="ctl-group-x" data-motionloom-control="x" type="number" step="1" />
+              </label>
+              <label class="motionloom-control">
+                <span>Y</span>
+                <input id="ctl-group-y" data-motionloom-control="y" type="number" step="1" />
+              </label>
+              <label class="motionloom-control">
+                <span>Rotation</span>
+                <input id="ctl-group-rotation" data-motionloom-control="rotation" type="number" step="1" />
+              </label>
+              <label class="motionloom-control">
+                <span>Scale</span>
+                <input id="ctl-group-scale" data-motionloom-control="scale" type="number" step="0.01" min="0.01" />
+              </label>
+              <label class="motionloom-control">
+                <span>Opacity</span>
+                <input id="ctl-group-opacity" data-motionloom-control="opacity" type="number" step="0.01" min="0" max="1" />
+              </label>
+            </div>
+            <p id="group-control-status" class="mt-3 min-h-[1rem] font-mono text-[0.65rem] text-anica-paper/45"></p>
           </div>
           <textarea
             id="dsl-editor"
@@ -174,6 +215,55 @@ import BaseLayout from '@components/BaseLayout.astro';
       cursor: pointer;
     }
 
+    .motionloom-control-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.65rem;
+    }
+
+    .motionloom-control {
+      display: grid;
+      grid-template-columns: minmax(5.6rem, 0.8fr) minmax(7rem, 1.3fr);
+      align-items: center;
+      gap: 0.65rem;
+      border: 1px solid rgb(242 237 223 / 0.12);
+      border-radius: 0.85rem;
+      background: rgb(17 18 13 / 0.28);
+      padding: 0.55rem 0.65rem;
+    }
+
+    .motionloom-control span,
+    .motionloom-control output {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: rgb(242 237 223 / 0.68);
+    }
+
+    .motionloom-control output {
+      text-align: right;
+      color: #B9FF39;
+    }
+
+    .motionloom-control input {
+      width: 100%;
+      border: 1px solid rgb(242 237 223 / 0.18);
+      border-radius: 0.65rem;
+      background: rgb(17 18 13 / 0.55);
+      padding: 0.35rem 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #f2eddf;
+      accent-color: #B9FF39;
+      outline: none;
+    }
+
+    .motionloom-control input:focus {
+      border-color: #B9FF39;
+    }
+
     .motionloom-timeline-range::-webkit-slider-runnable-track {
       height: 0.4rem;
       border-radius: 999px;
@@ -199,6 +289,21 @@ import BaseLayout from '@components/BaseLayout.astro';
       #motionloom-playground-panel.motionloom-expanded #dsl-editor {
         min-height: 0;
       }
+
+      .motionloom-control-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .motionloom-control {
+        grid-template-columns: 1fr;
+        gap: 0.35rem;
+      }
+
+      .motionloom-control output {
+        text-align: left;
+      }
     }
   </style>
 
@@ -207,20 +312,20 @@ import BaseLayout from '@components/BaseLayout.astro';
       <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-signal">Pipeline</p>
       <h2 class="mt-4 text-4xl font-black tracking-[0.06em] text-anica-ink">How it works</h2>
       <p class="mt-4 text-lg leading-8 text-anica-steel">
-        MotionLoom graphs describe a directed pipeline: input clips are loaded into textures, passes read and write textures, and the final present node composites the result.
+        MotionLoom keeps the editable source as plain DSL. A future Anica panel can expose After Effects-style controls while preserving the graph underneath.
       </p>
       <div class="mt-8 grid gap-4 md:grid-cols-3">
         <div class="rounded-3xl border-2 border-anica-ink bg-anica-cream p-5 shadow-[6px_6px_0_#11120d]">
           <p class="font-mono text-xs font-bold uppercase tracking-wider text-anica-steel">1. Parse</p>
-          <p class="mt-2 text-sm text-anica-ink">The DSL parser reads the graph, validates connections, and builds a runtime node list.</p>
+          <p class="mt-2 text-sm text-anica-ink">Slider values update curve keyframes, timings, and node attributes in the DSL text.</p>
         </div>
         <div class="rounded-3xl border-2 border-anica-ink bg-anica-cream p-5 shadow-[6px_6px_0_#11120d]">
           <p class="font-mono text-xs font-bold uppercase tracking-wider text-anica-steel">2. Compile</p>
-          <p class="mt-2 text-sm text-anica-ink">Textures are allocated, passes are ordered by dependency, and shaders are prepared.</p>
+          <p class="mt-2 text-sm text-anica-ink">The same source can be opened, edited, diffed, generated by agents, or compiled by the renderer.</p>
         </div>
         <div class="rounded-3xl border-2 border-anica-ink bg-anica-cream p-5 shadow-[6px_6px_0_#11120d]">
           <p class="font-mono text-xs font-bold uppercase tracking-wider text-anica-steel">3. Execute</p>
-          <p class="mt-2 text-sm text-anica-ink">Each pass runs on the GPU. The final texture is blitted to the present target.</p>
+          <p class="mt-2 text-sm text-anica-ink">Scene graphs render through MotionLoom WASM when available, with Canvas fallback for the web demo.</p>
         </div>
       </div>
     </div>
@@ -257,6 +362,10 @@ import BaseLayout from '@components/BaseLayout.astro';
       const editor = document.getElementById('dsl-editor');
       const resetBtn = document.getElementById('btn-reset');
       const githubExampleBar = document.getElementById('github-example-bar');
+      const animationControlsPanel = document.getElementById('animation-controls-panel');
+      const refreshGroupControlsBtn = document.getElementById('btn-refresh-group-controls');
+      const groupControlSelect = document.getElementById('group-control-select');
+      const groupControlStatus = document.getElementById('group-control-status');
       const playgroundPanel = document.getElementById('motionloom-playground-panel');
       const expandPlaygroundBtn = document.getElementById('btn-expand-playground');
       const processSourceControls = document.getElementById('process-source-controls');
@@ -289,6 +398,11 @@ import BaseLayout from '@components/BaseLayout.astro';
         lastTickMs: 0,
         needsRender: true,
       };
+      const groupControlInputs = Array.from(
+        document.querySelectorAll('[data-motionloom-control]')
+      );
+      let selectedGroupId = '';
+      let cachedGroupControls = [];
 
       function setPlaygroundExpanded(expanded) {
         playgroundExpanded = Boolean(expanded);
@@ -391,67 +505,49 @@ import BaseLayout from '@components/BaseLayout.astro';
   <Present from="layer_fx" />
 </Graph>`;
 
+      function formatDslNumber(value, decimals = 2) {
+        const num = Number(value);
+        if (!Number.isFinite(num)) return '0';
+        return num.toFixed(decimals).replace(/\.?0+$/, '');
+      }
+
       const sceneScript = `<Graph fps={30} duration="4s" size={[800,450]} renderSize={[800,450]}>
   <Background color="#FFFFFF" />
 
-  <Scene id="PinwheelZDepthLogo">
+  <Scene id="SceneControlsExample">
     <Timeline>
-      <Track id="depth_guides" space="screen" z="0">
+      <Track id="guide" space="screen" z="0">
         <Sequence from="0s" duration="4s" out="hold">
           <Layer>
-            <Text x="32" y="44" value="Pinwheel zDepth" fontSize="28" color="#111827" />
-            <Text x="32" y="72" value="Layer zDepth sorts four overlapping color blades" fontSize="16" color="#6B7280" />
-            <Line x1="400" y1="86" x2="400" y2="364" stroke="#11182718" strokeWidth="2" />
-            <Line x1="258" y1="225" x2="542" y2="225" stroke="#11182718" strokeWidth="2" />
+            <Text x="32" y="44" value="Scene controls" fontSize="28" color="#111827" />
+            <Text x="32" y="72" value="Select any Group id and edit x, y, rotation, scale, or opacity." fontSize="16" color="#6B7280" />
+            <Line x1="120" y1="342" x2="680" y2="342" stroke="#11182722" strokeWidth="3" />
+            <Text x="120" y="372" value="The textarea remains the source of truth." fontSize="15" color="#6B7280" />
           </Layer>
         </Sequence>
       </Track>
 
-      <Track id="pinwheel" space="world" z="10" zDepth="0">
+      <Track id="animated_layer" space="world" z="10" zDepth="0">
         <Sequence from="0s" duration="4s" out="hold">
           <Layer>
-            <Circle x="400" y="225" radius="128" color="#F3F4F6" opacity="0.62" />
-            <Circle x="400" y="225" radius="10" color="#111827" opacity="0.18" />
-          </Layer>
-
-          <Layer id="blade_blue_mid_near" zDepth="-0.25">
-            <Group x="400" y="225" rotation={curve("0:-4:linear, 4:16:ease_in_out")}>
-              <Rect x="-22" y="-120" width="102" height="132" radius="34" color="#4285F4" opacity="0.92" />
-              <Circle x="34" y="-62" radius="30" color="#8AB4F8" opacity="0.32" />
+            <Rect x="96" y="300" width="608" height="84" radius="28" color="#F3F4F6" opacity="0.92" />
+            <Group id="selected_layer"
+                   x="400"
+                   y="222"
+                   rotation={curve("0:-12:linear, 4:28:ease_in_out")}
+                   scale="1"
+                   opacity="0.92">
+              <Rect x="-115" y="-69" width="230" height="138" radius="28" color="#111827" opacity="0.94" />
+              <Circle x="-72" y="0" radius="18" color="#B9FF39" opacity="0.95" />
+              <Text x="-48" y="8" value="selected_layer" fontSize="23" color="#FFFFFF" />
             </Group>
-          </Layer>
-
-          <Layer id="blade_red_mid_far" zDepth="0.55">
-            <Group x="400" y="225" rotation={curve("0:86:linear, 4:106:ease_in_out")}>
-              <Rect x="-22" y="-120" width="102" height="132" radius="34" color="#EA4335" opacity="0.88" />
-              <Circle x="34" y="-62" radius="30" color="#F28B82" opacity="0.34" />
-            </Group>
-          </Layer>
-
-          <Layer id="blade_yellow_far" zDepth="1.25">
-            <Group x="400" y="225" rotation={curve("0:176:linear, 4:196:ease_in_out")}>
-              <Rect x="-22" y="-120" width="102" height="132" radius="34" color="#FBBC04" opacity="0.86" />
-              <Circle x="34" y="-62" radius="30" color="#FDE293" opacity="0.36" />
-            </Group>
-          </Layer>
-
-          <Layer id="blade_green_near" zDepth="-0.8">
-            <Group x="400" y="225" rotation={curve("0:266:linear, 4:286:ease_in_out")}>
-              <Rect x="-22" y="-120" width="102" height="132" radius="34" color="#34A853" opacity="0.84" />
-              <Circle x="34" y="-62" radius="30" color="#81C995" opacity="0.38" />
-            </Group>
-          </Layer>
-
-          <Layer id="center_cap" zDepth="0">
-            <Circle x="400" y="225" radius="38" color="#FFFFFF" opacity="0.94" />
-            <Circle x="400" y="225" radius="20" color="#111827" opacity="0.16" />
           </Layer>
         </Sequence>
       </Track>
     </Timeline>
   </Scene>
 
-  <Present from="PinwheelZDepthLogo" />
+  <Present from="SceneControlsExample" />
 </Graph>`;
 
       let defaultScript = sceneScript;
@@ -920,9 +1016,12 @@ import BaseLayout from '@components/BaseLayout.astro';
           } else if (tag === 'Group') {
             const group = {
               type: 'group',
-              x: parseFloat(attrs.x) || 0,
-              y: parseFloat(attrs.y) || 0,
+              id: attrs.id || '',
+              x: parseMotionValue(attrs.x, 0),
+              y: parseMotionValue(attrs.y, 0),
               rotation: parseCurve(attrs.rotation) || 0,
+              scale: parseMotionValue(attrs.scale, 1),
+              opacity: attrs.opacity !== undefined ? parseCurve(attrs.opacity) || attrs.opacity : undefined,
               shapes: []
             };
             const parent = stack[stack.length - 1];
@@ -998,6 +1097,14 @@ import BaseLayout from '@components/BaseLayout.astro';
           ease: p[2] || 'linear'
         }));
         return { type: 'curve', keyframes };
+      }
+
+      function parseMotionValue(value, fallback = 0) {
+        if (value === undefined || value === null || value === '') return fallback;
+        const curve = parseCurve(value);
+        if (curve && typeof curve === 'object' && curve.type === 'curve') return curve;
+        const num = Number(value);
+        return Number.isFinite(num) ? num : fallback;
       }
 
       function parseAttrs(str) {
@@ -1144,6 +1251,7 @@ import BaseLayout from '@components/BaseLayout.astro';
         activeEditorMode = mode === 'process' ? 'process' : 'scene';
         const isProcess = activeEditorMode === 'process';
         githubExampleBar.classList.toggle('hidden', isProcess);
+        animationControlsPanel.classList.toggle('hidden', isProcess);
         processSourceControls.classList.toggle('hidden', !isProcess);
       }
 
@@ -1196,22 +1304,30 @@ import BaseLayout from '@components/BaseLayout.astro';
 
       function renderShape(shape, time, graph) {
         if (shape.type === 'group') {
-          const rotation = evaluateCurve(shape.rotation, time, graph);
+          const x = evaluateNumber(shape.x, time, graph, 0);
+          const y = evaluateNumber(shape.y, time, graph, 0);
+          const rotation = evaluateNumber(shape.rotation, time, graph, 0);
+          const scale = evaluateNumber(shape.scale, time, graph, 1);
+          const opacity = evaluateNumber(shape.opacity, time, graph, 1);
           ctx.save();
-          ctx.translate(shape.x, shape.y);
+          ctx.globalAlpha *= Math.max(0, Math.min(1, opacity));
+          ctx.translate(x, y);
           if (rotation) ctx.rotate((rotation * Math.PI) / 180);
+          if (scale && scale !== 1) ctx.scale(scale, scale);
           for (const child of shape.shapes) {
             renderShape(child, time, graph);
           }
           ctx.restore();
         } else if (shape.type === 'circle') {
+          ctx.save();
           ctx.beginPath();
           ctx.arc(shape.x, shape.y, shape.radius, 0, Math.PI * 2);
           ctx.fillStyle = shape.color || '#000000';
-          if (shape.opacity !== undefined) ctx.globalAlpha = shape.opacity;
+          if (shape.opacity !== undefined) ctx.globalAlpha = evaluateNumber(shape.opacity, time, graph, 1);
           ctx.fill();
-          ctx.globalAlpha = 1;
+          ctx.restore();
         } else if (shape.type === 'rect') {
+          ctx.save();
           const r = shape.radius || 0;
           const x = shape.x;
           const y = shape.y;
@@ -1224,18 +1340,19 @@ import BaseLayout from '@components/BaseLayout.astro';
             ctx.rect(x, y, w, h);
           }
           ctx.fillStyle = shape.color || '#000000';
-          if (shape.opacity !== undefined) ctx.globalAlpha = shape.opacity;
+          if (shape.opacity !== undefined) ctx.globalAlpha = evaluateNumber(shape.opacity, time, graph, 1);
           ctx.fill();
-          ctx.globalAlpha = 1;
+          ctx.restore();
         } else if (shape.type === 'line') {
+          ctx.save();
           ctx.beginPath();
           ctx.moveTo(shape.x1, shape.y1);
           ctx.lineTo(shape.x2, shape.y2);
           ctx.strokeStyle = shape.stroke || '#000000';
           ctx.lineWidth = shape.strokeWidth || 1;
-          if (shape.opacity !== undefined) ctx.globalAlpha = shape.opacity;
+          if (shape.opacity !== undefined) ctx.globalAlpha = evaluateNumber(shape.opacity, time, graph, 1);
           ctx.stroke();
-          ctx.globalAlpha = 1;
+          ctx.restore();
         } else if (shape.type === 'text') {
           renderTextShape(shape, time, graph);
         }
@@ -1567,6 +1684,129 @@ import BaseLayout from '@components/BaseLayout.astro';
       function fract(v) { return v - Math.floor(v); }
       function mix(a, b, t) { return a + (b - a) * t; }
 
+      function readGroupControlTargets(script) {
+        const targets = [];
+        const tagRe = /<Group\b[^>]*>/g;
+        let match;
+        while ((match = tagRe.exec(script)) !== null) {
+          const tagText = match[0];
+          const attrText = tagText.replace(/^<Group\b/, '').replace(/\/?>$/, '');
+          const attrs = parseAttrs(attrText);
+          if (!attrs.id) continue;
+          targets.push({
+            id: String(attrs.id),
+            tagStart: match.index,
+            tagEnd: match.index + tagText.length,
+            tagText,
+            attrs,
+          });
+        }
+        return targets;
+      }
+
+      function numericGroupAttr(attrs, key, fallback) {
+        const raw = attrs[key];
+        if (raw === undefined || raw === null || raw === '') return fallback;
+        if (typeof raw === 'number') return raw;
+        const curve = parseCurve(raw);
+        if (curve && typeof curve === 'object' && curve.keyframes?.length) {
+          return curve.keyframes[0].value;
+        }
+        const num = Number(raw);
+        return Number.isFinite(num) ? num : fallback;
+      }
+
+      function selectedGroupTarget() {
+        return cachedGroupControls.find((group) => group.id === selectedGroupId) || null;
+      }
+
+      function setGroupControlsDisabled(disabled) {
+        for (const input of groupControlInputs) {
+          input.disabled = disabled;
+        }
+        if (groupControlSelect) groupControlSelect.disabled = disabled;
+      }
+
+      function refreshGroupControls(options = {}) {
+        const previousSelection = options.keepSelection === false ? '' : (selectedGroupId || groupControlSelect?.value || '');
+        cachedGroupControls = readGroupControlTargets(editor.value);
+
+        if (groupControlSelect) {
+          groupControlSelect.innerHTML = '';
+          for (const group of cachedGroupControls) {
+            const option = document.createElement('option');
+            option.value = group.id;
+            option.textContent = group.id;
+            groupControlSelect.append(option);
+          }
+        }
+
+        const hasPrevious = cachedGroupControls.some((group) => group.id === previousSelection);
+        selectedGroupId = hasPrevious
+          ? previousSelection
+          : (cachedGroupControls[0]?.id || '');
+
+        if (groupControlSelect) groupControlSelect.value = selectedGroupId;
+        updateGroupControlInputs();
+      }
+
+      function updateGroupControlInputs() {
+        const group = selectedGroupTarget();
+        setGroupControlsDisabled(!group);
+        if (!group) {
+          for (const input of groupControlInputs) input.value = '';
+          if (groupControlStatus) {
+            groupControlStatus.textContent = 'No <Group id="..."> found in the current DSL.';
+          }
+          return;
+        }
+
+        const values = {
+          x: numericGroupAttr(group.attrs, 'x', 0),
+          y: numericGroupAttr(group.attrs, 'y', 0),
+          rotation: numericGroupAttr(group.attrs, 'rotation', 0),
+          scale: numericGroupAttr(group.attrs, 'scale', 1),
+          opacity: numericGroupAttr(group.attrs, 'opacity', 1),
+        };
+
+        for (const input of groupControlInputs) {
+          const key = input.dataset.motionloomControl;
+          if (!key || values[key] === undefined) continue;
+          input.value = formatDslNumber(values[key], key === 'scale' || key === 'opacity' ? 2 : 1);
+        }
+
+        if (groupControlStatus) {
+          groupControlStatus.textContent = `Editing <Group id="${group.id}">. Curve attributes show their first key value; editing replaces that attribute with a constant.`;
+        }
+      }
+
+      function groupAttrDecimals(attr) {
+        return attr === 'scale' || attr === 'opacity' ? 2 : 1;
+      }
+
+      function upsertGroupAttribute(tagText, attr, value) {
+        const formatted = formatDslNumber(value, groupAttrDecimals(attr));
+        const replacement = `${attr}="${formatted}"`;
+        const attrRe = new RegExp(`(\\s${attr}\\s*=\\s*)(?:"[^"]*"|\\{[^}]*\\}|[^\\s>]+)`);
+        if (attrRe.test(tagText)) {
+          return tagText.replace(attrRe, ` ${replacement}`);
+        }
+        return tagText.replace(/\s*(\/?>)$/, ` ${replacement}$1`);
+      }
+
+      function applyGroupControlInput(input) {
+        const attr = input.dataset.motionloomControl;
+        const value = Number(input.value);
+        if (!attr || !Number.isFinite(value)) return;
+        const group = selectedGroupTarget();
+        if (!group) return;
+
+        const nextTag = upsertGroupAttribute(group.tagText, attr, value);
+        editor.value = `${editor.value.slice(0, group.tagStart)}${nextTag}${editor.value.slice(group.tagEnd)}`;
+        refreshGroupControls({ keepSelection: true });
+        scheduleCompile();
+      }
+
       // ---------- UI handlers ----------
       function scheduleCompile() {
         if (compileDebounceId) {
@@ -1598,6 +1838,7 @@ import BaseLayout from '@components/BaseLayout.astro';
 
           if (graph.scenes.length > 0) {
             setEditorMode('scene');
+            refreshGroupControls({ keepSelection: true });
             // Scene mode
             const layerCount = graph.scenes.reduce((sum, s) => {
               return sum + s.timelines.reduce((t, tl) => {
@@ -1676,9 +1917,27 @@ import BaseLayout from '@components/BaseLayout.astro';
         setEditorMode('scene');
         defaultScript = sceneScript;
         editor.value = sceneScript;
-        sourceName.textContent = 'built-in scene';
+        sourceName.textContent = 'scene controls example';
+        refreshGroupControls({ keepSelection: false });
         compileNow();
       });
+
+      if (refreshGroupControlsBtn) {
+        refreshGroupControlsBtn.addEventListener('click', () => {
+          refreshGroupControls({ keepSelection: true });
+        });
+      }
+
+      for (const input of groupControlInputs) {
+        input.addEventListener('input', () => applyGroupControlInput(input));
+      }
+
+      if (groupControlSelect) {
+        groupControlSelect.addEventListener('change', () => {
+          selectedGroupId = groupControlSelect.value;
+          updateGroupControlInputs();
+        });
+      }
 
       loadShowcaseBtn.addEventListener('click', () => {
         loadRemoteExample(showcaseNumber.value || '1');
@@ -1842,11 +2101,8 @@ import BaseLayout from '@components/BaseLayout.astro';
       editor.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) compileNow();
       });
-      setEditorMode('scene');
-      loadRemoteExample('1', {
-        category: 'showcase',
-        fallbackScript: sceneScript,
-      });
+      refreshGroupControls({ keepSelection: false });
+      compileNow();
     })();
   </script>
 </BaseLayout>
