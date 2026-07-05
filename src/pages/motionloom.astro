@@ -36,7 +36,7 @@ import BaseLayout from '@components/BaseLayout.astro';
             <div class="flex items-center justify-between">
             <p class="font-mono text-xs font-bold uppercase tracking-wider text-anica-lime">MotionLoom Graph</p>
             <div class="flex gap-2">
-              <button id="btn-reset" class="rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Process Example</button>
+              <button id="btn-reset" class="rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Process</button>
               <button id="btn-scene" class="rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Scene</button>
             </div>
           </div>
@@ -488,12 +488,38 @@ import BaseLayout from '@components/BaseLayout.astro';
         resetPreviewPlaybackOnNextCompile = true;
       }
 
+      const processScript = `<Graph fps={60} size={[1920,1080]}>
+  <Process id="layer_fx">
+    <Input id="clip0" type="video" from="input:clip0" />
+    <Tex id="src" fmt="rgba16f" from="clip0" />
+    <Tex id="out" fmt="rgba16f" size={[1920,1080]} />
+    <Tex id="stage1" fmt="rgba16f" size={[1920,1080]} />
+    <Pass id="fx_hsla_overlay" kind="compute"
+        effect="hsla_overlay"
+        in={["src"]} out={["stage1"]}
+        params={{
+          hue: "150.0",
+          saturation: "10.20",
+          lightness: "0.41",
+          alpha: "0.25"
+        }} />
+    <Pass id="fx_blur" kind="compute"
+        effect="gaussian_5tap_blur"
+        in={["stage1"]} out={["out"]}
+        params={{
+          sigma: "5.0"
+        }} />
+  </Process>
+  <Present from="layer_fx" />
+</Graph>`;
+
       function formatDslNumber(value, decimals = 2) {
         const num = Number(value);
         if (!Number.isFinite(num)) return '0';
         return num.toFixed(decimals).replace(/\.?0+$/, '');
       }
 
+      let defaultScript = '';
       editor.value = 'Loading showcase example 1...';
 
       const base = (typeof window !== 'undefined' && window.MOTIONLOOM_BASE) ? window.MOTIONLOOM_BASE : '/';
@@ -532,7 +558,7 @@ import BaseLayout from '@components/BaseLayout.astro';
               label: 'process',
               folder: 'core/process',
               prefix: 'cp',
-              entry: 'main.motionloom',
+              entry: 'main_with_scene.motionloom',
             };
           case 'scene':
             return {
@@ -604,6 +630,7 @@ import BaseLayout from '@components/BaseLayout.astro';
             throw new Error(`${response.status} ${response.statusText}`);
           }
           const script = await response.text();
+          defaultScript = script;
           editor.value = script;
           setEditorMode(script.includes('<Process') && !script.includes('<Scene') ? 'process' : 'scene');
           sourceName.textContent = `${id} ${config.label} from motionloom-example`;
@@ -613,6 +640,7 @@ import BaseLayout from '@components/BaseLayout.astro';
           compileNow({ resetPlayback: true });
         } catch (err) {
           if (options.fallbackScript) {
+            defaultScript = options.fallbackScript;
             editor.value = options.fallbackScript;
             setEditorMode('scene');
             sourceName.textContent = `${id} fallback scene`;
@@ -1943,9 +1971,11 @@ import BaseLayout from '@components/BaseLayout.astro';
 
       function reset() {
         requestPreviewPlaybackReset();
-        if (exampleCategory) exampleCategory.value = 'process';
-        if (showcaseNumber) showcaseNumber.value = '1';
-        loadRemoteExample('1', { category: 'process' });
+        setEditorMode('process');
+        defaultScript = processScript;
+        editor.value = defaultScript;
+        sourceName.textContent = 'demo.jpg';
+        compileNow();
       }
 
       const sceneBtn = document.getElementById('btn-scene');
