@@ -69,22 +69,7 @@ import BaseLayout from '@components/BaseLayout.astro';
               id="process-example-select"
               class="min-w-[15rem] rounded-full border border-anica-paper/25 bg-anica-ink/70 px-3 py-1 font-mono text-xs font-bold text-anica-paper outline-none transition focus:border-anica-lime"
             >
-              <option value="1">CP001 Brightness</option>
-              <option value="2">CP002 Bloom Alias</option>
-              <option value="3">CP003 Glow Alias</option>
-              <option value="4">CP004 Glow Bloom Alias</option>
-              <option value="5">CP005 Gaussian 5-Tap H</option>
-              <option value="6">CP006 Gaussian 5-Tap V</option>
-              <option value="7">CP007 Gaussian 5-Tap Blur</option>
-              <option value="8">CP008 Glow Stack</option>
-              <option value="9">CP009 Tone Map</option>
-              <option value="10">CP010 Light Sweep</option>
-              <option value="11">CP011 Opacity Pulse</option>
-              <option value="12">CP012 HSLA Overlay</option>
-              <option value="13">CP013 Fixed Opacity Layer FX</option>
-              <option value="14">CP014 Fixed HSLA Overlay Layer FX</option>
-              <option value="15">CP015 Paper Texture Overlay</option>
-              <option value="16">CP016 Process Pass Mask</option>
+              <option value="">Loading process examples...</option>
             </select>
             <button id="btn-load-process-example" class="rounded-full border border-anica-paper/30 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Load</button>
           </div>
@@ -555,6 +540,7 @@ import BaseLayout from '@components/BaseLayout.astro';
       const wasmPkgBase = base.replace(/\/$/, '') + '/motionloom-wasm/pkg';
       const motionLoomWasmVersion = '2026-07-04-pass-mask-mix';
       const exampleRawRoot = 'https://raw.githubusercontent.com/LOVELYZOMBIEYHO/motionloom-example/refs/heads/main';
+      const processExampleManifestUrl = `${exampleRawRoot}/dataset/layer-fx-templates.json`;
       const motionLoomFontUrls = [
         'https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/OTF/TraditionalChinese/NotoSansCJKtc-Regular.otf',
       ];
@@ -564,6 +550,8 @@ import BaseLayout from '@components/BaseLayout.astro';
       let compileDebounceId = null;
       let lastLoadedExampleKey = null;
       let showcaseLoadDebounceId = null;
+      let processExamples = [];
+      let processExamplesPromise = null;
 
       let currentImage = new Image();
       let isVideo = false;
@@ -634,10 +622,95 @@ import BaseLayout from '@components/BaseLayout.astro';
         return `${exampleRawRoot}/${config.folder}/${id}/${config.entry}`;
       }
 
+      function processExampleNumber(id) {
+        const match = String(id || '').match(/^cp-(\d{6})$/);
+        return match ? Number.parseInt(match[1], 10) : 0;
+      }
+
+      function processExampleLabel(example) {
+        const title = String(example.title || example.id)
+          .replace(/^Process\s+/i, '')
+          .trim();
+        return `${example.id} ${title}`;
+      }
+
+      function resolveProcessExample(value) {
+        const raw = String(value || '').trim();
+        if (!raw) return processExamples[0] || null;
+        const numericId = /^\d+$/.test(raw) ? exampleIdFromNumber('process', raw) : null;
+        return processExamples.find((example) => example.id === raw || example.id === numericId) || null;
+      }
+
+      function processExampleUrl(example) {
+        if (!example?.path) return null;
+        return `${exampleRawRoot}/${example.path.replace(/\/$/, '')}/main.motionloom`;
+      }
+
+      function populateProcessExampleSelect(examples) {
+        if (!processExampleSelect) return;
+        processExampleSelect.innerHTML = '';
+        if (!examples.length) {
+          const option = document.createElement('option');
+          option.value = '';
+          option.textContent = 'No process examples found';
+          processExampleSelect.appendChild(option);
+          processExampleSelect.disabled = true;
+          return;
+        }
+
+        for (const example of examples) {
+          const option = document.createElement('option');
+          option.value = example.id;
+          option.textContent = processExampleLabel(example);
+          processExampleSelect.appendChild(option);
+        }
+        processExampleSelect.disabled = false;
+      }
+
+      async function loadProcessExampleManifest() {
+        if (processExamples.length) return processExamples;
+        if (processExamplesPromise) return processExamplesPromise;
+
+        processExamplesPromise = fetch(processExampleManifestUrl, { cache: 'no-store' })
+          .then(async (response) => {
+            if (!response.ok) {
+              throw new Error(`${response.status} ${response.statusText}`);
+            }
+            const manifest = await response.json();
+            if (!Array.isArray(manifest)) {
+              throw new Error('Process example manifest is not an array');
+            }
+            processExamples = manifest
+              .filter((item) => /^cp-\d{6}$/.test(String(item.id || '')) && typeof item.path === 'string')
+              .sort((a, b) => processExampleNumber(a.id) - processExampleNumber(b.id));
+            populateProcessExampleSelect(processExamples);
+            return processExamples;
+          })
+          .catch((err) => {
+            processExamplesPromise = null;
+            if (processExampleSelect) {
+              processExampleSelect.innerHTML = '';
+              const option = document.createElement('option');
+              option.value = '';
+              option.textContent = 'Failed to load process examples';
+              processExampleSelect.appendChild(option);
+              processExampleSelect.disabled = true;
+            }
+            compileStatus.textContent = `Failed to load process example list: ${formatWasmError(err)}`;
+            compileStatus.classList.remove('text-anica-lime/80');
+            compileStatus.classList.add('text-anica-signal');
+            return [];
+          });
+
+        return processExamplesPromise;
+      }
+
       async function loadProcessCoreExample(value) {
         requestPreviewPlaybackReset();
-        const id = exampleIdFromNumber('process', value);
-        const url = exampleUrlFromNumber('process', value);
+        await loadProcessExampleManifest();
+        const example = resolveProcessExample(value);
+        const id = example?.id || null;
+        const url = processExampleUrl(example);
         if (!url || !id) {
           compileStatus.textContent = 'Select a valid process example.';
           compileStatus.classList.remove('text-anica-lime/80');
@@ -660,7 +733,7 @@ import BaseLayout from '@components/BaseLayout.astro';
           editor.value = script;
           setEditorMode(script.includes('<Process') && !script.includes('<Scene') ? 'process' : 'scene');
           if (processExampleSelect) {
-            processExampleSelect.value = String(Number.parseInt(String(value), 10));
+            processExampleSelect.value = id;
           }
           sourceName.textContent = `${id} core process main.motionloom from motionloom-example`;
           compileNow({ resetPlayback: true });
@@ -702,7 +775,8 @@ import BaseLayout from '@components/BaseLayout.astro';
           showcaseNumber.value = String(Number.parseInt(String(value), 10));
           exampleCategory.value = category;
           if (category === 'process' && processExampleSelect) {
-            processExampleSelect.value = String(Number.parseInt(String(value), 10));
+            const processId = exampleIdFromNumber('process', value);
+            if (processId) processExampleSelect.value = processId;
           }
           lastLoadedExampleKey = `${category}:${showcaseNumber.value}`;
           compileNow({ resetPlayback: true });
@@ -2077,12 +2151,14 @@ import BaseLayout from '@components/BaseLayout.astro';
 
       if (loadProcessExampleBtn && processExampleSelect) {
         loadProcessExampleBtn.addEventListener('click', () => {
-          loadProcessCoreExample(processExampleSelect.value || '1');
+          loadProcessCoreExample(processExampleSelect.value);
         });
         processExampleSelect.addEventListener('change', () => {
-          loadProcessCoreExample(processExampleSelect.value || '1');
+          loadProcessCoreExample(processExampleSelect.value);
         });
       }
+
+      loadProcessExampleManifest();
 
       function scheduleShowcaseLoad() {
         window.clearTimeout(showcaseLoadDebounceId);
