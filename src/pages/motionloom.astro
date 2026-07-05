@@ -63,6 +63,31 @@ import BaseLayout from '@components/BaseLayout.astro';
             />
             <button id="btn-load-showcase" class="rounded-full border border-anica-paper/30 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Load</button>
           </div>
+          <div id="process-github-example-bar" class="hidden flex-wrap items-center gap-2 rounded-2xl border border-anica-paper/15 bg-anica-paper/5 px-3 py-2">
+            <span class="font-mono text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper/60">GitHub process example</span>
+            <select
+              id="process-example-select"
+              class="min-w-[15rem] rounded-full border border-anica-paper/25 bg-anica-ink/70 px-3 py-1 font-mono text-xs font-bold text-anica-paper outline-none transition focus:border-anica-lime"
+            >
+              <option value="1">CP001 Brightness</option>
+              <option value="2">CP002 Bloom Alias</option>
+              <option value="3">CP003 Glow Alias</option>
+              <option value="4">CP004 Glow Bloom Alias</option>
+              <option value="5">CP005 Gaussian 5-Tap H</option>
+              <option value="6">CP006 Gaussian 5-Tap V</option>
+              <option value="7">CP007 Gaussian 5-Tap Blur</option>
+              <option value="8">CP008 Glow Stack</option>
+              <option value="9">CP009 Tone Map</option>
+              <option value="10">CP010 Light Sweep</option>
+              <option value="11">CP011 Opacity Pulse</option>
+              <option value="12">CP012 HSLA Overlay</option>
+              <option value="13">CP013 Fixed Opacity Layer FX</option>
+              <option value="14">CP014 Fixed HSLA Overlay Layer FX</option>
+              <option value="15">CP015 Paper Texture Overlay</option>
+              <option value="16">CP016 Process Pass Mask</option>
+            </select>
+            <button id="btn-load-process-example" class="rounded-full border border-anica-paper/30 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Load</button>
+          </div>
           <div id="animation-controls-panel" class="rounded-2xl border border-anica-paper/15 bg-anica-paper/5 p-3">
             <div class="mb-3">
               <p class="font-mono text-[0.65rem] font-bold uppercase tracking-[0.22em] text-anica-lime">Scene controls</p>
@@ -349,6 +374,7 @@ import BaseLayout from '@components/BaseLayout.astro';
       const editor = document.getElementById('dsl-editor');
       const resetBtn = document.getElementById('btn-reset');
       const githubExampleBar = document.getElementById('github-example-bar');
+      const processGithubExampleBar = document.getElementById('process-github-example-bar');
       const animationControlsPanel = document.getElementById('animation-controls-panel');
       const groupControlSelect = document.getElementById('group-control-select');
       const groupVariableSelect = document.getElementById('group-variable-select');
@@ -371,6 +397,8 @@ import BaseLayout from '@components/BaseLayout.astro';
       const previewTimeline = document.getElementById('preview-timeline');
       const previewTime = document.getElementById('preview-time');
       const previewFrame = document.getElementById('preview-frame');
+      const processExampleSelect = document.getElementById('process-example-select');
+      const loadProcessExampleBtn = document.getElementById('btn-load-process-example');
       const ctx = canvas.getContext('2d');
       let activePreviewCanvas = canvas;
       let lastPreviewWidth = canvas.width || 1920;
@@ -606,6 +634,43 @@ import BaseLayout from '@components/BaseLayout.astro';
         return `${exampleRawRoot}/${config.folder}/${id}/${config.entry}`;
       }
 
+      async function loadProcessCoreExample(value) {
+        requestPreviewPlaybackReset();
+        const id = exampleIdFromNumber('process', value);
+        const url = exampleUrlFromNumber('process', value);
+        if (!url || !id) {
+          compileStatus.textContent = 'Select a valid process example.';
+          compileStatus.classList.remove('text-anica-lime/80');
+          compileStatus.classList.add('text-anica-signal');
+          return;
+        }
+
+        stopSceneLoop();
+        compileStatus.textContent = `Loading ${id} core process main.motionloom from GitHub...`;
+        compileStatus.classList.remove('text-anica-signal');
+        compileStatus.classList.add('text-anica-lime/80');
+
+        try {
+          const response = await fetch(url, { cache: 'no-store' });
+          if (!response.ok) {
+            throw new Error(`${response.status} ${response.statusText}`);
+          }
+          const script = await response.text();
+          defaultScript = script;
+          editor.value = script;
+          setEditorMode(script.includes('<Process') && !script.includes('<Scene') ? 'process' : 'scene');
+          if (processExampleSelect) {
+            processExampleSelect.value = String(Number.parseInt(String(value), 10));
+          }
+          sourceName.textContent = `${id} core process main.motionloom from motionloom-example`;
+          compileNow({ resetPlayback: true });
+        } catch (err) {
+          compileStatus.textContent = `Failed to load ${id}: ${formatWasmError(err)}`;
+          compileStatus.classList.remove('text-anica-lime/80');
+          compileStatus.classList.add('text-anica-signal');
+        }
+      }
+
       async function loadRemoteExample(value, options = {}) {
         requestPreviewPlaybackReset();
         const category = options.category || exampleCategory.value || 'showcase';
@@ -636,6 +701,9 @@ import BaseLayout from '@components/BaseLayout.astro';
           sourceName.textContent = `${id} ${config.label} from motionloom-example`;
           showcaseNumber.value = String(Number.parseInt(String(value), 10));
           exampleCategory.value = category;
+          if (category === 'process' && processExampleSelect) {
+            processExampleSelect.value = String(Number.parseInt(String(value), 10));
+          }
           lastLoadedExampleKey = `${category}:${showcaseNumber.value}`;
           compileNow({ resetPlayback: true });
         } catch (err) {
@@ -1246,6 +1314,9 @@ import BaseLayout from '@components/BaseLayout.astro';
         activeEditorMode = mode === 'process' ? 'process' : 'scene';
         const isProcess = activeEditorMode === 'process';
         githubExampleBar.classList.toggle('hidden', isProcess);
+        githubExampleBar.classList.toggle('flex', !isProcess);
+        processGithubExampleBar.classList.toggle('hidden', !isProcess);
+        processGithubExampleBar.classList.toggle('flex', isProcess);
         animationControlsPanel.classList.toggle('hidden', isProcess);
         processSourceControls.classList.toggle('hidden', !isProcess);
       }
@@ -2003,6 +2074,15 @@ import BaseLayout from '@components/BaseLayout.astro';
       loadShowcaseBtn.addEventListener('click', () => {
         loadRemoteExample(showcaseNumber.value || '1');
       });
+
+      if (loadProcessExampleBtn && processExampleSelect) {
+        loadProcessExampleBtn.addEventListener('click', () => {
+          loadProcessCoreExample(processExampleSelect.value || '1');
+        });
+        processExampleSelect.addEventListener('change', () => {
+          loadProcessCoreExample(processExampleSelect.value || '1');
+        });
+      }
 
       function scheduleShowcaseLoad() {
         window.clearTimeout(showcaseLoadDebounceId);
