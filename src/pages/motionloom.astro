@@ -103,31 +103,6 @@ import BaseLayout from '@components/BaseLayout.astro';
             <div class="flex items-center gap-2">
               <button id="btn-expand-playground" class="rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Expand</button>
               <div id="process-source-controls" class="flex items-center gap-2">
-                <select
-                  id="process-example-select"
-                  class="max-w-[14rem] rounded-full border-2 border-anica-paper/30 bg-anica-ink px-3 py-1 font-mono text-xs font-bold text-anica-paper outline-none transition focus:border-anica-lime"
-                  title="GitHub core process example"
-                >
-                  <option value="1">CP001 Brightness</option>
-                  <option value="2">CP002 Bloom Alias</option>
-                  <option value="3">CP003 Glow Alias</option>
-                  <option value="4">CP004 Glow Bloom Alias</option>
-                  <option value="5">CP005 Gaussian H</option>
-                  <option value="6">CP006 Gaussian V</option>
-                  <option value="7">CP007 Gaussian Blur</option>
-                  <option value="8">CP008 Glow Stack</option>
-                  <option value="9">CP009 Tone Map</option>
-                  <option value="10">CP010 Light Sweep</option>
-                  <option value="11">CP011 Opacity Pulse</option>
-                  <option value="12">CP012 HSLA Overlay</option>
-                  <option value="13">CP013 Fixed Opacity</option>
-                  <option value="14">CP014 Fixed HSLA</option>
-                  <option value="15">CP015 Paper Texture</option>
-                  <option value="16">CP016 Pass Mask</option>
-                </select>
-                <button id="btn-load-process-example" class="rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">
-                  GitHub Example
-                </button>
                 <label class="cursor-pointer rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">
                   <input id="file-upload" type="file" accept="image/*,video/*" class="hidden" />
                   Upload
@@ -396,8 +371,6 @@ import BaseLayout from '@components/BaseLayout.astro';
       const previewTimeline = document.getElementById('preview-timeline');
       const previewTime = document.getElementById('preview-time');
       const previewFrame = document.getElementById('preview-frame');
-      const processExampleSelect = document.getElementById('process-example-select');
-      const loadProcessExampleBtn = document.getElementById('btn-load-process-example');
       const ctx = canvas.getContext('2d');
       let activePreviewCanvas = canvas;
       let lastPreviewWidth = canvas.width || 1920;
@@ -631,49 +604,6 @@ import BaseLayout from '@components/BaseLayout.astro';
         if (!id) return null;
         const config = exampleConfig(category);
         return `${exampleRawRoot}/${config.folder}/${id}/${config.entry}`;
-      }
-
-      function processCoreExampleUrlFromNumber(value) {
-        const id = exampleIdFromNumber('process', value);
-        if (!id) return null;
-        return `${exampleRawRoot}/core/process/${id}/main.motionloom`;
-      }
-
-      async function loadProcessCoreExample(value) {
-        requestPreviewPlaybackReset();
-        const id = exampleIdFromNumber('process', value);
-        const url = processCoreExampleUrlFromNumber(value);
-        if (!id || !url) {
-          compileStatus.textContent = 'Select a valid process example.';
-          compileStatus.classList.remove('text-anica-lime/80');
-          compileStatus.classList.add('text-anica-signal');
-          return;
-        }
-
-        stopSceneLoop();
-        compileStatus.textContent = `Loading ${id} process main.motionloom from GitHub...`;
-        compileStatus.classList.remove('text-anica-signal');
-        compileStatus.classList.add('text-anica-lime/80');
-
-        try {
-          const response = await fetch(url, { cache: 'no-store' });
-          if (!response.ok) {
-            throw new Error(`${response.status} ${response.statusText}`);
-          }
-          const script = await response.text();
-          defaultScript = script;
-          editor.value = script;
-          setEditorMode(script.includes('<Process') && !script.includes('<Scene') ? 'process' : 'scene');
-          if (processExampleSelect) {
-            processExampleSelect.value = String(Number.parseInt(String(value), 10));
-          }
-          sourceName.textContent = `${id} core process main.motionloom from motionloom-example`;
-          compileNow({ resetPlayback: true });
-        } catch (err) {
-          compileStatus.textContent = `Failed to load ${id}: ${formatWasmError(err)}`;
-          compileStatus.classList.remove('text-anica-lime/80');
-          compileStatus.classList.add('text-anica-signal');
-        }
       }
 
       async function loadRemoteExample(value, options = {}) {
@@ -2073,15 +2003,6 @@ import BaseLayout from '@components/BaseLayout.astro';
       loadShowcaseBtn.addEventListener('click', () => {
         loadRemoteExample(showcaseNumber.value || '1');
       });
-
-      if (loadProcessExampleBtn && processExampleSelect) {
-        loadProcessExampleBtn.addEventListener('click', () => {
-          loadProcessCoreExample(processExampleSelect.value || '1');
-        });
-        processExampleSelect.addEventListener('change', () => {
-          loadProcessCoreExample(processExampleSelect.value || '1');
-        });
-      }
 
       function scheduleShowcaseLoad() {
         window.clearTimeout(showcaseLoadDebounceId);
