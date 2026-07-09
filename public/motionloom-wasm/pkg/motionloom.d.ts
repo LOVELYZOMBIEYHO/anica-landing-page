@@ -65,6 +65,13 @@ export class WasmSceneRenderer {
      */
     render_frame_to_canvas(frame: number, canvas: HTMLCanvasElement): Promise<void>;
     /**
+     * Update a numeric `<Group id="...">` attribute without reparsing the DSL.
+     *
+     * This is intended for editor scrubbing (x/y/rotation/scale/opacity). It
+     * keeps the persistent renderer and its vector/GPU caches alive.
+     */
+    set_group_attr(group_id: string, attr: string, value: string): boolean;
+    /**
      * Total number of frames for the graph's duration and fps.
      */
     readonly total_frames: number;
@@ -189,6 +196,7 @@ export interface InitOutput {
     readonly wasmscenerenderer_add_asset: (a: number, b: number, c: number, d: number, e: number) => void;
     readonly wasmscenerenderer_add_font: (a: number, b: number, c: number) => any;
     readonly wasmscenerenderer_clear_assets: (a: number) => void;
+    readonly wasmscenerenderer_set_group_attr: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => [number, number, number];
     readonly wasmscenerenderer_render_frame: (a: number, b: number) => any;
     readonly wasmscenerenderer_render_frame_to_canvas: (a: number, b: number, c: any) => any;
     readonly wasmscenerenderer_debug_solid_to_canvas: (a: number, b: any, c: number, d: number) => any;

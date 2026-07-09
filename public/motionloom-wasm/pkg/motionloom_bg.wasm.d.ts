@@ -18,6 +18,7 @@ export const wasmscenerenderer_create: (a: number, b: number, c: number, d: numb
 export const wasmscenerenderer_add_asset: (a: number, b: number, c: number, d: number, e: number) => void;
 export const wasmscenerenderer_add_font: (a: number, b: number, c: number) => any;
 export const wasmscenerenderer_clear_assets: (a: number) => void;
+export const wasmscenerenderer_set_group_attr: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => [number, number, number];
 export const wasmscenerenderer_render_frame: (a: number, b: number) => any;
 export const wasmscenerenderer_render_frame_to_canvas: (a: number, b: number, c: any) => any;
 export const wasmscenerenderer_debug_solid_to_canvas: (a: number, b: any, c: number, d: number) => any;

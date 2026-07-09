@@ -22,7 +22,7 @@ import BaseLayout from '@components/BaseLayout.astro';
   </section>
 
   <section class="page-shell py-4 md:py-8">
-    <div id="motionloom-playground-panel" class="grid gap-4 rounded-[2.5rem] border-2 border-anica-ink bg-anica-ink p-4 ink-panel md:gap-6 md:p-10">
+    <div id="motionloom-playground-panel" class="grid max-w-full gap-4 overflow-hidden rounded-[2.5rem] border-2 border-anica-ink bg-anica-ink p-4 ink-panel md:gap-6 md:p-10">
       <div class="hidden text-center lg:block">
         <p class="font-mono text-xs font-bold uppercase tracking-[0.3em] text-anica-lime">Live playground</p>
         <h2 class="mt-3 text-3xl font-black tracking-[0.06em] text-anica-paper md:text-4xl">Controls &rarr; DSL &rarr; Preview</h2>
@@ -31,20 +31,20 @@ import BaseLayout from '@components/BaseLayout.astro';
         </p>
       </div>
 
-      <div id="motionloom-workspace" class="grid gap-4 lg:grid-cols-[1fr_1fr]">
-        <div class="order-2 flex flex-col gap-3 lg:order-1">
-            <div class="flex items-center justify-between">
+      <div id="motionloom-workspace" class="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <div class="order-2 flex min-w-0 flex-col gap-3 lg:order-1">
+            <div class="flex flex-wrap items-center justify-between gap-2">
             <p class="font-mono text-xs font-bold uppercase tracking-wider text-anica-lime">MotionLoom Graph</p>
-            <div class="flex gap-2">
+            <div class="flex shrink-0 gap-2">
               <button id="btn-reset" class="rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Process</button>
               <button id="btn-scene" class="rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Scene</button>
             </div>
           </div>
-          <div id="github-example-bar" class="flex flex-wrap items-center gap-2 rounded-2xl border border-anica-paper/15 bg-anica-paper/5 px-3 py-2">
-            <span class="font-mono text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper/60">GitHub example</span>
+          <div id="github-example-bar" class="flex w-full min-w-0 flex-wrap items-center gap-2 rounded-2xl border border-anica-paper/15 bg-anica-paper/5 px-3 py-2">
+            <span class="shrink-0 font-mono text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper/60">GitHub example</span>
             <select
               id="example-category"
-              class="rounded-full border border-anica-paper/25 bg-anica-ink/70 px-3 py-1 font-mono text-xs font-bold text-anica-paper outline-none transition focus:border-anica-lime"
+              class="min-w-0 max-w-full flex-1 rounded-full border border-anica-paper/25 bg-anica-ink/70 px-3 py-1 font-mono text-xs font-bold text-anica-paper outline-none transition focus:border-anica-lime"
             >
               <option value="showcase">showcase</option>
               <option value="scene">scene</option>
@@ -61,17 +61,30 @@ import BaseLayout from '@components/BaseLayout.astro';
               type="number"
               value="1"
             />
-            <button id="btn-load-showcase" class="rounded-full border border-anica-paper/30 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Load</button>
+            <button id="btn-load-showcase" class="shrink-0 rounded-full border border-anica-paper/30 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Load</button>
+            <button id="btn-empty-scene-template" class="shrink-0 rounded-full border border-anica-lime/40 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-lime transition hover:bg-anica-lime/10">Empty template</button>
+            <select id="svg-import-mode" class="shrink-0 rounded-full border border-anica-lime/40 bg-anica-black px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-lime outline-none transition hover:bg-anica-lime/10">
+              <option value="svg">Import as SVG tag</option>
+              <option value="path">Import as Path DSL</option>
+            </select>
+            <label class="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-full border border-anica-lime/25 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-lime transition hover:bg-anica-lime/10">
+              <input id="svg-skip-background" type="checkbox" class="h-3 w-3 accent-anica-lime" checked />
+              Skip SVG background
+            </label>
+            <label class="shrink-0 cursor-pointer rounded-full border border-anica-lime/40 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-lime transition hover:bg-anica-lime/10">
+              <input id="svg-import" type="file" accept=".svg,image/svg+xml" class="hidden" />
+              Import SVG
+            </label>
           </div>
-          <div id="process-github-example-bar" class="hidden flex-wrap items-center gap-2 rounded-2xl border border-anica-paper/15 bg-anica-paper/5 px-3 py-2">
-            <span class="font-mono text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper/60">GitHub process example</span>
+          <div id="process-github-example-bar" class="hidden w-full min-w-0 flex-wrap items-center gap-2 rounded-2xl border border-anica-paper/15 bg-anica-paper/5 px-3 py-2">
+            <span class="shrink-0 font-mono text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper/60">GitHub process example</span>
             <select
               id="process-example-select"
-              class="min-w-[15rem] rounded-full border border-anica-paper/25 bg-anica-ink/70 px-3 py-1 font-mono text-xs font-bold text-anica-paper outline-none transition focus:border-anica-lime"
+              class="min-w-0 max-w-full flex-1 rounded-full border border-anica-paper/25 bg-anica-ink/70 px-3 py-1 font-mono text-xs font-bold text-anica-paper outline-none transition focus:border-anica-lime"
             >
               <option value="">Loading process examples...</option>
             </select>
-            <button id="btn-load-process-example" class="rounded-full border border-anica-paper/30 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Load</button>
+            <button id="btn-load-process-example" class="shrink-0 rounded-full border border-anica-paper/30 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Load</button>
           </div>
           <div id="animation-controls-panel" class="rounded-2xl border border-anica-paper/15 bg-anica-paper/5 p-3">
             <div class="mb-3">
@@ -101,35 +114,35 @@ import BaseLayout from '@components/BaseLayout.astro';
           </div>
           <textarea
             id="dsl-editor"
-            class="min-h-[420px] flex-1 rounded-2xl border-2 border-anica-ink/40 bg-anica-ink/60 p-4 font-mono text-xs leading-relaxed text-anica-paper shadow-inner outline-none transition focus:border-anica-lime"
+            class="min-h-[420px] min-w-0 max-w-full flex-1 overflow-auto rounded-2xl border-2 border-anica-ink/40 bg-anica-ink/60 p-4 font-mono text-xs leading-relaxed text-anica-paper shadow-inner outline-none transition focus:border-anica-lime"
             spellcheck="false"
           ></textarea>
           <div id="compile-status" class="min-h-[1.5rem] font-mono text-xs text-anica-lime/80"></div>
         </div>
 
-        <div class="order-1 flex flex-col gap-3 lg:order-2">
-          <div class="flex items-center justify-between">
+        <div class="order-1 flex min-w-0 flex-col gap-3 lg:order-2">
+          <div class="flex flex-wrap items-center justify-between gap-2">
             <p class="font-mono text-xs font-bold uppercase tracking-wider text-anica-lime">Preview</p>
-            <div class="flex items-center gap-2">
-              <button id="btn-expand-playground" class="rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Expand</button>
-              <div id="process-source-controls" class="flex items-center gap-2">
+            <div class="flex min-w-0 flex-wrap items-center justify-end gap-2">
+              <button id="btn-expand-playground" class="shrink-0 rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Expand</button>
+              <div id="process-source-controls" class="flex min-w-0 flex-wrap items-center justify-end gap-2">
                 <label class="cursor-pointer rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">
                   <input id="file-upload" type="file" accept="image/*,video/*" class="hidden" />
                   Upload
                 </label>
-                <button id="btn-compare" class="rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10 select-none">Compare Original</button>
+                <button id="btn-compare" class="max-w-full rounded-full border-2 border-anica-paper/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10 select-none">Compare Original</button>
               </div>
-              <select id="export-format" class="rounded-full border-2 border-anica-lime/40 bg-anica-ink px-3 py-1 font-mono text-xs font-bold uppercase tracking-wider text-anica-lime">
+              <select id="export-format" class="min-w-0 max-w-full rounded-full border-2 border-anica-lime/40 bg-anica-ink px-3 py-1 font-mono text-xs font-bold uppercase tracking-wider text-anica-lime">
                 <option value="png">PNG</option>
                 <option value="mp4-h264">MP4 H.264</option>
                 <option value="webm-vp8">WebM VP8</option>
                 <option value="webm-vp9">WebM VP9</option>
                 <option value="webm-av1">WebM AV1</option>
               </select>
-              <button id="btn-download" class="rounded-full border-2 border-anica-lime/50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-lime transition hover:bg-anica-lime/10">Save</button>
+              <button id="btn-download" class="shrink-0 rounded-full border-2 border-anica-lime/50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-lime transition hover:bg-anica-lime/10">Save</button>
             </div>
           </div>
-          <div class="relative flex-1 min-h-[260px] overflow-hidden rounded-2xl border-2 border-anica-ink/40 bg-black sm:min-h-[320px]">
+          <div class="relative min-h-[260px] min-w-0 flex-1 overflow-hidden rounded-2xl border-2 border-anica-ink/40 bg-black sm:min-h-[320px]">
             <canvas id="motionloom-canvas-webgpu" class="absolute inset-0 h-full w-full object-contain opacity-0"></canvas>
             <canvas id="motionloom-canvas" class="absolute inset-0 h-full w-full object-contain opacity-100"></canvas>
             <div id="webgpu-status" class="absolute bottom-3 left-3 rounded-full border border-anica-lime/30 bg-anica-ink/80 px-3 py-1 font-mono text-xs text-anica-lime backdrop-blur-md">
@@ -152,7 +165,7 @@ import BaseLayout from '@components/BaseLayout.astro';
             Source: <span id="source-name">demo.jpg</span> (public domain)
           </p>
           <p class="mt-1 text-[0.65rem] italic text-anica-paper/35">
-            If a MotionLoom WASM package is deployed, Scene graphs render through Rust/WASM; otherwise this page falls back to the Canvas 2D showcase.
+            Scene graphs render through MotionLoom WASM. Unsupported native scene DSL now reports an explicit renderer error instead of silently falling back.
           </p>
         </div>
       </div>
@@ -162,6 +175,44 @@ import BaseLayout from '@components/BaseLayout.astro';
   <style>
     :global(body.motionloom-playground-expanded) {
       overflow: hidden;
+    }
+
+    #motionloom-playground-panel,
+    #motionloom-workspace,
+    #motionloom-workspace > div,
+    #github-example-bar,
+    #process-github-example-bar {
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    #dsl-editor {
+      width: 100%;
+      max-width: 100%;
+      overflow: auto;
+    }
+
+    #github-example-bar select,
+    #process-github-example-bar select,
+    #export-format {
+      min-width: 0;
+    }
+
+    #svg-import-mode {
+      appearance: none;
+      background-color: #11120d !important;
+      color: #f2eddf !important;
+    }
+
+    #svg-import-mode:hover,
+    #svg-import-mode:focus {
+      background-color: #1d2117 !important;
+      color: #B9FF39 !important;
+    }
+
+    #svg-import-mode option {
+      background-color: #11120d;
+      color: #f2eddf;
     }
 
     #motionloom-playground-panel.motionloom-expanded {
@@ -293,6 +344,39 @@ import BaseLayout from '@components/BaseLayout.astro';
     }
 
     @media (max-width: 640px) {
+      #motionloom-playground-panel {
+        border-radius: 1.5rem;
+        padding: 0.75rem;
+      }
+
+      #github-example-bar,
+      #process-github-example-bar {
+        align-items: stretch;
+      }
+
+      #github-example-bar > span,
+      #process-github-example-bar > span {
+        width: 100%;
+      }
+
+      #github-example-bar select,
+      #process-github-example-bar select {
+        flex-basis: 100%;
+        width: 100%;
+      }
+
+      #showcase-number {
+        flex: 1 1 4.5rem;
+      }
+
+      #process-source-controls {
+        flex-basis: 100%;
+      }
+
+      #btn-compare {
+        white-space: normal;
+      }
+
       .motionloom-control {
         grid-template-columns: 1fr;
         gap: 0.35rem;
@@ -322,7 +406,7 @@ import BaseLayout from '@components/BaseLayout.astro';
         </div>
         <div class="rounded-3xl border-2 border-anica-ink bg-anica-cream p-5 shadow-[6px_6px_0_#11120d]">
           <p class="font-mono text-xs font-bold uppercase tracking-wider text-anica-steel">3. Execute</p>
-          <p class="mt-2 text-sm text-anica-ink">Scene graphs render through MotionLoom WASM when available, with Canvas fallback for the web demo.</p>
+          <p class="mt-2 text-sm text-anica-ink">Scene graphs render through MotionLoom WASM; native renderer errors are surfaced instead of hidden by a browser fallback.</p>
         </div>
       </div>
     </div>
@@ -371,6 +455,10 @@ import BaseLayout from '@components/BaseLayout.astro';
       const showcaseNumber = document.getElementById('showcase-number');
       const exampleCategory = document.getElementById('example-category');
       const loadShowcaseBtn = document.getElementById('btn-load-showcase');
+      const emptySceneTemplateBtn = document.getElementById('btn-empty-scene-template');
+      const svgImportInput = document.getElementById('svg-import');
+      const svgImportMode = document.getElementById('svg-import-mode');
+      const svgSkipBackground = document.getElementById('svg-skip-background');
       const compileStatus = document.getElementById('compile-status');
       const fileUpload = document.getElementById('file-upload');
       const sourceName = document.getElementById('source-name');
@@ -529,7 +617,574 @@ import BaseLayout from '@components/BaseLayout.astro';
       function formatDslNumber(value, decimals = 2) {
         const num = Number(value);
         if (!Number.isFinite(num)) return '0';
-        return num.toFixed(decimals).replace(/\.?0+$/, '');
+        const fixed = num.toFixed(decimals);
+        return fixed.includes('.') ? fixed.replace(/\.?0+$/, '') : fixed;
+      }
+
+      function parseSvgNumber(value, fallback = 0) {
+        if (value === null || value === undefined || value === '') return fallback;
+        const num = Number.parseFloat(String(value).trim());
+        return Number.isFinite(num) ? num : fallback;
+      }
+
+      function escapeDslAttr(value) {
+        return String(value ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/"/g, '&quot;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+      }
+
+      function svgStyleMap(node) {
+        const styles = {};
+        const styleText = node.getAttribute('style') || '';
+        for (const part of styleText.split(';')) {
+          const idx = part.indexOf(':');
+          if (idx === -1) continue;
+          const key = part.slice(0, idx).trim();
+          const value = part.slice(idx + 1).trim();
+          if (key) styles[key] = value;
+        }
+        return styles;
+      }
+
+      function svgAttr(node, name, fallback = '') {
+        let current = node;
+        while (current && current.nodeType === Node.ELEMENT_NODE) {
+          const styles = svgStyleMap(current);
+          const value = current.getAttribute(name) || styles[name];
+          if (value) return value;
+          current = current.parentElement;
+        }
+        return fallback;
+      }
+
+      function svgPaint(node, attr, fallback) {
+        const value = svgAttr(node, attr, fallback);
+        if (!value || value === 'none' || value.startsWith('url(')) return null;
+        if (value === 'currentColor') return svgAttr(node, 'color', fallback);
+        return normalizeSvgColor(value);
+      }
+
+      function normalizeSvgColor(value) {
+        const color = String(value || '').trim();
+        const rgbMatch = color.match(/^rgba?\(([^)]*)\)$/i);
+        if (!rgbMatch) return color;
+        const parts = rgbMatch[1].split(',').map((part) => part.trim());
+        if (parts.length < 3) return color;
+        const channels = parts.slice(0, 3).map((part) => {
+          if (part.endsWith('%')) {
+            return Math.round(Math.max(0, Math.min(100, Number.parseFloat(part))) * 2.55);
+          }
+          return Math.round(Math.max(0, Math.min(255, Number.parseFloat(part))));
+        });
+        if (channels.some((n) => !Number.isFinite(n))) return color;
+        if (parts.length >= 4) {
+          const alpha = parts[3].endsWith('%')
+            ? Math.max(0, Math.min(100, Number.parseFloat(parts[3]))) / 100
+            : Math.max(0, Math.min(1, Number.parseFloat(parts[3])));
+          return `rgba(${channels[0]}, ${channels[1]}, ${channels[2]}, ${Number.isFinite(alpha) ? alpha : 1})`;
+        }
+        return `rgb(${channels[0]}, ${channels[1]}, ${channels[2]})`;
+      }
+
+      function svgOpacity(node) {
+        const opacity = parseSvgNumber(svgAttr(node, 'opacity', '1'), 1);
+        const fillOpacity = parseSvgNumber(svgAttr(node, 'fill-opacity', '1'), 1);
+        return Math.max(0, Math.min(1, opacity * fillOpacity));
+      }
+
+      function parseSvgTransform(transformText) {
+        const transform = {
+          x: 0,
+          y: 0,
+          rotation: 0,
+          scaleX: 1,
+          scaleY: 1,
+          transformOriginX: 0,
+          transformOriginY: 0,
+        };
+        if (!transformText) return transform;
+        const re = /(matrix|translate|rotate|scale)\(([^)]*)\)/g;
+        let match;
+        while ((match = re.exec(transformText)) !== null) {
+          const values = match[2].trim().split(/[\s,]+/).map((v) => parseSvgNumber(v, 0));
+          if (match[1] === 'matrix' && values.length >= 6) {
+            const [a, b, c, d, e, f] = values;
+            transform.x += e || 0;
+            transform.y += f || 0;
+            if (Math.abs(b) < 0.000001 && Math.abs(c) < 0.000001) {
+              transform.scaleX *= Number.isFinite(a) ? a : 1;
+              transform.scaleY *= Number.isFinite(d) ? d : 1;
+            } else {
+              transform.rotation += Math.atan2(b, a) * 180 / Math.PI;
+              transform.scaleX *= Math.hypot(a, b) || 1;
+              transform.scaleY *= Math.hypot(c, d) || 1;
+            }
+          } else if (match[1] === 'translate') {
+            transform.x += values[0] || 0;
+            transform.y += values.length > 1 ? values[1] || 0 : 0;
+          } else if (match[1] === 'rotate') {
+            transform.rotation += values[0] || 0;
+            if (values.length >= 3) {
+              transform.transformOriginX = values[1] || 0;
+              transform.transformOriginY = values[2] || 0;
+            }
+          } else if (match[1] === 'scale') {
+            transform.scaleX *= values[0] || 1;
+            transform.scaleY *= values.length > 1 ? values[1] || 1 : values[0] || 1;
+          }
+        }
+        return transform;
+      }
+
+      function groupOpen(id, node, extraAttrs = '') {
+        const transform = parseSvgTransform(node.getAttribute('transform') || '');
+        const attrs = [
+          `id="${escapeDslAttr(id)}"`,
+          `x="${formatDslNumber(transform.x, 2)}"`,
+          `y="${formatDslNumber(transform.y, 2)}"`,
+          `rotation="${formatDslNumber(transform.rotation, 2)}"`,
+          `scaleX="${formatDslNumber(transform.scaleX, 4)}"`,
+          `scaleY="${formatDslNumber(transform.scaleY, 4)}"`,
+          `transformOriginX="${formatDslNumber(transform.transformOriginX, 2)}"`,
+          `transformOriginY="${formatDslNumber(transform.transformOriginY, 2)}"`,
+        ];
+        if (extraAttrs) attrs.push(extraAttrs);
+        return `<Group ${attrs.join(' ')}>`;
+      }
+
+      function svgStrokeLineAttrs(node) {
+        const stroke = svgPaint(node, 'stroke', '#111827') || '#111827';
+        const strokeWidth = parseSvgNumber(svgAttr(node, 'stroke-width', '1'), 1);
+        return `stroke="${escapeDslAttr(stroke)}" strokeWidth="${formatDslNumber(strokeWidth, 2)}"`;
+      }
+
+      function svgFillRule(node) {
+        const rule = svgAttr(node, 'fill-rule', 'nonzero');
+        return rule === 'evenodd' ? 'evenodd' : 'nonzero';
+      }
+
+      function parseSvgPoints(pointsText) {
+        const nums = String(pointsText || '').trim().split(/[\s,]+/).map((v) => parseSvgNumber(v, NaN)).filter(Number.isFinite);
+        const points = [];
+        for (let i = 0; i + 1 < nums.length; i += 2) {
+          points.push([nums[i], nums[i + 1]]);
+        }
+        return points;
+      }
+
+      function safeSvgAssetName(fileName) {
+        const baseName = String(fileName || 'imported.svg')
+          .trim()
+          .replace(/\\/g, '/')
+          .split('/')
+          .pop()
+          .replace(/[^a-zA-Z0-9._-]+/g, '_')
+          .replace(/^_+|_+$/g, '') || 'imported.svg';
+        return baseName.toLowerCase().endsWith('.svg') ? baseName : `${baseName}.svg`;
+      }
+
+      function uniqueSvgAssetName(fileName, suffix) {
+        const safe = safeSvgAssetName(fileName);
+        const dot = safe.toLowerCase().endsWith('.svg') ? safe.length - 4 : safe.length;
+        return `${safe.slice(0, dot)}_${suffix}.svg`;
+      }
+
+      function safeDslId(value) {
+        const id = String(value || 'svg_node')
+          .trim()
+          .replace(/[^a-zA-Z0-9_-]+/g, '_')
+          .replace(/^_+|_+$/g, '');
+        return id || 'svg_node';
+      }
+
+      function svgDocumentMetrics(svgText) {
+        const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
+        const parseError = doc.querySelector('parsererror');
+        if (parseError) throw new Error('Invalid SVG file.');
+        const svg = doc.documentElement;
+        if (!svg || svg.localName.toLowerCase() !== 'svg') throw new Error('File is not an SVG.');
+        const viewBox = (svg.getAttribute('viewBox') || '').trim().split(/[\s,]+/).map((v) => parseSvgNumber(v, NaN));
+        const width = Number.isFinite(viewBox[2]) ? viewBox[2] : parseSvgNumber(svg.getAttribute('width'), 800);
+        const height = Number.isFinite(viewBox[3]) ? viewBox[3] : parseSvgNumber(svg.getAttribute('height'), 450);
+        const offsetX = Number.isFinite(viewBox[0]) ? -viewBox[0] : 0;
+        const offsetY = Number.isFinite(viewBox[1]) ? -viewBox[1] : 0;
+        return { doc, svg, viewBox, width, height, offsetX, offsetY };
+      }
+
+      function isWhiteSvgPaint(value) {
+        const color = String(value || '').trim().toLowerCase();
+        if (!color || color === 'none' || color.startsWith('url(')) return false;
+        return color === 'white'
+          || color === '#fff'
+          || color === '#ffffff'
+          || color === 'rgb(255,255,255)'
+          || color === 'rgb(255, 255, 255)'
+          || color === 'rgba(255,255,255,1)'
+          || color === 'rgba(255, 255, 255, 1)';
+      }
+
+      function isFullSvgRectBackground(node, metrics) {
+        if (!node || node.localName?.toLowerCase() !== 'rect') return false;
+        const fill = svgPaint(node, 'fill', '');
+        if (!isWhiteSvgPaint(fill)) return false;
+        const opacity = svgOpacity(node);
+        if (opacity < 0.98) return false;
+        const x = parseSvgNumber(node.getAttribute('x'), 0);
+        const y = parseSvgNumber(node.getAttribute('y'), 0);
+        const width = parseSvgNumber(node.getAttribute('width'), metrics.width);
+        const height = parseSvgNumber(node.getAttribute('height'), metrics.height);
+        const minX = Number.isFinite(metrics.viewBox[0]) ? metrics.viewBox[0] : 0;
+        const minY = Number.isFinite(metrics.viewBox[1]) ? metrics.viewBox[1] : 0;
+        const tolerance = Math.max(metrics.width, metrics.height, 1) * 0.02;
+        return x <= minX + tolerance
+          && y <= minY + tolerance
+          && x + width >= minX + metrics.width - tolerance
+          && y + height >= minY + metrics.height - tolerance;
+      }
+
+      function isLikelyFullSvgPathBackground(node, metrics) {
+        if (!node || node.localName?.toLowerCase() !== 'path') return false;
+        const fill = svgPaint(node, 'fill', '');
+        if (!isWhiteSvgPaint(fill)) return false;
+        const opacity = svgOpacity(node);
+        if (opacity < 0.98) return false;
+        const d = node.getAttribute('d') || '';
+        const nums = d.match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi)?.map(Number).filter(Number.isFinite) || [];
+        if (nums.length < 8) return false;
+        const xs = [];
+        const ys = [];
+        for (let i = 0; i + 1 < nums.length; i += 2) {
+          xs.push(nums[i]);
+          ys.push(nums[i + 1]);
+        }
+        if (!xs.length || !ys.length) return false;
+        const minX = Math.min(...xs);
+        const maxX = Math.max(...xs);
+        const minY = Math.min(...ys);
+        const maxY = Math.max(...ys);
+        const viewMinX = Number.isFinite(metrics.viewBox[0]) ? metrics.viewBox[0] : 0;
+        const viewMinY = Number.isFinite(metrics.viewBox[1]) ? metrics.viewBox[1] : 0;
+        const tolerance = Math.max(metrics.width, metrics.height, 1) * 0.03;
+        return minX <= viewMinX + tolerance
+          && minY <= viewMinY + tolerance
+          && maxX >= viewMinX + metrics.width - tolerance
+          && maxY >= viewMinY + metrics.height - tolerance;
+      }
+
+      function isLikelySvgBackgroundNode(node, metrics) {
+        return isFullSvgRectBackground(node, metrics) || isLikelyFullSvgPathBackground(node, metrics);
+      }
+
+      function removeSvgBackgroundNodes(svgText) {
+        const metrics = svgDocumentMetrics(svgText);
+        let removed = 0;
+        const candidates = Array.from(metrics.svg.querySelectorAll('rect,path'));
+        for (const node of candidates) {
+          if (isLikelySvgBackgroundNode(node, metrics)) {
+            node.remove();
+            removed += 1;
+          }
+        }
+        if (!removed) return { svgText, removed };
+        const serialized = new XMLSerializer().serializeToString(metrics.svg);
+        return { svgText: serialized, removed };
+      }
+
+      function readCurrentGraphCanvasSpec(src) {
+        const script = String(src || '');
+        const graphTag = script.match(/<Graph\b[^>]*>/i)?.[0] || '';
+        const fps = Number.parseFloat(graphTag.match(/\bfps=\{?\s*["']?([\d.]+)/i)?.[1] || '30');
+        const duration = parseDuration(graphTag.match(/\bduration=["']([^"']+)["']/i)?.[1] || '4s') || 4;
+        const sizeMatch = graphTag.match(/(?:^|\s)size=\{\[\s*([\d.]+)\s*,\s*([\d.]+)\s*\]\}/i);
+        const renderSizeMatch = graphTag.match(/\brenderSize=\{\[\s*([\d.]+)\s*,\s*([\d.]+)\s*\]\}/i);
+        const graphSize = sizeMatch
+          ? [Math.max(1, Math.round(Number.parseFloat(sizeMatch[1]))), Math.max(1, Math.round(Number.parseFloat(sizeMatch[2])))]
+          : [1920, 1080];
+        const renderSize = renderSizeMatch
+          ? [Math.max(1, Math.round(Number.parseFloat(renderSizeMatch[1]))), Math.max(1, Math.round(Number.parseFloat(renderSizeMatch[2])))]
+          : graphSize;
+        const background = script.match(/<Background\b[^>]*\bcolor=["']([^"']+)["']/i)?.[1] || '#FFFFFF';
+        return {
+          fps: Number.isFinite(fps) ? Math.max(1, fps) : 30,
+          duration: Math.max(1 / (Number.isFinite(fps) ? Math.max(1, fps) : 30), duration),
+          width: renderSize[0],
+          height: renderSize[1],
+          graphSize,
+          renderSize,
+          background,
+        };
+      }
+
+      function currentSceneCanvasSpec() {
+        try {
+          return readCurrentGraphCanvasSpec(editor.value || '');
+        } catch (_) {
+          return {
+            fps: 30,
+            duration: 4,
+            width: 1920,
+            height: 1080,
+            graphSize: [1920, 1080],
+            renderSize: [1920, 1080],
+            background: '#FFFFFF',
+          };
+        }
+      }
+
+      function importedSvgPlacement(metrics, canvasSpec) {
+        const safeWidth = Math.max(1, metrics.width);
+        const safeHeight = Math.max(1, metrics.height);
+        const fitScale = Math.min(
+          1,
+          (canvasSpec.width * 0.9) / safeWidth,
+          (canvasSpec.height * 0.9) / safeHeight,
+        );
+        const drawnWidth = safeWidth * fitScale;
+        const drawnHeight = safeHeight * fitScale;
+        return {
+          scale: fitScale,
+          x: (canvasSpec.width - drawnWidth) / 2 + metrics.offsetX * fitScale,
+          y: (canvasSpec.height - drawnHeight) / 2 + metrics.offsetY * fitScale,
+        };
+      }
+
+      function emptySceneTemplateDsl(canvasSpec = {
+        fps: 30,
+        duration: 4,
+        graphSize: [1920, 1080],
+        renderSize: [1920, 1080],
+      }) {
+        return `<Graph fps={${formatDslNumber(canvasSpec.fps, 0)}} duration="${formatDslNumber(canvasSpec.duration, 2)}s" size={[${formatDslNumber(canvasSpec.graphSize[0], 0)},${formatDslNumber(canvasSpec.graphSize[1], 0)}]} renderSize={[${formatDslNumber(canvasSpec.renderSize[0], 0)},${formatDslNumber(canvasSpec.renderSize[1], 0)}]}>
+  <Background color="#FFFFFF" />
+  <Scene id="EmptyScene">
+    <Timeline>
+      <Track id="empty_track" space="screen" z="0">
+        <Sequence from="0s" duration="${formatDslNumber(canvasSpec.duration, 2)}s" out="hold">
+          <Layer id="empty_layer">
+          </Layer>
+        </Sequence>
+      </Track>
+    </Timeline>
+  </Scene>
+  <Present from="EmptyScene" />
+</Graph>`;
+      }
+
+      function svgImportTrackDsl(innerContent, canvasSpec = currentSceneCanvasSpec(), suffix = '001') {
+        return `      <Track id="svg_import_track_${suffix}" space="screen" z="999">
+        <Sequence from="0s" duration="${formatDslNumber(canvasSpec.duration, 2)}s" out="hold">
+          <Layer id="svg_import_layer_${suffix}">
+${innerContent}
+          </Layer>
+        </Sequence>
+      </Track>`;
+      }
+
+      function insertSceneImportTrack(currentDsl, trackDsl) {
+        const script = String(currentDsl || '');
+        const timelineClose = script.lastIndexOf('</Timeline>');
+        if (timelineClose === -1 || !/<Scene\b/i.test(script)) return null;
+        const prefix = script.slice(0, timelineClose).replace(/\s*$/, '');
+        const suffix = script.slice(timelineClose);
+        return `${prefix}\n\n${trackDsl}\n    ${suffix}`;
+      }
+
+      function svgToMotionLoomSvgTagDsl(svgText, fileName = 'imported.svg', canvasSpec = currentSceneCanvasSpec(), options = {}) {
+        const metrics = svgDocumentMetrics(svgText);
+        const placement = importedSvgPlacement(metrics, canvasSpec);
+        const suffix = options.suffix || '001';
+        const assetName = uniqueSvgAssetName(fileName, suffix);
+        const importContent = `            <Group id="svg_asset_transform_${suffix}" x="${formatDslNumber(placement.x, 2)}" y="${formatDslNumber(placement.y, 2)}" scale="1">
+              <Svg id="svg_asset_${suffix}" src="${escapeDslAttr(assetName)}" x="0" y="0" scale="${formatDslNumber(placement.scale, 6)}" opacity="1" />
+            </Group>`;
+        const track = svgImportTrackDsl(importContent, canvasSpec, suffix);
+        return {
+          mode: 'svg',
+          assetName,
+          script: `<!-- Imported from ${escapeDslAttr(fileName)} as retained SVG asset on the current scene canvas. Use Import as Path DSL only when individual paths need editing. -->
+<Graph fps={${formatDslNumber(canvasSpec.fps, 0)}} duration="${formatDslNumber(canvasSpec.duration, 2)}s" size={[${formatDslNumber(canvasSpec.graphSize[0], 0)},${formatDslNumber(canvasSpec.graphSize[1], 0)}]} renderSize={[${formatDslNumber(canvasSpec.renderSize[0], 0)},${formatDslNumber(canvasSpec.renderSize[1], 0)}]}>
+  <Background color="${escapeDslAttr(canvasSpec.background)}" />
+  <Scene id="ImportedSvgScene">
+    <Timeline>
+${track}
+    </Timeline>
+  </Scene>
+  <Present from="ImportedSvgScene" />
+</Graph>`,
+          track,
+          convertedCount: 1,
+          skippedSummary: '',
+          width: metrics.width,
+          height: metrics.height,
+        };
+      }
+
+      function svgToMotionLoomDsl(svgText, fileName = 'imported.svg', canvasSpec = currentSceneCanvasSpec(), options = {}) {
+        const metrics = svgDocumentMetrics(svgText);
+        const { svg, width, height, offsetX, offsetY } = metrics;
+        const placement = importedSvgPlacement({ width, height, offsetX, offsetY }, canvasSpec);
+        const suffix = options.suffix || '001';
+        const shapes = [];
+        const skipped = {};
+        let index = 0;
+
+        function nextId(type) {
+          index += 1;
+          return `svg_${suffix}_${type}_${String(index).padStart(3, '0')}`;
+        }
+
+        function noteSkipped(type) {
+          skipped[type] = (skipped[type] || 0) + 1;
+        }
+
+        function pushShape(node, target = shapes) {
+          const tag = node.localName.toLowerCase();
+          if (['defs', 'clippath', 'mask', 'pattern', 'lineargradient', 'radialgradient', 'filter', 'metadata', 'title', 'desc', 'style'].includes(tag)) {
+            noteSkipped(tag);
+            return;
+          }
+          if (options.skipBackground && isLikelySvgBackgroundNode(node, metrics)) {
+            noteSkipped('white background');
+            return;
+          }
+          if (tag === 'svg') {
+            for (const child of node.children) pushShape(child, target);
+            return;
+          }
+          if (tag === 'g') {
+            const childShapes = [];
+            for (const child of node.children) pushShape(child, childShapes);
+            if (childShapes.length > 0) {
+              const rawGroupId = node.getAttribute('id') || nextId('group');
+              const groupId = `${safeDslId(rawGroupId)}_${suffix}`;
+              const opacity = parseSvgNumber(svgAttr(node, 'opacity', '1'), 1);
+              const opacityAttr = opacity < 1 ? ` opacity="${formatDslNumber(opacity, 3)}"` : '';
+              target.push(`            ${groupOpen(groupId, node, opacityAttr)}
+${childShapes.join('\n')}
+            </Group>`);
+            }
+            return;
+          }
+          const rawId = node.getAttribute('id') || nextId(tag);
+          const id = `${safeDslId(rawId)}_${suffix}`;
+          const fill = svgPaint(node, 'fill', '#111827');
+          const opacity = svgOpacity(node);
+          const opacityAttr = opacity < 1 ? ` opacity="${formatDslNumber(opacity, 3)}"` : '';
+
+          if (tag === 'rect') {
+            if (!fill) {
+              noteSkipped('stroke-only rect');
+              return;
+            }
+            const x = parseSvgNumber(node.getAttribute('x'), 0);
+            const y = parseSvgNumber(node.getAttribute('y'), 0);
+            const width = parseSvgNumber(node.getAttribute('width'), 0);
+            const height = parseSvgNumber(node.getAttribute('height'), 0);
+            const radius = Math.max(parseSvgNumber(node.getAttribute('rx'), 0), parseSvgNumber(node.getAttribute('ry'), 0));
+            target.push(`            ${groupOpen(id, node)}
+              <Rect x="${formatDslNumber(x, 2)}" y="${formatDslNumber(y, 2)}" width="${formatDslNumber(width, 2)}" height="${formatDslNumber(height, 2)}" radius="${formatDslNumber(radius, 2)}" color="${escapeDslAttr(fill)}"${opacityAttr} />
+            </Group>`);
+          } else if (tag === 'circle') {
+            if (!fill) {
+              noteSkipped('stroke-only circle');
+              return;
+            }
+            const cx = parseSvgNumber(node.getAttribute('cx'), 0);
+            const cy = parseSvgNumber(node.getAttribute('cy'), 0);
+            const radius = parseSvgNumber(node.getAttribute('r'), 0);
+            target.push(`            ${groupOpen(id, node)}
+              <Circle x="${formatDslNumber(cx, 2)}" y="${formatDslNumber(cy, 2)}" radius="${formatDslNumber(radius, 2)}" color="${escapeDslAttr(fill)}"${opacityAttr} />
+            </Group>`);
+          } else if (tag === 'ellipse') {
+            if (!fill) {
+              noteSkipped('stroke-only ellipse');
+              return;
+            }
+            const cx = parseSvgNumber(node.getAttribute('cx'), 0);
+            const cy = parseSvgNumber(node.getAttribute('cy'), 0);
+            const rx = parseSvgNumber(node.getAttribute('rx'), 0);
+            const ry = parseSvgNumber(node.getAttribute('ry'), 0);
+            target.push(`            ${groupOpen(id, node)}
+              <Group id="${escapeDslAttr(id)}_ellipse_scale" x="${formatDslNumber(cx, 2)}" y="${formatDslNumber(cy, 2)}" scaleX="${formatDslNumber(rx, 4)}" scaleY="${formatDslNumber(ry, 4)}">
+                <Circle x="0" y="0" radius="1" color="${escapeDslAttr(fill)}"${opacityAttr} />
+              </Group>
+            </Group>`);
+          } else if (tag === 'line') {
+            target.push(`            ${groupOpen(id, node)}
+              <Line x1="${formatDslNumber(parseSvgNumber(node.getAttribute('x1'), 0), 2)}" y1="${formatDslNumber(parseSvgNumber(node.getAttribute('y1'), 0), 2)}" x2="${formatDslNumber(parseSvgNumber(node.getAttribute('x2'), 0), 2)}" y2="${formatDslNumber(parseSvgNumber(node.getAttribute('y2'), 0), 2)}" ${svgStrokeLineAttrs(node)}${opacityAttr} />
+            </Group>`);
+          } else if (tag === 'polyline' || tag === 'polygon') {
+            const points = parseSvgPoints(node.getAttribute('points'));
+            if (tag === 'polygon' && points.length > 2) points.push(points[0]);
+            if (points.length < 2) {
+              noteSkipped(tag);
+              return;
+            }
+            const lines = [];
+            for (let i = 0; i + 1 < points.length; i++) {
+              const a = points[i];
+              const b = points[i + 1];
+              lines.push(`              <Line x1="${formatDslNumber(a[0], 2)}" y1="${formatDslNumber(a[1], 2)}" x2="${formatDslNumber(b[0], 2)}" y2="${formatDslNumber(b[1], 2)}" ${svgStrokeLineAttrs(node)}${opacityAttr} />`);
+            }
+            target.push(`            ${groupOpen(id, node)}
+${lines.join('\n')}
+            </Group>`);
+          } else if (tag === 'text') {
+            const text = node.textContent || '';
+            const x = parseSvgNumber(node.getAttribute('x'), 0);
+            const y = parseSvgNumber(node.getAttribute('y'), 0);
+            const fontSize = parseSvgNumber(svgAttr(node, 'font-size', '24'), 24);
+            target.push(`            ${groupOpen(id, node)}
+              <Text x="${formatDslNumber(x, 2)}" y="${formatDslNumber(y, 2)}" value="${escapeDslAttr(text.trim())}" fontSize="${formatDslNumber(fontSize, 2)}" color="${escapeDslAttr(fill || '#111827')}"${opacityAttr} />
+            </Group>`);
+          } else if (tag === 'path') {
+            const d = node.getAttribute('d') || '';
+            if (!d.trim()) {
+              noteSkipped('empty path');
+              return;
+            }
+            const stroke = svgPaint(node, 'stroke', '');
+            if (!fill && !stroke) {
+              noteSkipped('invisible path');
+              return;
+            }
+            const strokeAttrs = stroke ? ` stroke="${escapeDslAttr(stroke)}" strokeWidth="${formatDslNumber(parseSvgNumber(svgAttr(node, 'stroke-width', '1'), 1), 2)}"` : '';
+            const fillAttrs = fill ? ` fill="${escapeDslAttr(fill)}" fillRule="${svgFillRule(node)}"` : '';
+            target.push(`            ${groupOpen(id, node)}
+              <Path d="${escapeDslAttr(d)}"${fillAttrs}${strokeAttrs}${opacityAttr} />
+            </Group>`);
+          } else {
+            noteSkipped(tag);
+          }
+        }
+
+        pushShape(svg);
+        if (shapes.length === 0) throw new Error('SVG contains no supported visible primitives.');
+        const skippedSummary = Object.entries(skipped).map(([type, count]) => `${count} ${type}`).join(', ');
+        const sourceComment = `<!-- Imported from ${escapeDslAttr(fileName)}${skippedSummary ? `; skipped: ${escapeDslAttr(skippedSummary)}` : ''} -->`;
+        const importContent = `            <Group id="svg_viewbox_${suffix}" x="${formatDslNumber(placement.x, 2)}" y="${formatDslNumber(placement.y, 2)}" scale="${formatDslNumber(placement.scale, 6)}">
+${shapes.join('\n')}
+            </Group>`;
+        const track = svgImportTrackDsl(importContent, canvasSpec, suffix);
+        return {
+          script: `${sourceComment}
+<Graph fps={${formatDslNumber(canvasSpec.fps, 0)}} duration="${formatDslNumber(canvasSpec.duration, 2)}s" size={[${formatDslNumber(canvasSpec.graphSize[0], 0)},${formatDslNumber(canvasSpec.graphSize[1], 0)}]} renderSize={[${formatDslNumber(canvasSpec.renderSize[0], 0)},${formatDslNumber(canvasSpec.renderSize[1], 0)}]}>
+  <Background color="${escapeDslAttr(canvasSpec.background)}" />
+  <Scene id="ImportedSvgScene">
+    <Timeline>
+${track}
+    </Timeline>
+  </Scene>
+  <Present from="ImportedSvgScene" />
+</Graph>`,
+          track,
+          skippedSummary,
+          convertedCount: shapes.length,
+          width,
+          height,
+        };
       }
 
       let defaultScript = '';
@@ -538,7 +1193,7 @@ import BaseLayout from '@components/BaseLayout.astro';
       const base = (typeof window !== 'undefined' && window.MOTIONLOOM_BASE) ? window.MOTIONLOOM_BASE : '/';
       const demoImageUrl = base.replace(/\/$/, '') + '/demo.jpg';
       const wasmPkgBase = base.replace(/\/$/, '') + '/motionloom-wasm/pkg';
-      const motionLoomWasmVersion = '2026-07-04-pass-mask-mix';
+      const motionLoomWasmVersion = '2026-07-08-group-mask-transform-webgpu';
       const exampleRawRoot = 'https://raw.githubusercontent.com/LOVELYZOMBIEYHO/motionloom-example/refs/heads/main';
       const processExampleManifestUrl = `${exampleRawRoot}/dataset/layer-fx-templates.json`;
       const motionLoomFontUrls = [
@@ -552,6 +1207,13 @@ import BaseLayout from '@components/BaseLayout.astro';
       let showcaseLoadDebounceId = null;
       let processExamples = [];
       let processExamplesPromise = null;
+      const importedSvgAssets = new Map();
+      let svgImportCounter = 0;
+
+      function nextSvgImportSuffix() {
+        svgImportCounter += 1;
+        return String(svgImportCounter).padStart(3, '0');
+      }
 
       let currentImage = new Image();
       let isVideo = false;
@@ -852,6 +1514,13 @@ import BaseLayout from '@components/BaseLayout.astro';
         }
       }
 
+      function addImportedSvgAssets(renderer) {
+        if (!renderer || typeof renderer.add_asset !== 'function') return;
+        for (const [name, bytes] of importedSvgAssets) {
+          renderer.add_asset(name, bytes);
+        }
+      }
+
       function formatWasmError(err) {
         if (!err) return 'unknown error';
         if (typeof err === 'string') return err;
@@ -916,8 +1585,7 @@ import BaseLayout from '@components/BaseLayout.astro';
             'MotionLoom WASM load timed out'
           );
           if (!mod || typeof mod.WasmSceneRenderer !== 'function') {
-            webgpuStatus.textContent = 'Canvas 2D fallback';
-            return false;
+            throw new Error('MotionLoom WASM package does not expose WasmSceneRenderer');
           }
 
           const size = graph.renderSize || graph.size;
@@ -930,6 +1598,7 @@ import BaseLayout from '@components/BaseLayout.astro';
               renderer = typeof mod.WasmSceneRenderer.create === 'function'
                 ? await mod.WasmSceneRenderer.create(script, 'gpu')
                 : new mod.WasmSceneRenderer(script, 'gpu');
+              addImportedSvgAssets(renderer);
               await attachMotionLoomFonts(renderer);
               if (typeof renderer.render_frame_to_canvas !== 'function') {
                 throw new Error('WASM package does not expose render_frame_to_canvas');
@@ -948,6 +1617,7 @@ import BaseLayout from '@components/BaseLayout.astro';
           }
 
           renderer = new mod.WasmSceneRenderer(script, 'cpu');
+          addImportedSvgAssets(renderer);
           await attachMotionLoomFonts(renderer);
           const rgba = await renderer.render_frame(initialFrame);
           drawRgbaBuffer(rgba, size[0], size[1]);
@@ -957,9 +1627,9 @@ import BaseLayout from '@components/BaseLayout.astro';
           return 'MotionLoom WASM CPU';
         } catch (err) {
           window.__motionloomWasmError = err;
-          console.warn('MotionLoom WASM render failed; using Canvas fallback.', err);
-          webgpuStatus.textContent = `Canvas fallback: ${formatWasmError(err)}`;
-          return false;
+          console.warn('MotionLoom WASM scene render failed.', err);
+          webgpuStatus.textContent = `MotionLoom WASM error: ${formatWasmError(err)}`;
+          throw err;
         } finally {
           // Do not manually free the WASM renderer here. The animation loop may
           // still hold it across async frame renders; explicit free can race and
@@ -1155,7 +1825,7 @@ import BaseLayout from '@components/BaseLayout.astro';
               stack.push(group);
               depth++;
             }
-          } else if (['Circle', 'Rect', 'Line', 'Text'].includes(tag)) {
+          } else if (['Circle', 'Rect', 'Line', 'Text', 'Path'].includes(tag)) {
             const shape = { type: tag.toLowerCase(), ...attrs };
             // Parse numeric properties
             const numericProps = ['x', 'y', 'x1', 'y1', 'x2', 'y2', 'radius', 'width', 'height', 'fontSize', 'strokeWidth', 'opacity'];
@@ -1382,6 +2052,8 @@ import BaseLayout from '@components/BaseLayout.astro';
       let sceneLoopToken = 0;
       let wasmSceneRenderer = null;
       let compileRunToken = 0;
+      let runtimeSceneRenderDebounceId = null;
+      let runtimeSceneRenderToken = 0;
       let activeEditorMode = 'scene';
 
       function setEditorMode(mode) {
@@ -1501,6 +2173,24 @@ import BaseLayout from '@components/BaseLayout.astro';
           ctx.lineWidth = shape.strokeWidth || 1;
           if (shape.opacity !== undefined) ctx.globalAlpha = evaluateNumber(shape.opacity, time, graph, 1);
           ctx.stroke();
+          ctx.restore();
+        } else if (shape.type === 'path') {
+          ctx.save();
+          if (shape.opacity !== undefined) ctx.globalAlpha = evaluateNumber(shape.opacity, time, graph, 1);
+          try {
+            const path = new Path2D(shape.d || '');
+            if (shape.color && shape.color !== 'transparent') {
+              ctx.fillStyle = shape.color;
+              ctx.fill(path, shape.fillRule === 'evenodd' ? 'evenodd' : 'nonzero');
+            }
+            if (shape.stroke) {
+              ctx.strokeStyle = shape.stroke;
+              ctx.lineWidth = shape.strokeWidth || 1;
+              ctx.stroke(path);
+            }
+          } catch (err) {
+            console.warn('Skipping invalid SVG path in imported DSL.', err);
+          }
           ctx.restore();
         } else if (shape.type === 'text') {
           renderTextShape(shape, time, graph);
@@ -1728,6 +2418,45 @@ import BaseLayout from '@components/BaseLayout.astro';
           cancelAnimationFrame(sceneAnimationId);
           sceneAnimationId = null;
         }
+      }
+
+      function currentPreviewFrame() {
+        return Math.max(0, Math.floor(previewPlayback.frameFloat || 0));
+      }
+
+      function scheduleRuntimeSceneRender(delayMs = 80) {
+        if (!wasmSceneRenderer) return false;
+        if (runtimeSceneRenderDebounceId) {
+          window.clearTimeout(runtimeSceneRenderDebounceId);
+        }
+        const token = ++runtimeSceneRenderToken;
+        runtimeSceneRenderDebounceId = window.setTimeout(async () => {
+          runtimeSceneRenderDebounceId = null;
+          if (!wasmSceneRenderer || token !== runtimeSceneRenderToken) return;
+          const frame = currentPreviewFrame();
+          try {
+            webgpuStatus.textContent = 'Rendering edited frame...';
+            if (typeof wasmSceneRenderer.render_frame_to_canvas === 'function' && activePreviewCanvas === gpuCanvas) {
+              await wasmSceneRenderer.render_frame_to_canvas(frame, gpuCanvas);
+              webgpuStatus.textContent = 'MotionLoom WASM WebGPU';
+              return;
+            }
+            if (typeof wasmSceneRenderer.render_frame === 'function') {
+              const graph = parseGraph(editor.value);
+              const size = graph.renderSize || graph.size;
+              const rgba = await wasmSceneRenderer.render_frame(frame);
+              drawRgbaBuffer(rgba, size[0], size[1]);
+              webgpuStatus.textContent = 'MotionLoom WASM CPU';
+              return;
+            }
+            scheduleCompile({ delayMs: 700 });
+          } catch (err) {
+            console.warn('Runtime scene render failed; falling back to compile.', err);
+            webgpuStatus.textContent = `Runtime edit failed: ${formatWasmError(err)}`;
+            scheduleCompile({ delayMs: 700 });
+          }
+        }, delayMs);
+        return true;
       }
 
       async function renderPreviewFrameForExport(graph, frame) {
@@ -2001,24 +2730,47 @@ import BaseLayout from '@components/BaseLayout.astro';
         const group = selectedGroupTarget();
         if (!group) return;
 
+        const formatted = formatDslNumber(value, groupAttrDecimals(attr));
         const nextTag = upsertGroupAttribute(group.tagText, attr, value);
         editor.value = `${editor.value.slice(0, group.tagStart)}${nextTag}${editor.value.slice(group.tagEnd)}`;
         refreshGroupControls({ keepSelection: true });
-        scheduleCompile();
+        pausePreviewPlaybackForEdit();
+        if (wasmSceneRenderer && typeof wasmSceneRenderer.set_group_attr === 'function') {
+          try {
+            if (wasmSceneRenderer.set_group_attr(group.id, attr, formatted)) {
+              compileStatus.textContent = `Runtime edit: ${group.id}.${attr}=${formatted}`;
+              compileStatus.classList.remove('text-anica-signal');
+              compileStatus.classList.add('text-anica-lime/80');
+              scheduleRuntimeSceneRender();
+              return;
+            }
+          } catch (err) {
+            console.warn('Runtime group edit failed; falling back to compile.', err);
+          }
+        }
+        scheduleCompile({ delayMs: 700 });
       }
 
       // ---------- UI handlers ----------
-      function scheduleCompile() {
+      function pausePreviewPlaybackForEdit() {
+        previewPlayback.playing = false;
+        previewPlayback.lastTickMs = performance.now();
+        previewPlayback.needsRender = false;
+        updatePreviewTimelineControls();
+      }
+
+      function scheduleCompile(options = {}) {
         if (compileDebounceId) {
           window.clearTimeout(compileDebounceId);
         }
-        compileStatus.textContent = 'Editing... compiling in 0.3s';
+        const delayMs = Number(options.delayMs || 300);
+        compileStatus.textContent = `Editing... compiling in ${(delayMs / 1000).toFixed(1)}s`;
         compileStatus.classList.remove('text-anica-signal');
         compileStatus.classList.add('text-anica-lime/80');
         compileDebounceId = window.setTimeout(() => {
           compileDebounceId = null;
           compile();
-        }, 300);
+        }, delayMs);
       }
 
       function compileNow(options = {}) {
@@ -2064,7 +2816,7 @@ import BaseLayout from '@components/BaseLayout.astro';
               compileStatus.textContent += ` | rendered by ${sceneWasmMode}`;
               return;
             }
-            startSceneLoop(graph, playbackOptions);
+            throw new Error('MotionLoom WASM scene renderer returned no render mode.');
           } else {
             if (/<Scene\b/i.test(rawScript)) {
               compileStatus.textContent = 'Waiting for complete Scene graph...';
@@ -2149,6 +2901,23 @@ import BaseLayout from '@components/BaseLayout.astro';
         loadRemoteExample(showcaseNumber.value || '1');
       });
 
+      if (emptySceneTemplateBtn) {
+        emptySceneTemplateBtn.addEventListener('click', () => {
+          const script = emptySceneTemplateDsl();
+          importedSvgAssets.clear();
+          requestPreviewPlaybackReset();
+          stopSceneLoop();
+          defaultScript = script;
+          editor.value = script;
+          setEditorMode('scene');
+          sourceName.textContent = 'empty MotionLoom scene template';
+          compileStatus.textContent = 'Loaded empty white Scene template.';
+          compileStatus.classList.remove('text-anica-signal');
+          compileStatus.classList.add('text-anica-lime/80');
+          compileNow({ resetPlayback: true });
+        });
+      }
+
       if (loadProcessExampleBtn && processExampleSelect) {
         loadProcessExampleBtn.addEventListener('click', () => {
           loadProcessCoreExample(processExampleSelect.value);
@@ -2182,6 +2951,55 @@ import BaseLayout from '@components/BaseLayout.astro';
           loadRemoteExample(showcaseNumber.value || '1');
         }
       });
+
+      if (svgImportInput) {
+        svgImportInput.addEventListener('change', async (event) => {
+          const file = event.target.files?.[0];
+          if (!file) return;
+          try {
+            const originalSvgText = await file.text();
+            const mode = svgImportMode?.value === 'path' ? 'path' : 'svg';
+            const shouldSkipBackground = svgSkipBackground ? Boolean(svgSkipBackground.checked) : true;
+            const cleaned = shouldSkipBackground
+              ? removeSvgBackgroundNodes(originalSvgText)
+              : { svgText: originalSvgText, removed: 0 };
+            const svgText = cleaned.svgText;
+            const canvasSpec = currentSceneCanvasSpec();
+            const suffix = nextSvgImportSuffix();
+            const result = mode === 'path'
+              ? svgToMotionLoomDsl(svgText, file.name, canvasSpec, { skipBackground: shouldSkipBackground, suffix })
+              : svgToMotionLoomSvgTagDsl(svgText, file.name, canvasSpec, { suffix });
+            const insertedScript = result.track
+              ? insertSceneImportTrack(editor.value, result.track)
+              : null;
+            if (result.assetName) {
+              importedSvgAssets.set(result.assetName, new TextEncoder().encode(svgText));
+            }
+            requestPreviewPlaybackReset();
+            stopSceneLoop();
+            defaultScript = insertedScript || result.script;
+            editor.value = defaultScript;
+            setEditorMode('scene');
+            sourceName.textContent = mode === 'path'
+              ? `${file.name} imported as MotionLoom Path DSL`
+              : `${file.name} imported as retained MotionLoom SVG asset`;
+            compileStatus.textContent = result.mode === 'svg'
+              ? `Imported SVG asset: ${result.assetName}${cleaned.removed ? `, skipped ${cleaned.removed} background shape(s)` : ''}.`
+              : result.skippedSummary
+              ? `Imported SVG: ${result.convertedCount} component(s), skipped ${result.skippedSummary}.`
+              : `Imported SVG: ${result.convertedCount} component(s).`;
+            compileStatus.classList.remove('text-anica-signal');
+            compileStatus.classList.add('text-anica-lime/80');
+            compileNow({ resetPlayback: true });
+          } catch (err) {
+            compileStatus.textContent = `SVG import failed: ${err.message}`;
+            compileStatus.classList.remove('text-anica-lime/80');
+            compileStatus.classList.add('text-anica-signal');
+          } finally {
+            svgImportInput.value = '';
+          }
+        });
+      }
 
       fileUpload.addEventListener('change', (e) => {
         const file = e.target.files[0];
