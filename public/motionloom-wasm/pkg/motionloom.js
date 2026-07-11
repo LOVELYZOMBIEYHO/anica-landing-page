@@ -1466,13 +1466,13 @@ function __wbg_get_imports() {
             arg0.writeTexture(arg1, arg2, arg3, arg4);
         }, arguments); },
         __wbindgen_cast_0000000000000001: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 1047, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 1065, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
             const ret = makeMutClosure(arg0, arg1, wasm_bindgen__convert__closures_____invoke__h4aa3e05baac20cce);
             return ret;
         },
         __wbindgen_cast_0000000000000002: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 851, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
-            const ret = makeMutClosure(arg0, arg1, wasm_bindgen__convert__closures_____invoke__h243f2faf0789ca71);
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 868, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
+            const ret = makeMutClosure(arg0, arg1, wasm_bindgen__convert__closures_____invoke__h3233e5dc2b476618);
             return ret;
         },
         __wbindgen_cast_0000000000000003: function(arg0) {
@@ -1513,8 +1513,8 @@ function __wbg_get_imports() {
     };
 }
 
-function wasm_bindgen__convert__closures_____invoke__h243f2faf0789ca71(arg0, arg1, arg2) {
-    wasm.wasm_bindgen__convert__closures_____invoke__h243f2faf0789ca71(arg0, arg1, arg2);
+function wasm_bindgen__convert__closures_____invoke__h3233e5dc2b476618(arg0, arg1, arg2) {
+    wasm.wasm_bindgen__convert__closures_____invoke__h3233e5dc2b476618(arg0, arg1, arg2);
 }
 
 function wasm_bindgen__convert__closures_____invoke__h4aa3e05baac20cce(arg0, arg1, arg2) {
