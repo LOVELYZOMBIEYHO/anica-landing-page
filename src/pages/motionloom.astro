@@ -88,29 +88,41 @@ import BaseLayout from '@components/BaseLayout.astro';
           </div>
           <div id="animation-controls-panel" class="rounded-2xl border border-anica-paper/15 bg-anica-paper/5 p-3">
             <div class="mb-3">
-              <p class="font-mono text-[0.65rem] font-bold uppercase tracking-[0.22em] text-anica-lime">Scene controls</p>
-              <p class="mt-1 text-xs text-anica-paper/45">Select a Group id and variable from the current DSL, then edit its value.</p>
-            </div>
-
-            <label class="mb-3 grid gap-2">
-              <span class="font-mono text-[0.65rem] font-bold uppercase tracking-[0.18em] text-anica-paper/60">Group id</span>
               <select
-                id="group-control-select"
-                class="rounded-xl border border-anica-paper/25 bg-anica-ink/70 px-3 py-2 font-mono text-xs font-bold text-anica-paper outline-none transition focus:border-anica-lime"
-              ></select>
-            </label>
-
-            <div class="motionloom-control-grid">
-              <label class="motionloom-control">
-                <span>Variable</span>
-                <select id="group-variable-select"></select>
-              </label>
-              <label class="motionloom-control">
-                <span>Value</span>
-                <input id="group-variable-value" type="text" inputmode="decimal" autocomplete="off" />
-              </label>
+                id="scene-tool-panel-select"
+                aria-label="Scene tool panel"
+                class="rounded-lg border border-anica-lime/25 bg-anica-ink/70 px-2 py-1 font-mono text-[0.65rem] font-bold uppercase tracking-[0.22em] text-anica-lime outline-none transition hover:bg-anica-lime/5 focus:border-anica-lime"
+              >
+                <option value="scene-controls" class="bg-anica-ink text-anica-lime">Scene controls</option>
+                <option value="drawing-tools" class="bg-anica-ink text-anica-lime">Drawing tools</option>
+              </select>
             </div>
-            <p id="group-control-status" class="mt-3 min-h-[1rem] font-mono text-[0.65rem] text-anica-paper/45"></p>
+
+            <div id="scene-controls-content">
+              <p class="mt-1 text-xs text-anica-paper/45">Select a Group id and variable from the current DSL, then edit its value.</p>
+
+              <label class="mb-3 mt-3 grid gap-2">
+                <span class="font-mono text-[0.65rem] font-bold uppercase tracking-[0.18em] text-anica-paper/60">Group id</span>
+                <select
+                  id="group-control-select"
+                  class="rounded-xl border border-anica-paper/25 bg-anica-ink/70 px-3 py-2 font-mono text-xs font-bold text-anica-paper outline-none transition focus:border-anica-lime"
+                ></select>
+              </label>
+
+              <div class="motionloom-control-grid">
+                <label class="motionloom-control">
+                  <span>Variable</span>
+                  <select id="group-variable-select"></select>
+                </label>
+                <label class="motionloom-control">
+                  <span>Value</span>
+                  <input id="group-variable-value" type="text" inputmode="decimal" autocomplete="off" />
+                </label>
+              </div>
+              <p id="group-control-status" class="mt-3 min-h-[1rem] font-mono text-[0.65rem] text-anica-paper/45"></p>
+            </div>
+
+            <div id="drawing-tools-content" class="hidden min-h-[11rem]" aria-label="Drawing tools"></div>
           </div>
           <textarea
             id="dsl-editor"
@@ -142,9 +154,10 @@ import BaseLayout from '@components/BaseLayout.astro';
               <button id="btn-download" class="shrink-0 rounded-full border-2 border-anica-lime/50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-anica-lime transition hover:bg-anica-lime/10">Save</button>
             </div>
           </div>
-          <div class="relative min-h-[260px] min-w-0 flex-1 overflow-hidden rounded-2xl border-2 border-anica-ink/40 bg-black sm:min-h-[320px]">
+          <div id="motionloom-preview-stage" class="relative min-h-[260px] min-w-0 flex-1 overflow-hidden rounded-2xl border-2 border-anica-ink/40 bg-black sm:min-h-[320px]">
             <canvas id="motionloom-canvas-webgpu" class="absolute inset-0 h-full w-full object-contain opacity-0"></canvas>
             <canvas id="motionloom-canvas" class="absolute inset-0 h-full w-full object-contain opacity-100"></canvas>
+            <svg id="motionloom-drawing-overlay" class="pointer-events-none absolute inset-0 hidden h-full w-full touch-none" aria-label="MotionLoom drawing canvas"></svg>
             <div id="webgpu-status" class="absolute bottom-3 left-3 rounded-full border border-anica-lime/30 bg-anica-ink/80 px-3 py-1 font-mono text-xs text-anica-lime backdrop-blur-md">
               Canvas 2D pipeline
             </div>
@@ -328,6 +341,163 @@ import BaseLayout from '@components/BaseLayout.astro';
       background: rgba(255, 255, 255, 0.16);
     }
 
+    .drawing-tools-shell {
+      display: grid;
+      grid-template-columns: 4.5rem minmax(0, 1fr);
+      min-height: 15rem;
+      overflow: hidden;
+      border: 1px solid rgb(242 237 223 / 0.14);
+      border-radius: 0.9rem;
+      background: #151712;
+    }
+
+    .drawing-tool-rail {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      border-right: 1px solid rgb(242 237 223 / 0.14);
+      background: #0f100d;
+      padding: 0.55rem;
+    }
+
+    .drawing-tool-rail button {
+      display: grid;
+      min-height: 3.35rem;
+      place-items: center;
+      border: 1px solid transparent;
+      border-radius: 0.45rem;
+      color: rgb(242 237 223 / 0.72);
+      transition: 120ms ease;
+    }
+
+    .drawing-tool-rail button:hover {
+      border-color: rgb(242 237 223 / 0.2);
+      background: rgb(242 237 223 / 0.06);
+    }
+
+    .drawing-tool-rail button[aria-pressed='true'] {
+      border-color: #B9FF39;
+      background: #B9FF39;
+      color: #11120d;
+      box-shadow: inset 0 0 0 1px rgb(17 18 13 / 0.4);
+    }
+
+    .drawing-tool-rail button span {
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      font-weight: 900;
+    }
+
+    .drawing-tool-rail button small {
+      font-size: 0.58rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .drawing-properties {
+      min-width: 0;
+      padding: 0.7rem;
+    }
+
+    .drawing-command-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.45rem;
+      padding-bottom: 0.65rem;
+      border-bottom: 1px solid rgb(242 237 223 / 0.12);
+    }
+
+    .drawing-command-bar strong {
+      font-family: var(--font-mono);
+      color: #B9FF39;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+
+    .drawing-command-bar span {
+      margin-right: auto;
+      color: rgb(242 237 223 / 0.5);
+      font-size: 0.68rem;
+    }
+
+    .drawing-command-bar button {
+      border: 1px solid rgb(242 237 223 / 0.2);
+      border-radius: 0.4rem;
+      padding: 0.3rem 0.5rem;
+      color: rgb(242 237 223 / 0.78);
+      font-size: 0.62rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .drawing-property-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.55rem;
+      padding-top: 0.7rem;
+    }
+
+    .drawing-property-grid label:not(.drawing-checkbox) {
+      display: grid;
+      gap: 0.25rem;
+    }
+
+    .drawing-property-grid span {
+      font-family: var(--font-mono);
+      color: rgb(242 237 223 / 0.55);
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .drawing-property-grid input[type='text'],
+    .drawing-property-grid input[type='number'] {
+      min-width: 0;
+      width: 100%;
+      border: 1px solid rgb(242 237 223 / 0.2);
+      border-radius: 0.4rem;
+      background: #0e0f0c;
+      padding: 0.38rem 0.48rem;
+      color: #f2eddf;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      outline: none;
+    }
+
+    .drawing-property-grid input:focus { border-color: #B9FF39; }
+    .drawing-property-grid input.is-invalid { border-color: #ff5964; }
+
+    .drawing-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding-top: 1rem;
+      color: #f2eddf;
+    }
+
+    #drawing-status {
+      margin-top: 0.65rem;
+      min-height: 1rem;
+      font-family: var(--font-mono);
+      color: rgb(242 237 223 / 0.48);
+      font-size: 0.62rem;
+    }
+
+    #motionloom-drawing-overlay.pointer-events-auto { cursor: crosshair; }
+    #motionloom-drawing-overlay .drawing-overlay-path {
+      opacity: 0 !important;
+      pointer-events: all;
+    }
+    #motionloom-drawing-overlay .drawing-overlay-path.is-geometry-preview {
+      opacity: 1 !important;
+      pointer-events: visiblePainted;
+    }
+    #motionloom-drawing-overlay .drawing-overlay-path.is-selected.is-geometry-preview { filter: drop-shadow(0 0 4px #B9FF39); }
+    #motionloom-drawing-overlay .drawing-handle-line { stroke: #75a7ff; stroke-width: 2; pointer-events: none; }
+    #motionloom-drawing-overlay .drawing-anchor-point { fill: #f2eddf; stroke: #11120d; stroke-width: 2; pointer-events: all; cursor: move; }
+    #motionloom-drawing-overlay .drawing-handle-point { fill: #75a7ff; stroke: #11120d; stroke-width: 1; pointer-events: all; cursor: move; }
+
     @media (max-width: 1023px) {
       #motionloom-playground-panel.motionloom-expanded #motionloom-workspace {
         grid-template-columns: minmax(0, 1fr);
@@ -340,6 +510,10 @@ import BaseLayout from '@components/BaseLayout.astro';
 
       .motionloom-control-grid {
         grid-template-columns: minmax(0, 1fr);
+      }
+
+      .drawing-property-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
@@ -385,6 +559,334 @@ import BaseLayout from '@components/BaseLayout.astro';
       .motionloom-control output {
         text-align: left;
       }
+
+      .drawing-tools-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .drawing-tool-rail {
+        flex-direction: row;
+        border-right: 0;
+        border-bottom: 1px solid rgb(242 237 223 / 0.14);
+      }
+
+      .drawing-tool-rail button {
+        flex: 1;
+        min-height: 2.8rem;
+      }
+
+      .drawing-property-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <style is:global>
+    #drawing-tools-content { color: #f2eddf; }
+    #drawing-tools-content .drawing-tools-shell {
+      display: grid;
+      grid-template-columns: 4.25rem minmax(0, 1fr);
+      min-height: 18rem;
+      overflow: visible;
+      border: 1px solid rgb(242 237 223 / 0.18);
+      border-radius: 0.9rem;
+      background: #151712;
+      box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
+    }
+    #drawing-tools-content .drawing-tool-rail {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      border-right: 1px solid rgb(242 237 223 / 0.14);
+      background: #0d0f0b;
+      padding: 0.7rem;
+    }
+    #drawing-tools-content .drawing-tool-rail button {
+      display: grid;
+      grid-template-columns: 1fr;
+      position: relative;
+      align-items: center;
+      gap: 0.65rem;
+      min-height: 3.25rem;
+      width: 3.25rem;
+      border: 1px solid transparent;
+      border-radius: 0.55rem;
+      background: transparent;
+      padding: 0.35rem;
+      color: #f2eddf;
+      text-align: left;
+      transition: 120ms ease;
+    }
+    #drawing-tools-content .drawing-tool-rail button:hover {
+      z-index: 60;
+      border-color: transparent;
+      background: transparent;
+    }
+    #drawing-tools-content .drawing-tool-rail button[aria-pressed='true'] {
+      border-color: transparent;
+      background: transparent;
+      color: #11120d;
+      box-shadow: none;
+    }
+    #drawing-tools-content .drawing-tool-icon {
+      display: grid;
+      width: 2.4rem;
+      height: 2.4rem;
+      place-items: center;
+      border: 1px solid currentColor;
+      border-radius: 0.4rem;
+      font-family: var(--font-mono);
+      font-size: 1.25rem;
+      font-weight: 900;
+    }
+    #drawing-tools-content .drawing-tool-rail button:hover .drawing-tool-icon {
+      border-color: #B9FF39;
+      color: #B9FF39;
+    }
+    #drawing-tools-content .drawing-tool-rail button[aria-pressed='true'] .drawing-tool-icon {
+      border-color: #11120d;
+      background: #B9FF39;
+      color: #11120d;
+      box-shadow: 0 0 0 2px #B9FF39;
+    }
+    #drawing-tools-content .drawing-tool-rail button::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      top: 50%;
+      left: calc(100% + 0.55rem);
+      z-index: 50;
+      width: max-content;
+      max-width: 13rem;
+      transform: translateY(-50%);
+      border: 1px solid rgb(242 237 223 / 0.2);
+      border-radius: 0.3rem;
+      background: #090a08;
+      padding: 0.35rem 0.5rem;
+      color: #f2eddf;
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      font-weight: 700;
+      line-height: 1;
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+    }
+    #drawing-tools-content .drawing-tool-rail button:hover::after,
+    #drawing-tools-content .drawing-tool-rail button:focus-visible::after {
+      opacity: 1;
+      visibility: visible;
+    }
+    #drawing-tools-content .drawing-tool-copy { display: none; }
+    #drawing-tools-content .drawing-tool-copy b { font-size: 0.78rem; }
+    #drawing-tools-content .drawing-tool-copy small { font-size: 0.57rem; opacity: 0.62; text-transform: uppercase; }
+    #drawing-tools-content .drawing-properties { min-width: 0; padding: 0.8rem; }
+    #drawing-tools-content .drawing-editor-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(11rem, 0.55fr);
+      gap: 0.75rem;
+    }
+    #drawing-tools-content .drawing-command-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.45rem;
+      padding-bottom: 0.7rem;
+      border-bottom: 1px solid rgb(242 237 223 / 0.12);
+    }
+    #drawing-tools-content .drawing-command-bar strong {
+      color: #B9FF39;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    #drawing-tools-content .drawing-command-bar > span { margin-right: auto; color: rgb(242 237 223 / 0.58); font-size: 0.66rem; }
+    #drawing-tools-content #drawing-active-path-state {
+      margin-right: auto;
+      border: 1px solid rgb(242 237 223 / 0.15);
+      border-radius: 999px;
+      padding: 0.22rem 0.45rem;
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+    }
+    #drawing-tools-content #drawing-active-path-state.is-active {
+      border-color: #B9FF39;
+      color: #B9FF39;
+    }
+    #drawing-tools-content .drawing-command-bar button {
+      border: 1px solid rgb(242 237 223 / 0.24);
+      border-radius: 0.45rem;
+      background: #0e0f0c;
+      padding: 0.38rem 0.52rem;
+      color: #f2eddf;
+      font-size: 0.59rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    #drawing-tools-content .drawing-command-bar button:hover { border-color: #B9FF39; color: #B9FF39; }
+    #drawing-tools-content .drawing-property-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.65rem;
+      padding-top: 0.75rem;
+    }
+    #drawing-tools-content .drawing-property-grid label:not(.drawing-checkbox) { display: grid; gap: 0.3rem; }
+    #drawing-tools-content .drawing-property-grid span {
+      color: rgb(242 237 223 / 0.62);
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    #drawing-tools-content .drawing-property-grid input[type='text'],
+    #drawing-tools-content .drawing-property-grid input[type='number'] {
+      min-width: 0;
+      width: 100%;
+      border: 1px solid rgb(242 237 223 / 0.22);
+      border-radius: 0.45rem;
+      background: #0d0f0b;
+      padding: 0.48rem 0.55rem;
+      color: #f2eddf;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      outline: none;
+    }
+    #drawing-tools-content .drawing-property-grid select {
+      width: 100%;
+      border: 1px solid rgb(242 237 223 / 0.22);
+      border-radius: 0.45rem;
+      background: #0d0f0b;
+      padding: 0.48rem 0.55rem;
+      color: #f2eddf;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+    }
+    #drawing-tools-content .drawing-property-grid label.is-emphasized span { color: #B9FF39; }
+    #drawing-tools-content .drawing-mini-actions {
+      display: flex;
+      grid-column: 1 / -1;
+      gap: 0.4rem;
+    }
+    #drawing-tools-content .drawing-wide-field { grid-column: 1 / -1; }
+    #drawing-tools-content .drawing-anchor-actions {
+      display: flex;
+      grid-column: 1 / -1;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.4rem;
+      border-top: 1px solid rgb(242 237 223 / 0.12);
+      padding-top: 0.65rem;
+    }
+    #drawing-tools-content .drawing-anchor-actions > span { margin-right: auto; color: #B9FF39; }
+    #drawing-tools-content .drawing-anchor-actions button {
+      border: 1px solid rgb(242 237 223 / 0.2);
+      border-radius: 0.4rem;
+      background: #0d0f0b;
+      padding: 0.38rem 0.5rem;
+      color: rgb(242 237 223 / 0.72);
+      font-size: 0.58rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    #drawing-tools-content .drawing-mini-actions button,
+    #drawing-tools-content .drawing-layer-actions button {
+      border: 1px solid rgb(242 237 223 / 0.2);
+      border-radius: 0.4rem;
+      background: #0d0f0b;
+      padding: 0.38rem 0.5rem;
+      color: rgb(242 237 223 / 0.72);
+      font-size: 0.58rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    #drawing-tools-content .drawing-layers-panel {
+      min-width: 0;
+      margin-top: 0.75rem;
+      border: 1px solid rgb(242 237 223 / 0.14);
+      border-radius: 0.55rem;
+      background: #0d0f0b;
+      padding: 0.55rem;
+    }
+    #drawing-tools-content .drawing-layers-panel > div:first-child {
+      display: grid;
+      gap: 0.15rem;
+      padding: 0.25rem 0.3rem 0.55rem;
+      border-bottom: 1px solid rgb(242 237 223 / 0.12);
+    }
+    #drawing-tools-content .drawing-layers-panel strong { color: #B9FF39; font-family: var(--font-mono); font-size: 0.65rem; text-transform: uppercase; }
+    #drawing-tools-content .drawing-layers-panel span { color: rgb(242 237 223 / 0.42); font-family: var(--font-mono); font-size: 0.55rem; }
+    #drawing-tools-content #drawing-layer-list { display: grid; gap: 0.25rem; max-height: 12rem; overflow: auto; padding: 0.45rem 0; }
+    #drawing-tools-content #drawing-layer-list button {
+      display: grid;
+      grid-template-columns: 1.4rem minmax(0, 1fr);
+      align-items: center;
+      gap: 0.35rem;
+      width: 100%;
+      border: 1px solid transparent;
+      border-radius: 0.35rem;
+      padding: 0.36rem;
+      color: rgb(242 237 223 / 0.7);
+      text-align: left;
+    }
+    #drawing-tools-content #drawing-layer-list button.is-selected { border-color: #B9FF39; background: rgb(185 255 57 / 0.1); color: #B9FF39; }
+    #drawing-tools-content #drawing-layer-list b { overflow: hidden; font-family: var(--font-mono); font-size: 0.58rem; text-overflow: ellipsis; white-space: nowrap; }
+    #drawing-tools-content .drawing-layer-actions { display: flex; gap: 0.35rem; padding-top: 0.4rem; border-top: 1px solid rgb(242 237 223 / 0.12); }
+    #drawing-tools-content .drawing-property-grid input:focus { border-color: #B9FF39; }
+    #drawing-tools-content .drawing-property-grid input.is-invalid { border-color: #ff5964; }
+    #drawing-tools-content .drawing-checkbox { display: flex; align-items: center; gap: 0.5rem; padding-top: 1rem; }
+    #drawing-tools-content #drawing-status {
+      margin-top: 0.75rem;
+      min-height: 2rem;
+      border-left: 2px solid #B9FF39;
+      padding: 0.4rem 0.6rem;
+      color: rgb(242 237 223 / 0.58);
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      line-height: 1.5;
+    }
+    #motionloom-drawing-overlay.pointer-events-auto { cursor: crosshair; }
+    #motionloom-drawing-overlay .drawing-overlay-path { pointer-events: stroke; }
+    #motionloom-drawing-overlay .drawing-overlay-path.is-selected { filter: drop-shadow(0 0 4px #B9FF39); }
+    #motionloom-drawing-overlay .drawing-handle-line { stroke: #75a7ff; stroke-width: 2; pointer-events: none; }
+    #motionloom-drawing-overlay .drawing-anchor-point { fill: #f2eddf; stroke: #11120d; stroke-width: 2; pointer-events: none; }
+    #motionloom-drawing-overlay .drawing-handle-point { fill: #75a7ff; stroke: #11120d; stroke-width: 1; pointer-events: none; }
+    #motionloom-drawing-overlay .drawing-selection-box { fill: none; stroke: #75a7ff; stroke-width: 2; stroke-dasharray: 8 5; pointer-events: none; }
+    #motionloom-drawing-overlay .drawing-transform-handle {
+      fill: #f2eddf;
+      stroke: #287df0;
+      stroke-width: 2;
+      pointer-events: all;
+      cursor: nwse-resize;
+    }
+    #motionloom-drawing-overlay .drawing-rotate-handle {
+      fill: #B9FF39;
+      stroke: #11120d;
+      stroke-width: 2;
+      pointer-events: all;
+      cursor: grab;
+    }
+    #motionloom-drawing-overlay .drawing-width-point {
+      fill: #ffbf35;
+      stroke: #11120d;
+      stroke-width: 2;
+      pointer-events: all;
+      cursor: ns-resize;
+    }
+    #motionloom-drawing-overlay .drawing-shape-draft {
+      fill: rgb(185 255 57 / 0.16);
+      stroke: #B9FF39;
+      stroke-width: 3;
+      stroke-dasharray: 9 5;
+      pointer-events: none;
+    }
+    @media (max-width: 760px) {
+      #drawing-tools-content .drawing-tools-shell { grid-template-columns: 1fr; }
+      #drawing-tools-content .drawing-tool-rail { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid rgb(242 237 223 / 0.14); }
+      #drawing-tools-content .drawing-tool-rail button { min-width: 3.25rem; }
+      #drawing-tools-content .drawing-property-grid { grid-template-columns: 1fr; }
+      #drawing-tools-content .drawing-editor-layout { grid-template-columns: 1fr; }
     }
   </style>
 
@@ -431,8 +933,10 @@ import BaseLayout from '@components/BaseLayout.astro';
     window.MOTIONLOOM_BASE = baseUrl;
   </script>
   <script>
+    import { installMotionLoomDrawingTools } from '../scripts/motionloom-drawing-tools';
     import { installMotionLoomWebExport } from '../scripts/motionloom-web-export';
 
+    installMotionLoomDrawingTools();
     installMotionLoomWebExport();
   </script>
 
@@ -445,6 +949,9 @@ import BaseLayout from '@components/BaseLayout.astro';
       const githubExampleBar = document.getElementById('github-example-bar');
       const processGithubExampleBar = document.getElementById('process-github-example-bar');
       const animationControlsPanel = document.getElementById('animation-controls-panel');
+      const sceneToolPanelSelect = document.getElementById('scene-tool-panel-select');
+      const sceneControlsContent = document.getElementById('scene-controls-content');
+      const drawingToolsContent = document.getElementById('drawing-tools-content');
       const groupControlSelect = document.getElementById('group-control-select');
       const groupVariableSelect = document.getElementById('group-variable-select');
       const groupVariableValue = document.getElementById('group-variable-value');
@@ -503,6 +1010,17 @@ import BaseLayout from '@components/BaseLayout.astro';
         { key: 'transformOriginX', label: 'Transform Origin X', fallback: 0, decimals: 1, placeholder: 'e.g. 0' },
         { key: 'transformOriginY', label: 'Transform Origin Y', fallback: 0, decimals: 1, placeholder: 'e.g. 0' },
       ];
+
+      function setSceneToolPanel(panel) {
+        const showDrawingTools = panel === 'drawing-tools';
+        sceneControlsContent.classList.toggle('hidden', showDrawingTools);
+        drawingToolsContent.classList.toggle('hidden', !showDrawingTools);
+        window.dispatchEvent(new CustomEvent('motionloom:tool-panel-change', { detail: { panel } }));
+      }
+
+      sceneToolPanelSelect.addEventListener('change', () => {
+        setSceneToolPanel(sceneToolPanelSelect.value);
+      });
 
       function setPlaygroundExpanded(expanded) {
         playgroundExpanded = Boolean(expanded);
@@ -1193,7 +1711,7 @@ ${track}
       const base = (typeof window !== 'undefined' && window.MOTIONLOOM_BASE) ? window.MOTIONLOOM_BASE : '/';
       const demoImageUrl = base.replace(/\/$/, '') + '/demo.jpg';
       const wasmPkgBase = base.replace(/\/$/, '') + '/motionloom-wasm/pkg';
-      const motionLoomWasmVersion = '2026-07-08-group-mask-transform-webgpu';
+      const motionLoomWasmVersion = '2026-07-12-width-profile-editor';
       const exampleRawRoot = 'https://raw.githubusercontent.com/LOVELYZOMBIEYHO/motionloom-example/refs/heads/main';
       const processExampleManifestUrl = `${exampleRawRoot}/dataset/layer-fx-templates.json`;
       const motionLoomFontUrls = [
@@ -3135,6 +3653,11 @@ ${track}
       editor.addEventListener('input', () => {
         requestPreviewPlaybackReset();
         scheduleCompile();
+      });
+      window.addEventListener('motionloom:drawing-dsl-change', (event) => {
+        const commit = Boolean(event.detail && event.detail.commit);
+        if (commit) compileNow();
+        else scheduleCompile({ delayMs: 180 });
       });
       editor.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) compileNow();
