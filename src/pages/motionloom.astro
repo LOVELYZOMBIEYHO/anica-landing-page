@@ -65,7 +65,7 @@ import BaseLayout from '@components/BaseLayout.astro';
             <button id="btn-empty-scene-template" class="shrink-0 rounded-full border border-anica-lime/40 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-lime transition hover:bg-anica-lime/10">Empty template</button>
             <select id="svg-import-mode" class="shrink-0 rounded-full border border-anica-lime/40 bg-anica-black px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-lime outline-none transition hover:bg-anica-lime/10">
               <option value="svg">Import as SVG tag</option>
-              <option value="path">Import as Path DSL</option>
+              <option value="path" selected>Import as Path DSL</option>
             </select>
             <label class="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-full border border-anica-lime/25 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-lime transition hover:bg-anica-lime/10">
               <input id="svg-skip-background" type="checkbox" class="h-3 w-3 accent-anica-lime" checked />
@@ -3476,7 +3476,7 @@ ${track}
           if (!file) return;
           try {
             const originalSvgText = await file.text();
-            const mode = svgImportMode?.value === 'path' ? 'path' : 'svg';
+            const mode = svgImportMode?.value === 'svg' ? 'svg' : 'path';
             const shouldSkipBackground = svgSkipBackground ? Boolean(svgSkipBackground.checked) : true;
             const cleaned = shouldSkipBackground
               ? removeSvgBackgroundNodes(originalSvgText)
