@@ -108,10 +108,14 @@ import BaseLayout from '@components/BaseLayout.astro';
               ><span>Expand</span><span class="motionloom-collapse-chevron" aria-hidden="true">⌃</span></button>
             </div>
 
-            <div id="scene-inspector-summary" class="motionloom-inspector-summary" aria-live="polite">
-              <span id="scene-summary-group">No Group</span>
-              <span id="scene-summary-variable">Variable</span>
-              <strong id="scene-summary-value">--</strong>
+            <div id="scene-inspector-summary" class="motionloom-inspector-summary" aria-label="Scene selection quick controls">
+              <div class="motionloom-summary-selection-modes" role="group" aria-label="Scene selection mode">
+                <button type="button" data-semantic-mode="click" aria-pressed="true">Pointer</button>
+                <button type="button" data-semantic-mode="marquee" aria-pressed="false">Marquee</button>
+                <button type="button" data-semantic-mode="lasso" aria-pressed="false">Lasso</button>
+              </div>
+              <output data-semantic-count>0 Elements</output>
+              <button type="button" data-delete-semantic disabled>Delete Selected</button>
             </div>
 
             <div id="scene-controls-content" class="hidden">
@@ -167,7 +171,7 @@ import BaseLayout from '@components/BaseLayout.astro';
 
               <section class="drawing-semantic-panel motionloom-inspector-section" data-inspector-section="selection" aria-label="Scene element selection">
                 <button class="drawing-semantic-heading motionloom-section-toggle" type="button" aria-expanded="true" aria-controls="scene-selection-body">
-                  <strong>Scene Selection</strong><span class="motionloom-section-heading-end"><output id="drawing-semantic-count">0 Elements</output><span class="motionloom-collapse-chevron" aria-hidden="true">⌃</span></span>
+                  <strong>Scene Selection</strong><span class="motionloom-section-heading-end"><output id="drawing-semantic-count" data-semantic-count>0 Elements</output><span class="motionloom-collapse-chevron" aria-hidden="true">⌃</span></span>
                 </button>
                 <div id="scene-selection-body" class="motionloom-section-body">
                   <p>Select Path, Rect, Circle, Ellipse, Line, Text and other visible Scene elements. Shift adds; Option/Alt removes.</p>
@@ -180,6 +184,7 @@ import BaseLayout from '@components/BaseLayout.astro';
                     <button type="button" id="drawing-select-similar">Select Similar</button>
                     <button type="button" id="drawing-grow-selection">Grow Connected</button>
                     <button type="button" id="drawing-clear-semantic">Clear</button>
+                    <button type="button" data-delete-semantic disabled>Delete Selected</button>
                   </div>
                   <div class="drawing-semantic-options">
                     <label><span>Color tolerance</span><input id="drawing-semantic-color" type="number" min="0" max="442" step="1" value="56" /></label>
@@ -329,8 +334,8 @@ import BaseLayout from '@components/BaseLayout.astro';
     }
 
     .motionloom-inspector-summary {
-      display: grid;
-      grid-template-columns: minmax(0, 1.5fr) minmax(5rem, 0.7fr) minmax(4rem, 0.55fr);
+      display: flex;
+      flex-wrap: wrap;
       align-items: center;
       gap: 0.55rem;
       border: 1px solid rgb(185 255 57 / 0.24);
@@ -342,17 +347,53 @@ import BaseLayout from '@components/BaseLayout.astro';
       font-size: 0.62rem;
     }
 
-    .motionloom-inspector-summary span,
-    .motionloom-inspector-summary strong {
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .motionloom-summary-selection-modes {
+      display: flex;
+      flex: 1 1 15rem;
+      gap: 0.35rem;
+    }
+
+    .motionloom-inspector-summary button,
+    .motionloom-inspector-summary output {
+      border: 1px solid rgb(242 237 223 / 0.22);
+      border-radius: 0.55rem;
+      padding: 0.45rem 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
       white-space: nowrap;
     }
 
-    .motionloom-inspector-summary strong {
+    .motionloom-summary-selection-modes button {
+      flex: 1 1 0;
+      color: rgb(242 237 223 / 0.72);
+    }
+
+    .motionloom-summary-selection-modes button:hover,
+    .motionloom-summary-selection-modes button[aria-pressed="true"] {
+      border-color: #B9FF39;
+      background: #B9FF39;
+      color: #11130F;
+    }
+
+    .motionloom-inspector-summary output {
+      margin-left: auto;
       color: #B9FF39;
-      text-align: right;
+      border-color: rgb(185 255 57 / 0.28);
+    }
+
+    .motionloom-inspector-summary [data-delete-semantic] {
+      border-color: rgb(255 106 53 / 0.55);
+      color: #FF6A35;
+    }
+
+    .motionloom-inspector-summary [data-delete-semantic]:not(:disabled):hover {
+      background: rgb(255 106 53 / 0.12);
+    }
+
+    [data-delete-semantic]:disabled {
+      cursor: not-allowed;
+      opacity: 0.35;
     }
 
     .motionloom-inspector-summary.hidden { display: none; }
@@ -1388,9 +1429,6 @@ import BaseLayout from '@components/BaseLayout.astro';
       const sceneControlsContent = document.getElementById('scene-controls-content');
       const sceneInspectorToggle = document.getElementById('scene-inspector-toggle');
       const sceneInspectorSummary = document.getElementById('scene-inspector-summary');
-      const sceneSummaryGroup = document.getElementById('scene-summary-group');
-      const sceneSummaryVariable = document.getElementById('scene-summary-variable');
-      const sceneSummaryValue = document.getElementById('scene-summary-value');
       const drawingToolsContent = document.getElementById('drawing-tools-content');
       const puppetWarpContent = document.getElementById('puppet-warp-content');
       const groupControlSelect = document.getElementById('group-control-select');
@@ -1511,14 +1549,6 @@ import BaseLayout from '@components/BaseLayout.astro';
         restoreSceneDslHistory(source, 'Redo');
       }
 
-      function updateSceneInspectorSummary() {
-        if (sceneSummaryGroup) sceneSummaryGroup.textContent = selectedGroupId || 'No Group';
-        if (sceneSummaryVariable) {
-          sceneSummaryVariable.textContent = groupVariableSelect?.selectedOptions?.[0]?.textContent || 'Variable';
-        }
-        if (sceneSummaryValue) sceneSummaryValue.textContent = groupVariableValue?.value || '--';
-      }
-
       function applySceneInspectorState() {
         const isSceneControls = sceneToolPanelSelect.value === 'scene-controls';
         sceneControlsContent.classList.toggle('hidden', !isSceneControls || sceneInspectorCollapsed);
@@ -1528,7 +1558,6 @@ import BaseLayout from '@components/BaseLayout.astro';
         sceneInspectorToggle.title = sceneInspectorCollapsed ? 'Expand Scene Controls' : 'Collapse Scene Controls';
         const label = sceneInspectorToggle.querySelector('span:first-child');
         if (label) label.textContent = sceneInspectorCollapsed ? 'Expand' : 'Collapse';
-        updateSceneInspectorSummary();
       }
 
       function setSceneToolPanel(panel) {
@@ -2404,7 +2433,7 @@ ${track}
       const base = (typeof window !== 'undefined' && window.MOTIONLOOM_BASE) ? window.MOTIONLOOM_BASE : '/';
       const demoImageUrl = base.replace(/\/$/, '') + '/demo.jpg';
       const wasmPkgBase = base.replace(/\/$/, '') + '/motionloom-wasm/pkg';
-      const motionLoomWasmVersion = '2026-07-14-simulation-runtime';
+      const motionLoomWasmVersion = '2026-07-16-adaptive-path-flatten';
       const exampleRawRoot = 'https://raw.githubusercontent.com/LOVELYZOMBIEYHO/motionloom-example/refs/heads/main';
       const processExampleManifestUrl = `${exampleRawRoot}/dataset/layer-fx-templates.json`;
       const motionLoomFontUrls = [
@@ -3987,7 +4016,6 @@ ${track}
           if (groupControlStatus) {
             groupControlStatus.textContent = 'No <Group id="..."> found in the current DSL.';
           }
-          updateSceneInspectorSummary();
           return;
         }
 
@@ -4008,7 +4036,6 @@ ${track}
             : `<Group id="${group.id}">`;
           groupControlStatus.textContent = `Editing ${selectedGroupAttr()} on ${targetLabel}. Curve attributes show their first key value; editing replaces that attribute with a constant.`;
         }
-        updateSceneInspectorSummary();
       }
 
       function groupAttrDecimals(attr) {

@@ -13,6 +13,7 @@ import {
 } from './motionloom-drawing-core';
 import {
   affineToSvg,
+  deleteSemanticPaths,
   growConnectedSelection,
   groupSemanticPaths,
   indexSemanticPaths,
@@ -112,7 +113,9 @@ export function installMotionLoomDrawingTools() {
     const zoomLabel = q<HTMLElement>('#drawing-zoom-label');
     const activePathState = q<HTMLElement>('#drawing-active-path-state');
     const layerList = q<HTMLElement>('#drawing-layer-list');
-    const semanticCount = sq<HTMLOutputElement>('#drawing-semantic-count');
+    const semanticCounts = [...document.querySelectorAll<HTMLOutputElement>('[data-semantic-count]')];
+    const semanticModeButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-semantic-mode]')];
+    const semanticDeleteButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-delete-semantic]')];
     const semanticColor = sq<HTMLInputElement>('#drawing-semantic-color');
     const semanticAdjacency = sq<HTMLInputElement>('#drawing-semantic-adjacency');
     const semanticZ = sq<HTMLInputElement>('#drawing-semantic-z');
@@ -341,7 +344,8 @@ export function installMotionLoomDrawingTools() {
         overlay.append(draft);
       }
       if (panelActive) renderLayers();
-      semanticCount.textContent = `${semanticSelected.size} Element${semanticSelected.size === 1 ? '' : 's'}`;
+      semanticCounts.forEach((count) => { count.textContent = `${semanticSelected.size} Element${semanticSelected.size === 1 ? '' : 's'}`; });
+      semanticDeleteButtons.forEach((button) => { button.disabled = semanticSelected.size === 0; });
       activePathState.textContent = model.activePathId
         ? `Active: ${model.activePathId}`
         : semanticSelected.size ? `${semanticSelected.size} scene element${semanticSelected.size === 1 ? '' : 's'}` : 'No active path';
@@ -574,9 +578,9 @@ export function installMotionLoomDrawingTools() {
     const undo = () => { const snapshot = history.undo(model.snapshot()); if (snapshot) { model.restore(snapshot); sync(true); } };
     const redo = () => { const snapshot = history.redo(model.snapshot()); if (snapshot) { model.restore(snapshot); sync(true); } };
     toolButtons.forEach((button) => button.addEventListener('click', () => setTool(button.dataset.drawingTool as DrawingTool)));
-    sceneControls.querySelectorAll<HTMLButtonElement>('[data-semantic-mode]').forEach((button) => button.addEventListener('click', () => {
+    semanticModeButtons.forEach((button) => button.addEventListener('click', () => {
       semanticMode = button.dataset.semanticMode as 'click' | 'marquee' | 'lasso';
-      sceneControls.querySelectorAll<HTMLButtonElement>('[data-semantic-mode]').forEach((candidate) => candidate.setAttribute('aria-pressed', String(candidate === button)));
+      semanticModeButtons.forEach((candidate) => candidate.setAttribute('aria-pressed', String(candidate.dataset.semanticMode === semanticMode)));
       semanticStatus.textContent = semanticMode === 'click'
         ? 'Click exact visible Scene elements. Alt-click cycles overlapping elements.'
         : semanticMode === 'marquee'
@@ -606,6 +610,19 @@ export function installMotionLoomDrawingTools() {
     sq('#drawing-clear-semantic').addEventListener('click', () => {
       semanticSelected.clear(); semanticSeedKey = null; semanticStatus.textContent = 'Selection cleared.'; render();
     });
+    const deleteSemanticSelection = () => {
+      const result = deleteSemanticPaths(editor.value, semanticPaths, semanticSelected);
+      if (result.error) { semanticStatus.textContent = result.error; return; }
+      window.dispatchEvent(new CustomEvent('motionloom:dsl-history-push', { detail: { source: editor.value } }));
+      editor.value = result.source;
+      semanticSelected.clear();
+      semanticSeedKey = null;
+      refreshSemanticIndex(false);
+      semanticStatus.textContent = `Deleted ${result.deleted} Scene element${result.deleted === 1 ? '' : 's'} from the MotionLoom DSL.`;
+      render();
+      window.dispatchEvent(new CustomEvent('motionloom:drawing-dsl-change', { detail: { commit: true } }));
+    };
+    semanticDeleteButtons.forEach((button) => button.addEventListener('click', deleteSemanticSelection));
     sq('#drawing-create-semantic-group').addEventListener('click', () => {
       const result = groupSemanticPaths(editor.value, semanticPaths, semanticSelected, semanticGroupId.value);
       if (result.error) { semanticStatus.textContent = result.error; return; }
@@ -655,7 +672,13 @@ export function installMotionLoomDrawingTools() {
       overlay.classList.toggle('hidden', !overlayActive); overlay.classList.toggle('pointer-events-none', !overlayActive); overlay.classList.toggle('pointer-events-auto', overlayActive); render();
     }) as EventListener);
     window.addEventListener('keydown', (event) => {
-      if (!panelActive || event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLSelectElement) return;
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLSelectElement) return;
+      if (sceneSelectionActive && !panelActive && (event.key === 'Delete' || event.key === 'Backspace') && semanticSelected.size) {
+        event.preventDefault();
+        deleteSemanticSelection();
+        return;
+      }
+      if (!panelActive) return;
       const key = event.key.toLowerCase();
       if ((event.metaKey || event.ctrlKey) && key === 'z') { event.preventDefault(); event.shiftKey ? redo() : undo(); return; }
       if ((event.metaKey || event.ctrlKey) && key === 'd') { event.preventDefault(); duplicate(); return; }

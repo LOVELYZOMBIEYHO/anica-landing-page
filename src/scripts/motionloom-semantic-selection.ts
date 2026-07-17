@@ -435,6 +435,23 @@ function safeId(value: string) {
   return id && !/^\d/.test(id) ? id : `semantic_${id || 'group'}`;
 }
 
+export function deleteSemanticPaths(source: string, paths: SemanticPath[], selectedKeys: Set<string>) {
+  const ranges = paths
+    .filter((path) => selectedKeys.has(path.key))
+    .map((path) => ({ start: path.start, end: path.end }))
+    .sort((left, right) => left.start - right.start || right.end - left.end)
+    .filter((range, index, all) => !all.some((candidate, candidateIndex) => (
+      candidateIndex < index && range.start >= candidate.start && range.end <= candidate.end
+    )));
+  if (!ranges.length) return { source, error: 'Select at least one Scene element.', deleted: 0 };
+
+  let output = source;
+  for (const range of [...ranges].reverse()) {
+    output = `${output.slice(0, range.start)}${output.slice(range.end)}`;
+  }
+  return { source: output, error: '', deleted: ranges.length };
+}
+
 export function groupSemanticPaths(source: string, paths: SemanticPath[], selectedKeys: Set<string>, requestedId: string) {
   const selected = paths.filter((path) => selectedKeys.has(path.key)).sort((a, b) => a.start - b.start);
   if (!selected.length) return { source, error: 'Select at least one Scene element.' };
