@@ -11,6 +11,17 @@ import {
   type DrawingStyle,
   type DrawingTool,
 } from './motionloom-drawing-core';
+import {
+  affineToSvg,
+  growConnectedSelection,
+  groupSemanticPaths,
+  indexSemanticPaths,
+  pathsInLasso,
+  pathsInMarquee,
+  selectSimilarPaths,
+  transformBounds,
+  type SemanticPath,
+} from './motionloom-semantic-selection';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const toolMeta: Record<DrawingTool, [string, string, string]> = {
@@ -85,6 +96,8 @@ export function installMotionLoomDrawingTools() {
     const model = new MotionLoomDrawingDocument();
     const history = new DrawingHistory();
     const q = <T extends Element>(selector: string) => panel.querySelector<T>(selector)!;
+    const sceneControls = document.querySelector<HTMLElement>('#scene-controls-content')!;
+    const sq = <T extends Element>(selector: string) => sceneControls.querySelector<T>(selector)!;
     const fillInput = q<HTMLInputElement>('#drawing-fill');
     const strokeInput = q<HTMLInputElement>('#drawing-stroke');
     const strokeWidthInput = q<HTMLInputElement>('#drawing-stroke-width');
@@ -99,9 +112,17 @@ export function installMotionLoomDrawingTools() {
     const zoomLabel = q<HTMLElement>('#drawing-zoom-label');
     const activePathState = q<HTMLElement>('#drawing-active-path-state');
     const layerList = q<HTMLElement>('#drawing-layer-list');
+    const semanticCount = sq<HTMLOutputElement>('#drawing-semantic-count');
+    const semanticColor = sq<HTMLInputElement>('#drawing-semantic-color');
+    const semanticAdjacency = sq<HTMLInputElement>('#drawing-semantic-adjacency');
+    const semanticZ = sq<HTMLInputElement>('#drawing-semantic-z');
+    const semanticScore = sq<HTMLInputElement>('#drawing-semantic-score');
+    const semanticGroupId = sq<HTMLInputElement>('#drawing-semantic-group-id');
+    const semanticStatus = sq<HTMLElement>('#scene-selection-status');
     const toolButtons = [...panel.querySelectorAll<HTMLButtonElement>('[data-drawing-tool]')];
     let tool: DrawingTool = 'selection';
     let panelActive = panelSelect?.value === 'drawing-tools';
+    let sceneSelectionActive = panelSelect?.value === 'scene-controls';
     let pointerId: number | null = null;
     let pointerStart: DrawingPoint | null = null;
     let previousPoint: DrawingPoint | null = null;
@@ -118,6 +139,34 @@ export function installMotionLoomDrawingTools() {
     let panX = 0;
     let panY = 0;
     let parseTimer = 0;
+    let semanticPaths: SemanticPath[] = [];
+    let semanticSelected = new Set<string>();
+    let semanticSeedKey: string | null = null;
+    let semanticSource = '';
+    const semanticGeometryCache = new Map<string, Pick<SemanticPath, 'bounds' | 'samples'>>();
+    let semanticPointer = false;
+    let semanticMode: 'click' | 'marquee' | 'lasso' = 'click';
+    let semanticDrag: DrawingPoint[] = [];
+    let semanticDragRemove = false;
+    let semanticDragAdd = false;
+    let semanticCycle = { x: Number.NaN, y: Number.NaN, index: -1, keys: [] as string[] };
+
+    const semanticOptions = () => ({
+      colorTolerance: Math.max(0, finiteNumber(semanticColor.value, 56)),
+      adjacency: Math.max(0, finiteNumber(semanticAdjacency.value, 12)),
+      zWindow: Math.max(0, Math.round(finiteNumber(semanticZ.value, 64))),
+      scoreThreshold: Math.min(1, Math.max(0, finiteNumber(semanticScore.value, 0.52))),
+    });
+
+    const refreshSemanticIndex = (preserveSelection = true) => {
+      if (semanticSource !== editor.value) semanticGeometryCache.clear();
+      semanticPaths = indexSemanticPaths(editor.value);
+      semanticSource = editor.value;
+      if (!preserveSelection) semanticSelected.clear();
+      const valid = new Set(semanticPaths.map((path) => path.key));
+      semanticSelected = new Set([...semanticSelected].filter((key) => valid.has(key)));
+      if (semanticSeedKey && !valid.has(semanticSeedKey)) semanticSeedKey = null;
+    };
 
     const style = (): DrawingStyle => ({
       fill: fillInput.value === 'none' ? 'none' : normalizeDrawingColor(fillInput.value) || '#D8FF2F',
@@ -177,9 +226,63 @@ export function installMotionLoomDrawingTools() {
     };
 
     const render = () => {
+      if (semanticSource !== editor.value) refreshSemanticIndex();
       setViewBox();
       overlay.replaceChildren();
-      for (const path of model.paths) {
+      if (sceneSelectionActive) {
+        for (const path of semanticPaths) {
+          const selected = semanticSelected.has(path.key);
+          const hit = svgElement('path', {
+            d: path.d,
+            transform: affineToSvg(path.matrix),
+            fill: path.fill === 'none' ? 'none' : 'rgba(185,255,57,0.001)',
+            stroke: selected ? '#B9FF39' : 'rgba(185,255,57,0.001)',
+            'stroke-width': selected ? '3' : '14',
+            'vector-effect': 'non-scaling-stroke',
+            'data-semantic-key': path.key,
+            'data-semantic-type': path.nodeType,
+            class: `drawing-semantic-hit${selected ? ' is-selected' : ''}`,
+          });
+          overlay.append(hit);
+          const geometryKey = `${path.d}|${affineToSvg(path.matrix)}`;
+          const cachedGeometry = semanticGeometryCache.get(geometryKey);
+          if (cachedGeometry) {
+            path.bounds = cachedGeometry.bounds;
+            path.samples = cachedGeometry.samples;
+          } else {
+            try {
+              const bounds = hit.getBBox();
+              path.bounds = transformBounds({ x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height }, path.matrix);
+              const length = hit.getTotalLength();
+              const sampleCount = Math.max(8, Math.min(96, Math.ceil(length / 12)));
+              path.samples = Array.from({ length: sampleCount + 1 }, (_, index) => {
+                const point = hit.getPointAtLength(length * index / sampleCount);
+                return {
+                  x: path.matrix.a * point.x + path.matrix.c * point.y + path.matrix.e,
+                  y: path.matrix.b * point.x + path.matrix.d * point.y + path.matrix.f,
+                };
+              });
+            } catch {
+              path.bounds = null;
+              path.samples = [];
+            }
+            semanticGeometryCache.set(geometryKey, { bounds: path.bounds, samples: path.samples });
+          }
+        }
+        if (semanticDrag.length > 1) {
+          if (semanticMode === 'marquee') {
+            const first = semanticDrag[0], last = semanticDrag[semanticDrag.length - 1];
+            overlay.append(svgElement('rect', {
+              x: String(Math.min(first.x, last.x)), y: String(Math.min(first.y, last.y)),
+              width: String(Math.abs(last.x - first.x)), height: String(Math.abs(last.y - first.y)),
+              class: `drawing-semantic-drag${last.x < first.x ? ' is-crossing' : ''}`,
+            }));
+          } else if (semanticMode === 'lasso') {
+            overlay.append(svgElement('polyline', { points: semanticDrag.map((point) => `${point.x},${point.y}`).join(' '), class: 'drawing-semantic-lasso' }));
+          }
+        }
+      }
+      if (panelActive) for (const path of model.paths) {
         const selected = path.id === model.selectedPathId;
         const showGeometryPreview = tool === 'pen' || tool === 'brush';
         overlay.append(svgElement('path', {
@@ -224,7 +327,7 @@ export function installMotionLoomDrawingTools() {
           });
         }
       }
-      if (tool === 'shape' && pointerStart && shapeDraftEnd) {
+      if (panelActive && tool === 'shape' && pointerStart && shapeDraftEnd) {
         const x = Math.min(pointerStart.x, shapeDraftEnd.x);
         const y = Math.min(pointerStart.y, shapeDraftEnd.y);
         const width = Math.abs(shapeDraftEnd.x - pointerStart.x);
@@ -237,13 +340,17 @@ export function installMotionLoomDrawingTools() {
             : svgElement('rect', { ...attributes, x: String(x), y: String(y), width: String(width), height: String(height) });
         overlay.append(draft);
       }
-      renderLayers();
-      activePathState.textContent = model.activePathId ? `Active: ${model.activePathId}` : 'No active path';
-      activePathState.classList.toggle('is-active', Boolean(model.activePathId));
+      if (panelActive) renderLayers();
+      semanticCount.textContent = `${semanticSelected.size} Element${semanticSelected.size === 1 ? '' : 's'}`;
+      activePathState.textContent = model.activePathId
+        ? `Active: ${model.activePathId}`
+        : semanticSelected.size ? `${semanticSelected.size} scene element${semanticSelected.size === 1 ? '' : 's'}` : 'No active path';
+      activePathState.classList.toggle('is-active', Boolean(model.activePathId || semanticSelected.size));
     };
 
     const write = (commit = false, notifyRenderer = true) => {
       editor.value = patchDrawingGroup(editor.value, model.groupDsl());
+      if (commit) refreshSemanticIndex(); else semanticSource = editor.value;
       if (notifyRenderer) window.dispatchEvent(new CustomEvent('motionloom:drawing-dsl-change', { detail: { commit } }));
     };
     const sync = (commit = false) => { render(); write(commit); };
@@ -267,16 +374,65 @@ export function installMotionLoomDrawingTools() {
       if (finishedActivePath) write(true);
     };
 
+    const applySemanticSelection = (keys: Set<string>, add: boolean, remove: boolean) => {
+      if (!add && !remove) semanticSelected.clear();
+      for (const key of keys) {
+        if (remove) semanticSelected.delete(key);
+        else semanticSelected.add(key);
+      }
+      const first = [...keys][0];
+      if (first) semanticSeedKey = first;
+    };
+
     overlay.addEventListener('pointerdown', (event) => {
-      if (!panelActive || event.button !== 0) return;
+      if ((!panelActive && !sceneSelectionActive) || event.button !== 0) return;
       const point = canvasPoint(event);
       pointerStart = point;
       previousPoint = point;
       pointerId = event.pointerId;
       overlay.setPointerCapture(event.pointerId);
-      if (!['hand', 'zoom'].includes(tool)) history.push(model.snapshot());
+      if (panelActive && !['hand', 'zoom'].includes(tool)) history.push(model.snapshot());
       const target = event.target instanceof SVGElement ? event.target : null;
       transformHandle = target?.dataset.transformHandle || '';
+      if (sceneSelectionActive) {
+        if (semanticMode !== 'click') {
+          semanticPointer = true;
+          semanticDrag = [point];
+          semanticDragAdd = event.shiftKey;
+          semanticDragRemove = event.altKey;
+          model.setSelectedPath(null);
+          render();
+          return;
+        }
+        const semanticKey = target?.dataset.semanticKey;
+        if (semanticKey) {
+          semanticPointer = true;
+          model.setSelectedPath(null);
+          const hitKeys = [...document.elementsFromPoint(event.clientX, event.clientY)]
+            .flatMap((element) => element instanceof SVGElement && element.dataset.semanticKey ? [element.dataset.semanticKey] : [])
+            .filter((key, index, values) => values.indexOf(key) === index);
+          let pickedKey = semanticKey;
+          if (event.altKey && hitKeys.length > 1) {
+            const samePoint = Math.hypot(semanticCycle.x - point.x, semanticCycle.y - point.y) < 6
+              && hitKeys.join('|') === semanticCycle.keys.join('|');
+            semanticCycle = { x: point.x, y: point.y, keys: hitKeys, index: samePoint ? (semanticCycle.index + 1) % hitKeys.length : 0 };
+            pickedKey = hitKeys[semanticCycle.index];
+          } else semanticCycle = { x: point.x, y: point.y, keys: hitKeys, index: hitKeys.indexOf(semanticKey) };
+          if (!event.shiftKey) semanticSelected.clear();
+          if (event.shiftKey && semanticSelected.has(pickedKey)) semanticSelected.delete(pickedKey);
+          else semanticSelected.add(pickedKey);
+          semanticSeedKey = pickedKey;
+          const seed = semanticPaths.find((path) => path.key === pickedKey);
+          semanticStatus.textContent = `Selected ${seed?.nodeType || 'element'} “${seed?.id || 'unnamed'}”. Use Select Similar or Grow Connected if needed.`;
+          render();
+          return;
+        }
+        semanticSelected.clear();
+        semanticSeedKey = null;
+        semanticStatus.textContent = 'No Scene element selected.';
+        render();
+        return;
+      }
       if (tool === 'selection') {
         selectTarget(target);
         if (event.altKey && model.selectedPath()) model.duplicateSelected(0, 0);
@@ -331,6 +487,14 @@ export function installMotionLoomDrawingTools() {
       if (pointerId !== event.pointerId || !previousPoint || !pointerStart) return;
       const point = canvasPoint(event);
       const dx = point.x - previousPoint.x, dy = point.y - previousPoint.y;
+      if (sceneSelectionActive && semanticPointer) {
+        if (semanticMode !== 'click') {
+          if (semanticMode === 'marquee') semanticDrag = [pointerStart, point];
+          else if (!semanticDrag.length || Math.hypot(point.x - semanticDrag[semanticDrag.length - 1].x, point.y - semanticDrag[semanticDrag.length - 1].y) >= 3) semanticDrag.push(point);
+          render();
+        }
+        return;
+      }
       if (tool === 'selection') {
         const path = model.selectedPath();
         if (path && transformHandle === 'rotate') {
@@ -370,6 +534,19 @@ export function installMotionLoomDrawingTools() {
 
     const pointerEnd = (event: PointerEvent) => {
       if (pointerId !== event.pointerId || !pointerStart) return;
+      if (semanticPointer) {
+        if (semanticMode !== 'click' && semanticDrag.length > 1) {
+          const keys = semanticMode === 'marquee'
+            ? pathsInMarquee(semanticPaths, semanticDrag[0], semanticDrag[semanticDrag.length - 1])
+            : pathsInLasso(semanticPaths, semanticDrag);
+          applySemanticSelection(keys, semanticDragAdd, semanticDragRemove);
+          semanticStatus.textContent = `${semanticMode === 'marquee' ? 'Marquee' : 'Lasso'} selected ${keys.size} Scene element${keys.size === 1 ? '' : 's'}.`;
+        }
+        pointerId = null; pointerStart = null; previousPoint = null; semanticPointer = false;
+        semanticDrag = []; semanticDragAdd = false; semanticDragRemove = false;
+        render();
+        return;
+      }
       const end = canvasPoint(event);
       if (tool === 'shape' && Math.hypot(end.x - pointerStart.x, end.y - pointerStart.y) > 2) model.createShape(shapeSelect.value as DrawingShape, pointerStart, end, style());
       if (tool === 'brush') model.finishPath();
@@ -397,6 +574,16 @@ export function installMotionLoomDrawingTools() {
     const undo = () => { const snapshot = history.undo(model.snapshot()); if (snapshot) { model.restore(snapshot); sync(true); } };
     const redo = () => { const snapshot = history.redo(model.snapshot()); if (snapshot) { model.restore(snapshot); sync(true); } };
     toolButtons.forEach((button) => button.addEventListener('click', () => setTool(button.dataset.drawingTool as DrawingTool)));
+    sceneControls.querySelectorAll<HTMLButtonElement>('[data-semantic-mode]').forEach((button) => button.addEventListener('click', () => {
+      semanticMode = button.dataset.semanticMode as 'click' | 'marquee' | 'lasso';
+      sceneControls.querySelectorAll<HTMLButtonElement>('[data-semantic-mode]').forEach((candidate) => candidate.setAttribute('aria-pressed', String(candidate === button)));
+      semanticStatus.textContent = semanticMode === 'click'
+        ? 'Click exact visible Scene elements. Alt-click cycles overlapping elements.'
+        : semanticMode === 'marquee'
+          ? 'Drag left-to-right to contain; right-to-left to intersect.'
+          : 'Draw a freeform lasso around the Scene elements to select.';
+      render();
+    }));
     q('#drawing-undo').addEventListener('click', undo); q('#drawing-redo').addEventListener('click', redo);
     q('#drawing-finish').addEventListener('click', () => { model.finishPath(); status.textContent = 'Path finished. The next Pen click starts a new independent Path.'; sync(true); });
     const duplicate = () => { if (model.selectedPath()) { history.push(model.snapshot()); model.duplicateSelected(); sync(true); } };
@@ -404,6 +591,34 @@ export function installMotionLoomDrawingTools() {
     q('#drawing-delete').addEventListener('click', () => { if (model.selectedPath()) { history.push(model.snapshot()); model.removeSelected(); sync(true); } });
     q('#drawing-layer-up').addEventListener('click', () => { history.push(model.snapshot()); model.reorderSelected(1); sync(true); });
     q('#drawing-layer-down').addEventListener('click', () => { history.push(model.snapshot()); model.reorderSelected(-1); sync(true); });
+    sq('#drawing-select-similar').addEventListener('click', () => {
+      if (!semanticSeedKey) { semanticStatus.textContent = 'Select one Scene element first to set the similarity seed.'; return; }
+      semanticSelected = selectSimilarPaths(semanticPaths, semanticSeedKey, semanticOptions());
+      semanticStatus.textContent = `Selected ${semanticSelected.size} elements by gradient, color, shape, adjacency, and z-order.`;
+      render();
+    });
+    sq('#drawing-grow-selection').addEventListener('click', () => {
+      if (!semanticSelected.size) { semanticStatus.textContent = 'Select a Scene element first.'; return; }
+      semanticSelected = growConnectedSelection(semanticPaths, semanticSelected, semanticOptions());
+      semanticStatus.textContent = `Grew selection to ${semanticSelected.size} connected Scene elements.`;
+      render();
+    });
+    sq('#drawing-clear-semantic').addEventListener('click', () => {
+      semanticSelected.clear(); semanticSeedKey = null; semanticStatus.textContent = 'Selection cleared.'; render();
+    });
+    sq('#drawing-create-semantic-group').addEventListener('click', () => {
+      const result = groupSemanticPaths(editor.value, semanticPaths, semanticSelected, semanticGroupId.value);
+      if (result.error) { semanticStatus.textContent = result.error; return; }
+      window.dispatchEvent(new CustomEvent('motionloom:dsl-history-push', { detail: { source: editor.value } }));
+      editor.value = result.source;
+      semanticSelected.clear(); semanticSeedKey = null;
+      refreshSemanticIndex(false);
+      semanticStatus.textContent = result.linked
+        ? `Created linked Group “${result.id}” across ${result.parts} Layers. Scene Controls will edit every part together.`
+        : `Created <Group id="${result.id}">. It is now available in Scene Controls.`;
+      render();
+      window.dispatchEvent(new CustomEvent('motionloom:drawing-dsl-change', { detail: { commit: true, groupId: result.id } }));
+    });
     q('#drawing-swap-colors').addEventListener('click', () => { [fillInput.value, strokeInput.value] = [strokeInput.value, fillInput.value === 'none' ? '#11130F' : fillInput.value]; applyStyle(); });
     q('#drawing-no-fill').addEventListener('click', () => { fillInput.value = 'none'; applyStyle(); });
     panel.querySelectorAll<HTMLButtonElement>('[data-anchor-mode]').forEach((button) => button.addEventListener('click', () => {
@@ -435,7 +650,9 @@ export function installMotionLoomDrawingTools() {
 
     window.addEventListener('motionloom:tool-panel-change', ((event: CustomEvent<{ panel: string }>) => {
       panelActive = event.detail.panel === 'drawing-tools';
-      overlay.classList.toggle('hidden', !panelActive); overlay.classList.toggle('pointer-events-none', !panelActive); overlay.classList.toggle('pointer-events-auto', panelActive); render();
+      sceneSelectionActive = event.detail.panel === 'scene-controls';
+      const overlayActive = panelActive || sceneSelectionActive;
+      overlay.classList.toggle('hidden', !overlayActive); overlay.classList.toggle('pointer-events-none', !overlayActive); overlay.classList.toggle('pointer-events-auto', overlayActive); render();
     }) as EventListener);
     window.addEventListener('keydown', (event) => {
       if (!panelActive || event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLSelectElement) return;
@@ -448,11 +665,23 @@ export function installMotionLoomDrawingTools() {
       if (event.key === 'Escape' && tool === 'pen') { model.finishPath(); status.textContent = 'Active Path ended. No geometry was deleted.'; render(); }
       if ((event.key === 'Delete' || event.key === 'Backspace') && model.selectedPath()) { event.preventDefault(); history.push(model.snapshot()); model.removeSelected(); sync(true); }
     });
-    editor.addEventListener('input', () => { window.clearTimeout(parseTimer); parseTimer = window.setTimeout(() => { const snapshot = parseDrawingGroup(editor.value); if (snapshot) { model.restore(snapshot); updateFields(); render(); } }, 120); });
+    editor.addEventListener('input', () => { window.clearTimeout(parseTimer); parseTimer = window.setTimeout(() => {
+      const snapshot = parseDrawingGroup(editor.value);
+      if (snapshot) model.restore(snapshot);
+      refreshSemanticIndex(); updateFields(); render();
+    }, 120); });
+    window.addEventListener('motionloom:dsl-source-change', () => {
+      const snapshot = parseDrawingGroup(editor.value);
+      if (snapshot) model.restore(snapshot);
+      refreshSemanticIndex();
+      updateFields();
+      render();
+    });
 
     const initial = parseDrawingGroup(editor.value); if (initial) model.restore(initial);
+    refreshSemanticIndex(false);
     setTool('selection');
-    if (panelActive) window.dispatchEvent(new CustomEvent('motionloom:tool-panel-change', { detail: { panel: 'drawing-tools' } }));
+    window.dispatchEvent(new CustomEvent('motionloom:tool-panel-change', { detail: { panel: panelSelect?.value || 'scene-controls' } }));
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, { once: true }); else mount();
 }

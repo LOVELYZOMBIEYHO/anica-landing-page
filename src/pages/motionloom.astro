@@ -51,6 +51,7 @@ import BaseLayout from '@components/BaseLayout.astro';
               <option value="process">process</option>
               <option value="text">text</option>
               <option value="material_and_texture">material_and_texture</option>
+              <option value="simulation">simulation</option>
             </select>
             <input
               id="showcase-number"
@@ -87,7 +88,7 @@ import BaseLayout from '@components/BaseLayout.astro';
             <button id="btn-load-process-example" class="shrink-0 rounded-full border border-anica-paper/30 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Load</button>
           </div>
           <div id="animation-controls-panel" class="rounded-2xl border border-anica-paper/15 bg-anica-paper/5 p-3">
-            <div class="mb-3">
+            <div class="motionloom-inspector-toolbar mb-3">
               <select
                 id="scene-tool-panel-select"
                 aria-label="Scene tool panel"
@@ -95,34 +96,108 @@ import BaseLayout from '@components/BaseLayout.astro';
               >
                 <option value="scene-controls" class="bg-anica-ink text-anica-lime">Scene controls</option>
                 <option value="drawing-tools" class="bg-anica-ink text-anica-lime">Drawing tools</option>
+                <option value="puppet-warp" class="bg-anica-ink text-anica-lime">Puppet Warp</option>
               </select>
+              <button
+                id="scene-inspector-toggle"
+                type="button"
+                class="motionloom-collapse-button"
+                aria-controls="scene-controls-content"
+                aria-expanded="false"
+                title="Expand Scene Controls"
+              ><span>Expand</span><span class="motionloom-collapse-chevron" aria-hidden="true">⌃</span></button>
             </div>
 
-            <div id="scene-controls-content">
-              <p class="mt-1 text-xs text-anica-paper/45">Select a Group id and variable from the current DSL, then edit its value.</p>
+            <div id="scene-inspector-summary" class="motionloom-inspector-summary" aria-live="polite">
+              <span id="scene-summary-group">No Group</span>
+              <span id="scene-summary-variable">Variable</span>
+              <strong id="scene-summary-value">--</strong>
+            </div>
 
-              <label class="mb-3 mt-3 grid gap-2">
-                <span class="font-mono text-[0.65rem] font-bold uppercase tracking-[0.18em] text-anica-paper/60">Group id</span>
-                <select
-                  id="group-control-select"
-                  class="rounded-xl border border-anica-paper/25 bg-anica-ink/70 px-3 py-2 font-mono text-xs font-bold text-anica-paper outline-none transition focus:border-anica-lime"
-                ></select>
-              </label>
+            <div id="scene-controls-content" class="hidden">
+              <section class="motionloom-inspector-section" data-inspector-section="transform">
+                <button class="motionloom-section-toggle" type="button" aria-expanded="true" aria-controls="scene-transform-body">
+                  <span>Transform</span><span class="motionloom-collapse-chevron" aria-hidden="true">⌃</span>
+                </button>
+                <div id="scene-transform-body" class="motionloom-section-body">
+                  <p class="mt-1 text-xs text-anica-paper/45">Select a Group id and variable from the current DSL, then edit its value.</p>
 
-              <div class="motionloom-control-grid">
-                <label class="motionloom-control">
-                  <span>Variable</span>
-                  <select id="group-variable-select"></select>
-                </label>
-                <label class="motionloom-control">
-                  <span>Value</span>
-                  <input id="group-variable-value" type="text" inputmode="decimal" autocomplete="off" />
-                </label>
-              </div>
-              <p id="group-control-status" class="mt-3 min-h-[1rem] font-mono text-[0.65rem] text-anica-paper/45"></p>
+                  <label class="mb-3 mt-3 grid gap-2">
+                    <span class="font-mono text-[0.65rem] font-bold uppercase tracking-[0.18em] text-anica-paper/60">Group id</span>
+                    <select
+                      id="group-control-select"
+                      class="rounded-xl border border-anica-paper/25 bg-anica-ink/70 px-3 py-2 font-mono text-xs font-bold text-anica-paper outline-none transition focus:border-anica-lime"
+                    ></select>
+                  </label>
+
+                  <div class="motionloom-control-grid">
+                    <label class="motionloom-control">
+                      <span>Variable</span>
+                      <select id="group-variable-select"></select>
+                    </label>
+                    <label class="motionloom-control">
+                      <span>Value</span>
+                      <input id="group-variable-value" type="text" inputmode="decimal" autocomplete="off" />
+                    </label>
+                  </div>
+                  <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex gap-2">
+                      <button
+                        id="scene-history-undo"
+                        type="button"
+                        disabled
+                        class="rounded-lg border border-anica-paper/25 px-3 py-2 font-mono text-[0.65rem] font-bold uppercase tracking-[0.12em] text-anica-paper transition hover:border-anica-lime hover:text-anica-lime disabled:cursor-not-allowed disabled:opacity-35"
+                      >Undo</button>
+                      <button
+                        id="scene-history-redo"
+                        type="button"
+                        disabled
+                        class="rounded-lg border border-anica-paper/25 px-3 py-2 font-mono text-[0.65rem] font-bold uppercase tracking-[0.12em] text-anica-paper transition hover:border-anica-lime hover:text-anica-lime disabled:cursor-not-allowed disabled:opacity-35"
+                      >Redo</button>
+                    </div>
+                    <button
+                      id="delete-group-control"
+                      type="button"
+                      class="rounded-lg border border-anica-signal/50 px-3 py-2 font-mono text-[0.65rem] font-bold uppercase tracking-[0.12em] text-anica-signal transition hover:bg-anica-signal/10 disabled:cursor-not-allowed disabled:opacity-35"
+                    >Delete Group</button>
+                  </div>
+                  <p id="group-control-status" class="mt-3 min-h-[1rem] font-mono text-[0.65rem] text-anica-paper/45"></p>
+                </div>
+              </section>
+
+              <section class="drawing-semantic-panel motionloom-inspector-section" data-inspector-section="selection" aria-label="Scene element selection">
+                <button class="drawing-semantic-heading motionloom-section-toggle" type="button" aria-expanded="true" aria-controls="scene-selection-body">
+                  <strong>Scene Selection</strong><span class="motionloom-section-heading-end"><output id="drawing-semantic-count">0 Elements</output><span class="motionloom-collapse-chevron" aria-hidden="true">⌃</span></span>
+                </button>
+                <div id="scene-selection-body" class="motionloom-section-body">
+                  <p>Select Path, Rect, Circle, Ellipse, Line, Text and other visible Scene elements. Shift adds; Option/Alt removes.</p>
+                  <div class="drawing-semantic-modes" role="group" aria-label="Scene selection mode">
+                    <button type="button" data-semantic-mode="click" aria-pressed="true">Pointer</button>
+                    <button type="button" data-semantic-mode="marquee" aria-pressed="false">Marquee</button>
+                    <button type="button" data-semantic-mode="lasso" aria-pressed="false">Lasso</button>
+                  </div>
+                  <div class="drawing-semantic-actions">
+                    <button type="button" id="drawing-select-similar">Select Similar</button>
+                    <button type="button" id="drawing-grow-selection">Grow Connected</button>
+                    <button type="button" id="drawing-clear-semantic">Clear</button>
+                  </div>
+                  <div class="drawing-semantic-options">
+                    <label><span>Color tolerance</span><input id="drawing-semantic-color" type="number" min="0" max="442" step="1" value="56" /></label>
+                    <label><span>Adjacency px</span><input id="drawing-semantic-adjacency" type="number" min="0" step="1" value="12" /></label>
+                    <label><span>Z-order window</span><input id="drawing-semantic-z" type="number" min="0" step="1" value="64" /></label>
+                    <label><span>Similarity score</span><input id="drawing-semantic-score" type="number" min="0" max="1" step="0.05" value="0.52" /></label>
+                  </div>
+                  <div class="drawing-semantic-group-row">
+                    <label><span>New Group ID</span><input id="drawing-semantic-group-id" type="text" value="semantic_group_001" /></label>
+                    <button type="button" id="drawing-create-semantic-group">Create Group</button>
+                  </div>
+                  <p id="scene-selection-status" class="mt-3 min-h-[1rem] font-mono text-[0.65rem] text-anica-paper/45">Pointer selects exact visible Scene elements.</p>
+                </div>
+              </section>
             </div>
 
             <div id="drawing-tools-content" class="hidden min-h-[11rem]" aria-label="Drawing tools"></div>
+            <div id="puppet-warp-content" class="hidden min-h-[11rem]" aria-label="Puppet Warp tools"></div>
           </div>
           <textarea
             id="dsl-editor"
@@ -202,7 +277,94 @@ import BaseLayout from '@components/BaseLayout.astro';
     #dsl-editor {
       width: 100%;
       max-width: 100%;
+      min-height: max(420px, 50vh);
       overflow: auto;
+    }
+
+    .motionloom-inspector-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+    }
+
+    .motionloom-collapse-button,
+    .motionloom-section-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.55rem;
+      border: 1px solid rgb(185 255 57 / 0.28);
+      border-radius: 0.55rem;
+      background: #0d0f0b;
+      padding: 0.38rem 0.58rem;
+      color: #B9FF39;
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .motionloom-collapse-button.hidden {
+      display: none;
+    }
+
+    .motionloom-collapse-button:hover,
+    .motionloom-section-toggle:hover {
+      border-color: #B9FF39;
+      background: rgb(185 255 57 / 0.06);
+    }
+
+    .motionloom-collapse-chevron {
+      display: inline-block;
+      font-size: 0.75rem;
+      line-height: 1;
+      transition: transform 160ms ease;
+    }
+
+    [aria-expanded="false"] > .motionloom-collapse-chevron,
+    [aria-expanded="false"] .motionloom-collapse-chevron {
+      transform: rotate(180deg);
+    }
+
+    .motionloom-inspector-summary {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(5rem, 0.7fr) minmax(4rem, 0.55fr);
+      align-items: center;
+      gap: 0.55rem;
+      border: 1px solid rgb(185 255 57 / 0.24);
+      border-radius: 0.7rem;
+      background: linear-gradient(90deg, rgb(185 255 57 / 0.08), rgb(13 15 11 / 0.9));
+      padding: 0.55rem 0.7rem;
+      color: rgb(242 237 223 / 0.7);
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+    }
+
+    .motionloom-inspector-summary span,
+    .motionloom-inspector-summary strong {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .motionloom-inspector-summary strong {
+      color: #B9FF39;
+      text-align: right;
+    }
+
+    .motionloom-inspector-summary.hidden { display: none; }
+    .motionloom-inspector-section + .motionloom-inspector-section { margin-top: 0.7rem; }
+    .motionloom-inspector-section > .motionloom-section-toggle { width: 100%; }
+    .motionloom-section-body[hidden] { display: none !important; }
+    .motionloom-section-heading-end { display: flex; align-items: center; gap: 0.55rem; }
+
+    #scene-controls-content .drawing-semantic-panel > .motionloom-section-toggle {
+      border: 0;
+      background: transparent;
+      padding: 0;
     }
 
     #github-example-bar select,
@@ -260,8 +422,15 @@ import BaseLayout from '@components/BaseLayout.astro';
     }
 
     #motionloom-playground-panel.motionloom-expanded #dsl-editor {
-      min-height: 0;
+      min-height: 50%;
       height: 100%;
+    }
+
+    #motionloom-playground-panel.motionloom-expanded #animation-controls-panel {
+      max-height: 42vh;
+      flex: 0 1 auto;
+      overflow-y: auto;
+      overscroll-behavior: contain;
     }
 
     #motionloom-playground-panel.motionloom-expanded #motionloom-canvas,
@@ -505,7 +674,11 @@ import BaseLayout from '@components/BaseLayout.astro';
       }
 
       #motionloom-playground-panel.motionloom-expanded #dsl-editor {
-        min-height: 0;
+        min-height: 45vh;
+      }
+
+      #motionloom-playground-panel.motionloom-expanded #animation-controls-panel {
+        max-height: 38vh;
       }
 
       .motionloom-control-grid {
@@ -518,6 +691,11 @@ import BaseLayout from '@components/BaseLayout.astro';
     }
 
     @media (max-width: 640px) {
+      #dsl-editor { min-height: 55vh; }
+      .motionloom-collapse-button > span:first-child { display: none; }
+      .motionloom-inspector-summary { grid-template-columns: minmax(0, 1fr) auto; }
+      #scene-summary-variable { display: none; }
+
       #motionloom-playground-panel {
         border-radius: 1.5rem;
         padding: 0.75rem;
@@ -790,6 +968,109 @@ import BaseLayout from '@components/BaseLayout.astro';
       font-weight: 800;
       text-transform: uppercase;
     }
+    #scene-controls-content .drawing-semantic-panel {
+      margin-top: 0.8rem;
+      border: 1px solid rgb(185 255 57 / 0.3);
+      border-radius: 0.65rem;
+      background: linear-gradient(145deg, rgb(185 255 57 / 0.07), rgb(13 15 11 / 0.96) 42%);
+      padding: 0.7rem;
+    }
+    #scene-controls-content .drawing-semantic-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+    }
+    #scene-controls-content .drawing-semantic-heading strong,
+    #scene-controls-content .drawing-semantic-heading output {
+      color: #B9FF39;
+      font-family: var(--font-mono);
+      font-size: 0.64rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    #scene-controls-content .drawing-semantic-heading output {
+      border: 1px solid rgb(185 255 57 / 0.4);
+      border-radius: 999px;
+      padding: 0.2rem 0.45rem;
+      background: #0d0f0b;
+      font-size: 0.56rem;
+    }
+    #scene-controls-content .drawing-semantic-panel .motionloom-section-body > p {
+      margin: 0.45rem 0 0;
+      color: rgb(242 237 223 / 0.52);
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      line-height: 1.45;
+    }
+    #scene-controls-content .drawing-semantic-actions,
+    #scene-controls-content .drawing-semantic-modes,
+    #scene-controls-content .drawing-semantic-group-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.6rem;
+    }
+    #scene-controls-content .drawing-semantic-actions button,
+    #scene-controls-content .drawing-semantic-modes button,
+    #scene-controls-content .drawing-semantic-group-row button {
+      border: 1px solid rgb(242 237 223 / 0.22);
+      border-radius: 0.42rem;
+      background: #0d0f0b;
+      padding: 0.4rem 0.55rem;
+      color: rgb(242 237 223 / 0.78);
+      font-size: 0.58rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    #scene-controls-content .drawing-semantic-actions button:hover,
+    #scene-controls-content .drawing-semantic-modes button:hover,
+    #scene-controls-content .drawing-semantic-group-row button:hover {
+      border-color: #B9FF39;
+      color: #B9FF39;
+    }
+    #scene-controls-content .drawing-semantic-modes button[aria-pressed="true"] {
+      border-color: #B9FF39;
+      background: #B9FF39;
+      color: #11120d;
+    }
+    #scene-controls-content .drawing-semantic-options {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.45rem;
+      margin-top: 0.6rem;
+    }
+    #scene-controls-content .drawing-semantic-options label,
+    #scene-controls-content .drawing-semantic-group-row label {
+      display: grid;
+      min-width: 0;
+      flex: 1;
+      gap: 0.25rem;
+    }
+    #scene-controls-content .drawing-semantic-options span,
+    #scene-controls-content .drawing-semantic-group-row span {
+      color: rgb(242 237 223 / 0.58);
+      font-family: var(--font-mono);
+      font-size: 0.52rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    #scene-controls-content .drawing-semantic-options input,
+    #scene-controls-content .drawing-semantic-group-row input {
+      min-width: 0;
+      width: 100%;
+      border: 1px solid rgb(242 237 223 / 0.2);
+      border-radius: 0.4rem;
+      background: #0d0f0b;
+      padding: 0.4rem 0.5rem;
+      color: #f2eddf;
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      outline: none;
+    }
+    #scene-controls-content .drawing-semantic-options input:focus,
+    #scene-controls-content .drawing-semantic-group-row input:focus { border-color: #B9FF39; }
     #drawing-tools-content .drawing-mini-actions button,
     #drawing-tools-content .drawing-layer-actions button {
       border: 1px solid rgb(242 237 223 / 0.2);
@@ -846,9 +1127,160 @@ import BaseLayout from '@components/BaseLayout.astro';
       font-size: 0.62rem;
       line-height: 1.5;
     }
+
+    #puppet-warp-content { color: #f2eddf; }
+    #puppet-warp-content .puppet-tools-shell {
+      display: grid;
+      gap: 0.8rem;
+      border: 1px solid rgb(242 237 223 / 0.14);
+      border-radius: 1rem;
+      background: #11120d;
+      padding: 0.85rem;
+    }
+    #puppet-warp-content header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      border-bottom: 1px solid rgb(242 237 223 / 0.12);
+      padding-bottom: 0.7rem;
+    }
+    #puppet-warp-content header div { display: grid; gap: 0.16rem; }
+    #puppet-warp-content header strong,
+    #puppet-warp-content h3 {
+      color: #B9FF39;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    #puppet-warp-content header span,
+    #puppet-warp-content header output,
+    #puppet-warp-content p {
+      color: rgb(242 237 223 / 0.52);
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+    }
+    #puppet-warp-content header output {
+      max-width: 50%;
+      overflow: hidden;
+      border: 1px solid rgb(185 255 57 / 0.45);
+      border-radius: 999px;
+      padding: 0.35rem 0.65rem;
+      color: #B9FF39;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    #puppet-warp-content .puppet-quick-start {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 0.65rem;
+      align-items: center;
+      margin-bottom: 0.7rem;
+      border: 1px solid rgb(185 255 57 / 0.35);
+      border-radius: 0.7rem;
+      background: rgb(185 255 57 / 0.08);
+      padding: 0.65rem 0.75rem;
+      font-family: monospace;
+      font-size: 0.62rem;
+    }
+    #puppet-warp-content .puppet-quick-start b { color: #B9FF39; text-transform: uppercase; letter-spacing: 0.12em; }
+    #puppet-warp-content .puppet-quick-start span { color: rgb(242 237 223 / 0.68); line-height: 1.5; }
+    #puppet-warp-content .puppet-tools-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.65rem;
+    }
+    #puppet-warp-content .puppet-tool-card {
+      display: grid;
+      align-content: start;
+      gap: 0.55rem;
+      min-width: 0;
+      border: 1px solid rgb(242 237 223 / 0.12);
+      border-radius: 0.8rem;
+      background: rgb(5 7 3 / 0.52);
+      padding: 0.65rem;
+    }
+    #puppet-warp-content label { display: grid; min-width: 0; gap: 0.25rem; }
+    #puppet-warp-content label span {
+      color: rgb(242 237 223 / 0.55);
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    #puppet-warp-content input,
+    #puppet-warp-content select {
+      min-width: 0;
+      width: 100%;
+      border: 1px solid rgb(242 237 223 / 0.2);
+      border-radius: 0.55rem;
+      background: #0b0d08;
+      padding: 0.5rem 0.55rem;
+      color: #f2eddf;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      outline: none;
+    }
+    #puppet-warp-content input:focus,
+    #puppet-warp-content select:focus { border-color: #B9FF39; }
+    #puppet-warp-content button {
+      border: 1px solid rgb(242 237 223 / 0.24);
+      border-radius: 0.55rem;
+      padding: 0.5rem 0.6rem;
+      color: #f2eddf;
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    #puppet-warp-content button:hover { border-color: #B9FF39; color: #B9FF39; }
+    #puppet-warp-content .puppet-inline-fields,
+    #puppet-warp-content .puppet-action-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.45rem; }
+    #puppet-warp-content #puppet-pin-list { display: grid; gap: 0.3rem; max-height: 10rem; overflow: auto; }
+    #puppet-warp-content #puppet-pin-list button { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.4rem; text-align: left; }
+    #puppet-warp-content #puppet-pin-list button b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #puppet-warp-content #puppet-pin-list button span { color: rgb(242 237 223 / 0.42); font-size: 0.5rem; text-transform: none; }
+    #puppet-warp-content #puppet-pin-list button.is-selected { border-color: #B9FF39; background: rgb(185 255 57 / 0.1); color: #B9FF39; }
+    #motionloom-drawing-overlay.puppet-overlay-active { cursor: crosshair; }
+    #motionloom-drawing-overlay .puppet-pin-link { stroke: #B9FF39; stroke-width: 2; stroke-dasharray: 8 5; pointer-events: none; }
+    #motionloom-drawing-overlay .puppet-pin-source { fill: #11120d; stroke: #f2eddf; stroke-width: 3; pointer-events: none; }
+    #motionloom-drawing-overlay .puppet-pin-target { fill: #B9FF39; stroke: #11120d; stroke-width: 4; cursor: move; pointer-events: all; }
+    #motionloom-drawing-overlay .puppet-pin-target.is-selected { filter: drop-shadow(0 0 8px #B9FF39); }
+
+    @media (max-width: 900px) {
+      #puppet-warp-content .puppet-tools-grid { grid-template-columns: 1fr; }
+    }
     #motionloom-drawing-overlay.pointer-events-auto { cursor: crosshair; }
     #motionloom-drawing-overlay .drawing-overlay-path { pointer-events: stroke; }
     #motionloom-drawing-overlay .drawing-overlay-path.is-selected { filter: drop-shadow(0 0 4px #B9FF39); }
+    #motionloom-drawing-overlay .drawing-semantic-hit { pointer-events: visiblePainted; cursor: crosshair; }
+    #motionloom-drawing-overlay .drawing-semantic-hit.is-selected {
+      stroke: #B9FF39;
+      stroke-dasharray: 9 5;
+      filter: drop-shadow(0 0 4px rgb(185 255 57 / 0.9));
+    }
+    #motionloom-drawing-overlay .drawing-semantic-drag {
+      fill: rgb(117 167 255 / 0.1);
+      stroke: #75a7ff;
+      stroke-width: 2;
+      stroke-dasharray: 7 4;
+      vector-effect: non-scaling-stroke;
+      pointer-events: none;
+    }
+    #motionloom-drawing-overlay .drawing-semantic-drag.is-crossing {
+      fill: rgb(185 255 57 / 0.1);
+      stroke: #B9FF39;
+    }
+    #motionloom-drawing-overlay .drawing-semantic-lasso {
+      fill: rgb(185 255 57 / 0.08);
+      stroke: #B9FF39;
+      stroke-width: 2;
+      stroke-dasharray: 6 4;
+      vector-effect: non-scaling-stroke;
+      pointer-events: none;
+    }
     #motionloom-drawing-overlay .drawing-handle-line { stroke: #75a7ff; stroke-width: 2; pointer-events: none; }
     #motionloom-drawing-overlay .drawing-anchor-point { fill: #f2eddf; stroke: #11120d; stroke-width: 2; pointer-events: none; }
     #motionloom-drawing-overlay .drawing-handle-point { fill: #75a7ff; stroke: #11120d; stroke-width: 1; pointer-events: none; }
@@ -887,6 +1319,7 @@ import BaseLayout from '@components/BaseLayout.astro';
       #drawing-tools-content .drawing-tool-rail button { min-width: 3.25rem; }
       #drawing-tools-content .drawing-property-grid { grid-template-columns: 1fr; }
       #drawing-tools-content .drawing-editor-layout { grid-template-columns: 1fr; }
+      #scene-controls-content .drawing-semantic-options { grid-template-columns: 1fr; }
     }
   </style>
 
@@ -934,9 +1367,11 @@ import BaseLayout from '@components/BaseLayout.astro';
   </script>
   <script>
     import { installMotionLoomDrawingTools } from '../scripts/motionloom-drawing-tools';
+    import { installMotionLoomPuppetTools } from '../scripts/motionloom-puppet-tools';
     import { installMotionLoomWebExport } from '../scripts/motionloom-web-export';
 
     installMotionLoomDrawingTools();
+    installMotionLoomPuppetTools();
     installMotionLoomWebExport();
   </script>
 
@@ -951,10 +1386,19 @@ import BaseLayout from '@components/BaseLayout.astro';
       const animationControlsPanel = document.getElementById('animation-controls-panel');
       const sceneToolPanelSelect = document.getElementById('scene-tool-panel-select');
       const sceneControlsContent = document.getElementById('scene-controls-content');
+      const sceneInspectorToggle = document.getElementById('scene-inspector-toggle');
+      const sceneInspectorSummary = document.getElementById('scene-inspector-summary');
+      const sceneSummaryGroup = document.getElementById('scene-summary-group');
+      const sceneSummaryVariable = document.getElementById('scene-summary-variable');
+      const sceneSummaryValue = document.getElementById('scene-summary-value');
       const drawingToolsContent = document.getElementById('drawing-tools-content');
+      const puppetWarpContent = document.getElementById('puppet-warp-content');
       const groupControlSelect = document.getElementById('group-control-select');
       const groupVariableSelect = document.getElementById('group-variable-select');
       const groupVariableValue = document.getElementById('group-variable-value');
+      const sceneHistoryUndo = document.getElementById('scene-history-undo');
+      const sceneHistoryRedo = document.getElementById('scene-history-redo');
+      const deleteGroupControl = document.getElementById('delete-group-control');
       const groupControlStatus = document.getElementById('group-control-status');
       const playgroundPanel = document.getElementById('motionloom-playground-panel');
       const expandPlaygroundBtn = document.getElementById('btn-expand-playground');
@@ -1011,16 +1455,125 @@ import BaseLayout from '@components/BaseLayout.astro';
         { key: 'transformOriginY', label: 'Transform Origin Y', fallback: 0, decimals: 1, placeholder: 'e.g. 0' },
       ];
 
+      const inspectorStorageKey = 'motionloom:scene-inspector-collapsed:v2';
+      const inspectorSectionStorageKey = 'motionloom:scene-inspector-sections';
+      const sceneDslUndoStack = [];
+      const sceneDslRedoStack = [];
+      const sceneDslHistoryLimit = 100;
+      let groupEditBaseline = null;
+      let sceneInspectorCollapsed = true;
+      try {
+        const storedInspectorState = window.localStorage.getItem(inspectorStorageKey);
+        if (storedInspectorState !== null) sceneInspectorCollapsed = storedInspectorState === 'true';
+      } catch (_) {}
+
+      function updateSceneHistoryButtons() {
+        if (sceneHistoryUndo) sceneHistoryUndo.disabled = sceneDslUndoStack.length === 0;
+        if (sceneHistoryRedo) sceneHistoryRedo.disabled = sceneDslRedoStack.length === 0;
+      }
+
+      function pushSceneDslHistory(source = editor.value) {
+        if (!source || sceneDslUndoStack.at(-1) === source) return;
+        sceneDslUndoStack.push(source);
+        if (sceneDslUndoStack.length > sceneDslHistoryLimit) sceneDslUndoStack.shift();
+        sceneDslRedoStack.length = 0;
+        updateSceneHistoryButtons();
+      }
+
+      function resetSceneDslHistory() {
+        sceneDslUndoStack.length = 0;
+        sceneDslRedoStack.length = 0;
+        groupEditBaseline = null;
+        updateSceneHistoryButtons();
+      }
+
+      function restoreSceneDslHistory(source, action) {
+        editor.value = source;
+        groupEditBaseline = null;
+        refreshGroupControls({ keepSelection: true });
+        requestPreviewPlaybackReset();
+        if (groupControlStatus) groupControlStatus.textContent = `${action}: restored MotionLoom DSL.`;
+        compileNow();
+        updateSceneHistoryButtons();
+      }
+
+      function undoSceneDslHistory() {
+        const source = sceneDslUndoStack.pop();
+        if (source === undefined) return;
+        sceneDslRedoStack.push(editor.value);
+        restoreSceneDslHistory(source, 'Undo');
+      }
+
+      function redoSceneDslHistory() {
+        const source = sceneDslRedoStack.pop();
+        if (source === undefined) return;
+        sceneDslUndoStack.push(editor.value);
+        restoreSceneDslHistory(source, 'Redo');
+      }
+
+      function updateSceneInspectorSummary() {
+        if (sceneSummaryGroup) sceneSummaryGroup.textContent = selectedGroupId || 'No Group';
+        if (sceneSummaryVariable) {
+          sceneSummaryVariable.textContent = groupVariableSelect?.selectedOptions?.[0]?.textContent || 'Variable';
+        }
+        if (sceneSummaryValue) sceneSummaryValue.textContent = groupVariableValue?.value || '--';
+      }
+
+      function applySceneInspectorState() {
+        const isSceneControls = sceneToolPanelSelect.value === 'scene-controls';
+        sceneControlsContent.classList.toggle('hidden', !isSceneControls || sceneInspectorCollapsed);
+        sceneInspectorSummary.classList.toggle('hidden', !isSceneControls || !sceneInspectorCollapsed);
+        sceneInspectorToggle.classList.toggle('hidden', !isSceneControls);
+        sceneInspectorToggle.setAttribute('aria-expanded', String(!sceneInspectorCollapsed));
+        sceneInspectorToggle.title = sceneInspectorCollapsed ? 'Expand Scene Controls' : 'Collapse Scene Controls';
+        const label = sceneInspectorToggle.querySelector('span:first-child');
+        if (label) label.textContent = sceneInspectorCollapsed ? 'Expand' : 'Collapse';
+        updateSceneInspectorSummary();
+      }
+
       function setSceneToolPanel(panel) {
-        const showDrawingTools = panel === 'drawing-tools';
-        sceneControlsContent.classList.toggle('hidden', showDrawingTools);
-        drawingToolsContent.classList.toggle('hidden', !showDrawingTools);
+        drawingToolsContent.classList.toggle('hidden', panel !== 'drawing-tools');
+        puppetWarpContent.classList.toggle('hidden', panel !== 'puppet-warp');
+        applySceneInspectorState();
         window.dispatchEvent(new CustomEvent('motionloom:tool-panel-change', { detail: { panel } }));
       }
 
       sceneToolPanelSelect.addEventListener('change', () => {
         setSceneToolPanel(sceneToolPanelSelect.value);
       });
+
+      sceneInspectorToggle.addEventListener('click', () => {
+        sceneInspectorCollapsed = !sceneInspectorCollapsed;
+        try {
+          window.localStorage.setItem(inspectorStorageKey, String(sceneInspectorCollapsed));
+        } catch (_) {}
+        applySceneInspectorState();
+      });
+
+      let storedSectionState = {};
+      try {
+        storedSectionState = JSON.parse(window.localStorage.getItem(inspectorSectionStorageKey) || '{}');
+      } catch (_) {}
+      document.querySelectorAll('#scene-controls-content .motionloom-section-toggle').forEach((toggle) => {
+        const section = toggle.closest('[data-inspector-section]');
+        const sectionName = section?.getAttribute('data-inspector-section') || '';
+        const bodyId = toggle.getAttribute('aria-controls');
+        const body = bodyId ? document.getElementById(bodyId) : null;
+        if (!body || !sectionName) return;
+        const expanded = storedSectionState[sectionName] !== false;
+        toggle.setAttribute('aria-expanded', String(expanded));
+        body.hidden = !expanded;
+        toggle.addEventListener('click', () => {
+          const nextExpanded = toggle.getAttribute('aria-expanded') !== 'true';
+          toggle.setAttribute('aria-expanded', String(nextExpanded));
+          body.hidden = !nextExpanded;
+          storedSectionState[sectionName] = nextExpanded;
+          try {
+            window.localStorage.setItem(inspectorSectionStorageKey, JSON.stringify(storedSectionState));
+          } catch (_) {}
+        });
+      });
+      setSceneToolPanel(sceneToolPanelSelect.value);
 
       function setPlaygroundExpanded(expanded) {
         playgroundExpanded = Boolean(expanded);
@@ -1184,6 +1737,18 @@ import BaseLayout from '@components/BaseLayout.astro';
         return normalizeSvgColor(value);
       }
 
+      function svgPaintWithGradient(node, attr, fallback, gradientIds) {
+        const value = svgAttr(node, attr, fallback);
+        if (!value || value === 'none') return null;
+        const gradientMatch = String(value).trim().match(/^url\(\s*['"]?#([^)'"\s]+)['"]?\s*\)$/i);
+        if (gradientMatch) {
+          const mappedId = gradientIds.get(gradientMatch[1]);
+          return mappedId ? `url(#${mappedId})` : null;
+        }
+        if (value === 'currentColor') return normalizeSvgColor(svgAttr(node, 'color', fallback));
+        return normalizeSvgColor(value);
+      }
+
       function normalizeSvgColor(value) {
         const color = String(value || '').trim();
         const rgbMatch = color.match(/^rgba?\(([^)]*)\)$/i);
@@ -1204,6 +1769,106 @@ import BaseLayout from '@components/BaseLayout.astro';
           return `rgba(${channels[0]}, ${channels[1]}, ${channels[2]}, ${Number.isFinite(alpha) ? alpha : 1})`;
         }
         return `rgb(${channels[0]}, ${channels[1]}, ${channels[2]})`;
+      }
+
+      function svgColorWithAlpha(value, opacity = 1) {
+        const color = String(value || '#000000').trim();
+        const alpha = Math.round(Math.max(0, Math.min(1, opacity)) * 255);
+        const shortHex = color.match(/^#([0-9a-f]{3})$/i);
+        if (shortHex) {
+          const expanded = shortHex[1].split('').map((part) => `${part}${part}`).join('');
+          return `#${expanded.toUpperCase()}${alpha.toString(16).padStart(2, '0').toUpperCase()}`;
+        }
+        const longHex = color.match(/^#([0-9a-f]{6})([0-9a-f]{2})?$/i);
+        if (longHex) {
+          const sourceAlpha = longHex[2] ? Number.parseInt(longHex[2], 16) / 255 : 1;
+          const combinedAlpha = Math.round(sourceAlpha * alpha);
+          return `#${longHex[1].toUpperCase()}${combinedAlpha.toString(16).padStart(2, '0').toUpperCase()}`;
+        }
+        const normalized = normalizeSvgColor(color);
+        const rgbMatch = normalized.match(/^rgba?\(([^)]*)\)$/i);
+        if (!rgbMatch) return opacity >= 0.999 ? normalized : '#00000000';
+        const parts = rgbMatch[1].split(',').map((part) => part.trim());
+        const channels = parts.slice(0, 3).map((part) => Math.max(0, Math.min(255, Math.round(Number.parseFloat(part)))));
+        const sourceAlpha = parts.length >= 4 ? Math.max(0, Math.min(1, Number.parseFloat(parts[3]))) : 1;
+        const combinedAlpha = Math.round(sourceAlpha * alpha);
+        return `#${channels.map((part) => part.toString(16).padStart(2, '0')).join('').toUpperCase()}${combinedAlpha.toString(16).padStart(2, '0').toUpperCase()}`;
+      }
+
+      function svgGradientValue(value, fallback) {
+        const raw = String(value ?? fallback).trim();
+        if (!raw.endsWith('%')) return raw || fallback;
+        return formatDslNumber(parseSvgNumber(raw, parseSvgNumber(fallback, 0)) / 100, 6);
+      }
+
+      function svgDirectStyleValue(node, name, fallback = '') {
+        const styles = svgStyleMap(node);
+        return node.getAttribute(name) || styles[name] || fallback;
+      }
+
+      function collectSvgGradientDefs(svg, suffix) {
+        const gradientNodes = Array.from(svg.querySelectorAll('linearGradient,radialGradient'));
+        const nodesById = new Map();
+        const gradientIds = new Map();
+        for (const node of gradientNodes) {
+          const sourceId = node.getAttribute('id');
+          if (!sourceId) continue;
+          nodesById.set(sourceId, node);
+          gradientIds.set(sourceId, `${safeDslId(sourceId)}_${suffix}`);
+        }
+
+        function inheritedNode(node) {
+          const href = node.getAttribute('href')
+            || node.getAttributeNS('http://www.w3.org/1999/xlink', 'href')
+            || node.getAttribute('xlink:href');
+          return href?.startsWith('#') ? nodesById.get(href.slice(1)) || null : null;
+        }
+
+        function inheritedAttr(node, name, fallback) {
+          const own = node.getAttribute(name);
+          if (own !== null && own !== '') return own;
+          const parent = inheritedNode(node);
+          return parent ? inheritedAttr(parent, name, fallback) : fallback;
+        }
+
+        function inheritedStops(node, visited = new Set()) {
+          if (visited.has(node)) return [];
+          visited.add(node);
+          const ownStops = Array.from(node.children).filter((child) => child.localName.toLowerCase() === 'stop');
+          if (ownStops.length) return ownStops;
+          const parent = inheritedNode(node);
+          return parent ? inheritedStops(parent, visited) : [];
+        }
+
+        const defs = [];
+        let transformedCount = 0;
+        for (const node of gradientNodes) {
+          const sourceId = node.getAttribute('id');
+          const id = gradientIds.get(sourceId);
+          if (!id) continue;
+          const units = inheritedAttr(node, 'gradientUnits', 'objectBoundingBox') === 'userSpaceOnUse'
+            ? 'userSpaceOnUse'
+            : 'objectBoundingBox';
+          const stops = inheritedStops(node).map((stop) => {
+            const offset = svgGradientValue(svgDirectStyleValue(stop, 'offset', '0'), '0');
+            const color = svgDirectStyleValue(stop, 'stop-color', '#000000');
+            const opacity = parseSvgNumber(svgDirectStyleValue(stop, 'stop-opacity', '1'), 1);
+            return `${offset}:${svgColorWithAlpha(color, opacity)}`;
+          });
+          if (!stops.length) continue;
+          if (inheritedAttr(node, 'gradientTransform', '')) transformedCount += 1;
+          if (node.localName.toLowerCase() === 'lineargradient') {
+            defs.push(`      <LinearGradient id="${escapeDslAttr(id)}" units="${units}" x1="${escapeDslAttr(svgGradientValue(inheritedAttr(node, 'x1', '0%'), '0'))}" y1="${escapeDslAttr(svgGradientValue(inheritedAttr(node, 'y1', '0%'), '0'))}" x2="${escapeDslAttr(svgGradientValue(inheritedAttr(node, 'x2', '100%'), '1'))}" y2="${escapeDslAttr(svgGradientValue(inheritedAttr(node, 'y2', '0%'), '0'))}" stops="${escapeDslAttr(stops.join(', '))}" />`);
+          } else {
+            const cx = svgGradientValue(inheritedAttr(node, 'cx', '50%'), '0.5');
+            const cy = svgGradientValue(inheritedAttr(node, 'cy', '50%'), '0.5');
+            const radius = svgGradientValue(inheritedAttr(node, 'r', '50%'), '0.5');
+            const fx = svgGradientValue(inheritedAttr(node, 'fx', cx), cx);
+            const fy = svgGradientValue(inheritedAttr(node, 'fy', cy), cy);
+            defs.push(`      <RadialGradient id="${escapeDslAttr(id)}" units="${units}" cx="${escapeDslAttr(cx)}" cy="${escapeDslAttr(cy)}" r="${escapeDslAttr(radius)}" fx="${escapeDslAttr(fx)}" fy="${escapeDslAttr(fy)}" stops="${escapeDslAttr(stops.join(', '))}" />`);
+          }
+        }
+        return { defs, gradientIds, transformedCount };
       }
 
       function svgOpacity(node) {
@@ -1509,6 +2174,28 @@ ${innerContent}
         return `${prefix}\n\n${trackDsl}\n    ${suffix}`;
       }
 
+      function insertSceneImportDefs(currentDsl, defsDsl) {
+        if (!defsDsl) return String(currentDsl || '');
+        const script = String(currentDsl || '');
+        const sceneMatch = /<Scene\b[^>]*>/i.exec(script);
+        if (!sceneMatch) return null;
+        const sceneStart = sceneMatch.index + sceneMatch[0].length;
+        const timelineStart = script.indexOf('<Timeline', sceneStart);
+        const defsStart = script.indexOf('<Defs', sceneStart);
+        if (defsStart !== -1 && (timelineStart === -1 || defsStart < timelineStart)) {
+          const defsClose = script.indexOf('</Defs>', defsStart);
+          if (defsClose === -1) return null;
+          const prefix = script.slice(0, defsClose).replace(/\s*$/, '');
+          return `${prefix}\n${defsDsl}\n    ${script.slice(defsClose)}`;
+        }
+        return `${script.slice(0, sceneStart)}\n    <Defs>\n${defsDsl}\n    </Defs>${script.slice(sceneStart)}`;
+      }
+
+      function insertSceneImport(currentDsl, trackDsl, defsDsl = '') {
+        const withDefs = insertSceneImportDefs(currentDsl, defsDsl);
+        return withDefs === null ? null : insertSceneImportTrack(withDefs, trackDsl);
+      }
+
       function svgToMotionLoomSvgTagDsl(svgText, fileName = 'imported.svg', canvasSpec = currentSceneCanvasSpec(), options = {}) {
         const metrics = svgDocumentMetrics(svgText);
         const placement = importedSvgPlacement(metrics, canvasSpec);
@@ -1546,6 +2233,8 @@ ${track}
         const suffix = options.suffix || '001';
         const shapes = [];
         const skipped = {};
+        const gradientData = collectSvgGradientDefs(svg, suffix);
+        if (gradientData.transformedCount) skipped['gradient transform'] = gradientData.transformedCount;
         let index = 0;
 
         function nextId(type) {
@@ -1559,7 +2248,8 @@ ${track}
 
         function pushShape(node, target = shapes) {
           const tag = node.localName.toLowerCase();
-          if (['defs', 'clippath', 'mask', 'pattern', 'lineargradient', 'radialgradient', 'filter', 'metadata', 'title', 'desc', 'style'].includes(tag)) {
+          if (['defs', 'lineargradient', 'radialgradient'].includes(tag)) return;
+          if (['clippath', 'mask', 'pattern', 'filter', 'metadata', 'title', 'desc', 'style'].includes(tag)) {
             noteSkipped(tag);
             return;
           }
@@ -1587,7 +2277,7 @@ ${childShapes.join('\n')}
           }
           const rawId = node.getAttribute('id') || nextId(tag);
           const id = `${safeDslId(rawId)}_${suffix}`;
-          const fill = svgPaint(node, 'fill', '#111827');
+          const fill = svgPaintWithGradient(node, 'fill', '#111827', gradientData.gradientIds);
           const opacity = svgOpacity(node);
           const opacityAttr = opacity < 1 ? ` opacity="${formatDslNumber(opacity, 3)}"` : '';
 
@@ -1663,7 +2353,7 @@ ${lines.join('\n')}
               noteSkipped('empty path');
               return;
             }
-            const stroke = svgPaint(node, 'stroke', '');
+            const stroke = svgPaintWithGradient(node, 'stroke', '', gradientData.gradientIds);
             if (!fill && !stroke) {
               noteSkipped('invisible path');
               return;
@@ -1682,6 +2372,8 @@ ${lines.join('\n')}
         if (shapes.length === 0) throw new Error('SVG contains no supported visible primitives.');
         const skippedSummary = Object.entries(skipped).map(([type, count]) => `${count} ${type}`).join(', ');
         const sourceComment = `<!-- Imported from ${escapeDslAttr(fileName)}${skippedSummary ? `; skipped: ${escapeDslAttr(skippedSummary)}` : ''} -->`;
+        const defs = gradientData.defs.join('\n');
+        const defsBlock = defs ? `    <Defs>\n${defs}\n    </Defs>\n` : '';
         const importContent = `            <Group id="svg_viewbox_${suffix}" x="${formatDslNumber(placement.x, 2)}" y="${formatDslNumber(placement.y, 2)}" scale="${formatDslNumber(placement.scale, 6)}">
 ${shapes.join('\n')}
             </Group>`;
@@ -1691,13 +2383,14 @@ ${shapes.join('\n')}
 <Graph fps={${formatDslNumber(canvasSpec.fps, 0)}} duration="${formatDslNumber(canvasSpec.duration, 2)}s" size={[${formatDslNumber(canvasSpec.graphSize[0], 0)},${formatDslNumber(canvasSpec.graphSize[1], 0)}]} renderSize={[${formatDslNumber(canvasSpec.renderSize[0], 0)},${formatDslNumber(canvasSpec.renderSize[1], 0)}]}>
   <Background color="${escapeDslAttr(canvasSpec.background)}" />
   <Scene id="ImportedSvgScene">
-    <Timeline>
+${defsBlock}    <Timeline>
 ${track}
     </Timeline>
   </Scene>
   <Present from="ImportedSvgScene" />
 </Graph>`,
           track,
+          defs,
           skippedSummary,
           convertedCount: shapes.length,
           width,
@@ -1711,7 +2404,7 @@ ${track}
       const base = (typeof window !== 'undefined' && window.MOTIONLOOM_BASE) ? window.MOTIONLOOM_BASE : '/';
       const demoImageUrl = base.replace(/\/$/, '') + '/demo.jpg';
       const wasmPkgBase = base.replace(/\/$/, '') + '/motionloom-wasm/pkg';
-      const motionLoomWasmVersion = '2026-07-12-width-profile-editor';
+      const motionLoomWasmVersion = '2026-07-14-simulation-runtime';
       const exampleRawRoot = 'https://raw.githubusercontent.com/LOVELYZOMBIEYHO/motionloom-example/refs/heads/main';
       const processExampleManifestUrl = `${exampleRawRoot}/dataset/layer-fx-templates.json`;
       const motionLoomFontUrls = [
@@ -1775,6 +2468,13 @@ ${track}
               label: 'material_and_texture',
               folder: 'core/material_and_texture',
               prefix: 'cm',
+              entry: 'main.motionloom',
+            };
+          case 'simulation':
+            return {
+              label: 'simulation',
+              folder: 'core/simulation',
+              prefix: 'csim',
               entry: 'main.motionloom',
             };
           case 'showcase':
@@ -1911,6 +2611,7 @@ ${track}
           const script = await response.text();
           defaultScript = script;
           editor.value = script;
+          resetSceneDslHistory();
           setEditorMode(script.includes('<Process') && !script.includes('<Scene') ? 'process' : 'scene');
           if (processExampleSelect) {
             processExampleSelect.value = id;
@@ -1950,6 +2651,7 @@ ${track}
           const script = await response.text();
           defaultScript = script;
           editor.value = script;
+          resetSceneDslHistory();
           setEditorMode(script.includes('<Process') && !script.includes('<Scene') ? 'process' : 'scene');
           sourceName.textContent = `${id} ${config.label} from motionloom-example`;
           showcaseNumber.value = String(Number.parseInt(String(value), 10));
@@ -1964,6 +2666,7 @@ ${track}
           if (options.fallbackScript) {
             defaultScript = options.fallbackScript;
             editor.value = options.fallbackScript;
+            resetSceneDslHistory();
             setEditorMode('scene');
             sourceName.textContent = `${id} fallback scene`;
             exampleCategory.value = category;
@@ -2093,8 +2796,9 @@ ${track}
         }
       }
 
-      async function tryRenderSceneWithWasm(script, graph, playbackOptions = {}) {
+      async function tryRenderSceneWithWasm(script, graph, playbackOptions = {}, expectedCompileToken) {
         let renderer = null;
+        const isCurrentCompile = () => expectedCompileToken === undefined || expectedCompileToken === compileRunToken;
         try {
           webgpuStatus.textContent = 'Loading MotionLoom WASM...';
           const mod = await withTimeout(
@@ -2102,6 +2806,7 @@ ${track}
             15000,
             'MotionLoom WASM load timed out'
           );
+          if (!isCurrentCompile()) return null;
           if (!mod || typeof mod.WasmSceneRenderer !== 'function') {
             throw new Error('MotionLoom WASM package does not expose WasmSceneRenderer');
           }
@@ -2116,18 +2821,22 @@ ${track}
               renderer = typeof mod.WasmSceneRenderer.create === 'function'
                 ? await mod.WasmSceneRenderer.create(script, 'gpu')
                 : new mod.WasmSceneRenderer(script, 'gpu');
+              if (!isCurrentCompile()) return null;
               addImportedSvgAssets(renderer);
               await attachMotionLoomFonts(renderer);
+              if (!isCurrentCompile()) return null;
               if (typeof renderer.render_frame_to_canvas !== 'function') {
                 throw new Error('WASM package does not expose render_frame_to_canvas');
               }
-              showWebGpuPreview(size[0], size[1]);
               await renderer.render_frame_to_canvas(initialFrame, gpuCanvas);
+              if (!isCurrentCompile()) return null;
+              showWebGpuPreview(size[0], size[1]);
               startWasmSceneLoop(renderer, graph, size, 'webgpu', playbackOptions);
               renderer = null;
               webgpuStatus.textContent = 'MotionLoom WASM WebGPU';
               return 'MotionLoom WASM WebGPU';
             } catch (err) {
+              if (!isCurrentCompile()) return null;
               renderer = null;
               console.info('MotionLoom WASM WebGPU unavailable; trying WASM CPU.', err);
               showCanvas2dPreview();
@@ -2135,15 +2844,19 @@ ${track}
           }
 
           renderer = new mod.WasmSceneRenderer(script, 'cpu');
+          if (!isCurrentCompile()) return null;
           addImportedSvgAssets(renderer);
           await attachMotionLoomFonts(renderer);
+          if (!isCurrentCompile()) return null;
           const rgba = await renderer.render_frame(initialFrame);
+          if (!isCurrentCompile()) return null;
           drawRgbaBuffer(rgba, size[0], size[1]);
           startWasmSceneLoop(renderer, graph, size, 'cpu', playbackOptions);
           renderer = null;
           webgpuStatus.textContent = 'MotionLoom WASM CPU';
           return 'MotionLoom WASM CPU';
         } catch (err) {
+          if (!isCurrentCompile()) return null;
           window.__motionloomWasmError = err;
           console.warn('MotionLoom WASM scene render failed.', err);
           webgpuStatus.textContent = `MotionLoom WASM error: ${formatWasmError(err)}`;
@@ -2938,41 +3651,25 @@ ${track}
         }
       }
 
-      function currentPreviewFrame() {
-        return Math.max(0, Math.floor(previewPlayback.frameFloat || 0));
-      }
-
       function scheduleRuntimeSceneRender(delayMs = 80) {
         if (!wasmSceneRenderer) return false;
         if (runtimeSceneRenderDebounceId) {
           window.clearTimeout(runtimeSceneRenderDebounceId);
         }
         const token = ++runtimeSceneRenderToken;
-        runtimeSceneRenderDebounceId = window.setTimeout(async () => {
+        runtimeSceneRenderDebounceId = window.setTimeout(() => {
           runtimeSceneRenderDebounceId = null;
           if (!wasmSceneRenderer || token !== runtimeSceneRenderToken) return;
-          const frame = currentPreviewFrame();
-          try {
-            webgpuStatus.textContent = 'Rendering edited frame...';
-            if (typeof wasmSceneRenderer.render_frame_to_canvas === 'function' && activePreviewCanvas === gpuCanvas) {
-              await wasmSceneRenderer.render_frame_to_canvas(frame, gpuCanvas);
-              webgpuStatus.textContent = 'MotionLoom WASM WebGPU';
-              return;
-            }
-            if (typeof wasmSceneRenderer.render_frame === 'function') {
-              const graph = parseGraph(editor.value);
-              const size = graph.renderSize || graph.size;
-              const rgba = await wasmSceneRenderer.render_frame(frame);
-              drawRgbaBuffer(rgba, size[0], size[1]);
-              webgpuStatus.textContent = 'MotionLoom WASM CPU';
-              return;
-            }
+          if (!isScenePlaying) {
             scheduleCompile({ delayMs: 700 });
-          } catch (err) {
-            console.warn('Runtime scene render failed; falling back to compile.', err);
-            webgpuStatus.textContent = `Runtime edit failed: ${formatWasmError(err)}`;
-            scheduleCompile({ delayMs: 700 });
+            return;
           }
+          // Keep all frame rendering inside startWasmSceneLoop. Calling the
+          // renderer here can race an in-flight animation frame and let the old
+          // frame overwrite a runtime Group edit, especially for large imported
+          // Path scenes.
+          previewPlayback.needsRender = true;
+          webgpuStatus.textContent = 'Rendering edited frame...';
         }, delayMs);
         return true;
       }
@@ -3081,7 +3778,7 @@ ${track}
       function mix(a, b, t) { return a + (b - a) * t; }
 
       function readGroupControlTargets(script) {
-        const targets = [];
+        const physicalTargets = [];
         const tagRe = /<Group\b[^>]*>/g;
         let match;
         while ((match = tagRe.exec(script)) !== null) {
@@ -3089,13 +3786,29 @@ ${track}
           const attrText = tagText.replace(/^<Group\b/, '').replace(/\/?>$/, '');
           const attrs = parseAttrs(attrText);
           if (!attrs.id) continue;
-          targets.push({
+          physicalTargets.push({
             id: String(attrs.id),
             tagStart: match.index,
             tagEnd: match.index + tagText.length,
             tagText,
             attrs,
           });
+        }
+        const targets = [];
+        const linkedTargets = new Map();
+        for (const physical of physicalTargets) {
+          const linkedId = String(physical.attrs.linkedGroup || '');
+          if (!linkedId) {
+            targets.push({ ...physical, members: [physical], linked: false });
+            continue;
+          }
+          let logical = linkedTargets.get(linkedId);
+          if (!logical) {
+            logical = { ...physical, id: linkedId, members: [], linked: true };
+            linkedTargets.set(linkedId, logical);
+            targets.push(logical);
+          }
+          logical.members.push(physical);
         }
         return targets;
       }
@@ -3144,6 +3857,72 @@ ${track}
         if (groupControlSelect) groupControlSelect.disabled = disabled;
         if (groupVariableSelect) groupVariableSelect.disabled = disabled;
         if (groupVariableValue) groupVariableValue.disabled = disabled;
+        if (deleteGroupControl) deleteGroupControl.disabled = disabled;
+      }
+
+      function findGroupBlockEnd(source, tagStart) {
+        const token = /<Group\b[^>]*>|<\/Group\s*>/gi;
+        token.lastIndex = tagStart;
+        let depth = 0;
+        for (let match = token.exec(source); match; match = token.exec(source)) {
+          if (match.index === tagStart || !match[0].startsWith('</')) depth += 1;
+          else depth -= 1;
+          if (depth === 0) return token.lastIndex;
+        }
+        return -1;
+      }
+
+      function targetedPuppetWarpRanges(source, groupIds) {
+        const ranges = [];
+        const open = /<PuppetWarp\b[^>]*>/gi;
+        for (let match = open.exec(source); match; match = open.exec(source)) {
+          const target = String(parseAttrs(match[0].replace(/^<PuppetWarp\b/, '').replace(/>$/, '')).target || '');
+          if (!groupIds.has(target)) continue;
+          const close = /<\/PuppetWarp\s*>/gi;
+          close.lastIndex = open.lastIndex;
+          const closeMatch = close.exec(source);
+          if (closeMatch) ranges.push({ start: match.index, end: close.lastIndex });
+        }
+        return ranges;
+      }
+
+      function deleteSelectedGroup() {
+        const group = selectedGroupTarget();
+        if (!group) return;
+        const members = group.members || [group];
+        const groupIds = new Set(members.map((member) => member.id));
+        groupIds.add(group.id);
+        const ranges = [];
+        for (const member of members) {
+          const end = findGroupBlockEnd(editor.value, member.tagStart);
+          if (end > member.tagStart) ranges.push({ start: member.tagStart, end });
+        }
+        ranges.push(...targetedPuppetWarpRanges(editor.value, groupIds));
+        if (!ranges.length) {
+          groupControlStatus.textContent = `Could not locate the complete <Group id="${group.id}"> block.`;
+          return;
+        }
+        pushSceneDslHistory(editor.value);
+        const mergedRanges = ranges
+          .sort((left, right) => left.start - right.start || right.end - left.end)
+          .reduce((merged, range) => {
+            const previous = merged.at(-1);
+            if (previous && range.start <= previous.end) {
+              previous.end = Math.max(previous.end, range.end);
+            } else {
+              merged.push({ ...range });
+            }
+            return merged;
+          }, []);
+        let nextSource = editor.value;
+        for (const range of mergedRanges.sort((left, right) => right.start - left.start)) {
+          nextSource = `${nextSource.slice(0, range.start)}${nextSource.slice(range.end)}`;
+        }
+        editor.value = nextSource.replace(/\n[ \t]*\n[ \t]*\n/g, '\n\n');
+        selectedGroupId = '';
+        refreshGroupControls({ keepSelection: false });
+        requestPreviewPlaybackReset();
+        compileNow();
       }
 
       function refreshGroupControls(options = {}) {
@@ -3171,9 +3950,11 @@ ${track}
 
       function editableAttrsForGroup(group) {
         const attrs = new Map(groupEditableAttrs.map((item) => [item.key, item]));
-        for (const key of Object.keys(group.attrs)) {
-          if (!attrs.has(key) && isEditableNumericAttr(group.attrs, key)) {
-            attrs.set(key, groupAttrDefinition(key));
+        for (const member of group.members || [group]) {
+          for (const key of Object.keys(member.attrs)) {
+            if (!attrs.has(key) && isEditableNumericAttr(member.attrs, key)) {
+              attrs.set(key, groupAttrDefinition(key));
+            }
           }
         }
         return Array.from(attrs.values());
@@ -3206,6 +3987,7 @@ ${track}
           if (groupControlStatus) {
             groupControlStatus.textContent = 'No <Group id="..."> found in the current DSL.';
           }
+          updateSceneInspectorSummary();
           return;
         }
 
@@ -3221,8 +4003,12 @@ ${track}
         }
 
         if (groupControlStatus) {
-          groupControlStatus.textContent = `Editing ${selectedGroupAttr()} on <Group id="${group.id}">. Curve attributes show their first key value; editing replaces that attribute with a constant.`;
+          const targetLabel = group.linked
+            ? `linked Group “${group.id}” across ${group.members.length} Layers`
+            : `<Group id="${group.id}">`;
+          groupControlStatus.textContent = `Editing ${selectedGroupAttr()} on ${targetLabel}. Curve attributes show their first key value; editing replaces that attribute with a constant.`;
         }
+        updateSceneInspectorSummary();
       }
 
       function groupAttrDecimals(attr) {
@@ -3249,13 +4035,24 @@ ${track}
         if (!group) return;
 
         const formatted = formatDslNumber(value, groupAttrDecimals(attr));
-        const nextTag = upsertGroupAttribute(group.tagText, attr, value);
-        editor.value = `${editor.value.slice(0, group.tagStart)}${nextTag}${editor.value.slice(group.tagEnd)}`;
+        const members = group.members || [group];
+        let nextSource = editor.value;
+        for (const member of [...members].sort((left, right) => right.tagStart - left.tagStart)) {
+          const nextTag = upsertGroupAttribute(member.tagText, attr, value);
+          nextSource = `${nextSource.slice(0, member.tagStart)}${nextTag}${nextSource.slice(member.tagEnd)}`;
+        }
+        if (nextSource === editor.value) return;
+        if (groupEditBaseline !== null) {
+          pushSceneDslHistory(groupEditBaseline);
+          groupEditBaseline = null;
+        }
+        editor.value = nextSource;
         refreshGroupControls({ keepSelection: true });
         pausePreviewPlaybackForEdit();
         if (wasmSceneRenderer && typeof wasmSceneRenderer.set_group_attr === 'function') {
           try {
-            if (wasmSceneRenderer.set_group_attr(group.id, attr, formatted)) {
+            const runtimeUpdated = members.every((member) => wasmSceneRenderer.set_group_attr(member.id, attr, formatted));
+            if (runtimeUpdated) {
               compileStatus.textContent = `Runtime edit: ${group.id}.${attr}=${formatted}`;
               compileStatus.classList.remove('text-anica-signal');
               compileStatus.classList.add('text-anica-lime/80');
@@ -3296,6 +4093,7 @@ ${track}
           window.clearTimeout(compileDebounceId);
           compileDebounceId = null;
         }
+        window.dispatchEvent(new CustomEvent('motionloom:dsl-source-change'));
         compile(options);
       }
 
@@ -3328,7 +4126,7 @@ ${track}
             compileStatus.textContent = `Compiled: ${graph.scenes.length} scene(s), ${layerCount} layer(s) | ${graph.fps}fps${graph.hasExplicitDuration ? `, ${graph.duration}s` : ''}`;
             compileStatus.classList.remove('text-anica-signal');
             compileStatus.classList.add('text-anica-lime/80');
-            const sceneWasmMode = await tryRenderSceneWithWasm(rawScript, graph, playbackOptions);
+            const sceneWasmMode = await tryRenderSceneWithWasm(rawScript, graph, playbackOptions, compileToken);
             if (compileToken !== compileRunToken) return;
             if (sceneWasmMode) {
               compileStatus.textContent += ` | rendered by ${sceneWasmMode}`;
@@ -3389,6 +4187,7 @@ ${track}
         setEditorMode('process');
         defaultScript = processScript;
         editor.value = defaultScript;
+        resetSceneDslHistory();
         sourceName.textContent = 'demo.jpg';
         compileNow();
       }
@@ -3405,14 +4204,31 @@ ${track}
       }
 
       if (groupVariableValue) {
+        groupVariableValue.addEventListener('focus', () => {
+          groupEditBaseline = editor.value;
+        });
+        groupVariableValue.addEventListener('blur', () => {
+          groupEditBaseline = null;
+        });
         groupVariableValue.addEventListener('input', applyGroupControlInput);
       }
+
+      if (sceneHistoryUndo) sceneHistoryUndo.addEventListener('click', undoSceneDslHistory);
+      if (sceneHistoryRedo) sceneHistoryRedo.addEventListener('click', redoSceneDslHistory);
+
+      window.addEventListener('motionloom:dsl-history-push', (event) => {
+        pushSceneDslHistory(String(event.detail?.source ?? editor.value));
+      });
 
       if (groupControlSelect) {
         groupControlSelect.addEventListener('change', () => {
           selectedGroupId = groupControlSelect.value;
           updateGroupControlInputs();
         });
+      }
+
+      if (deleteGroupControl) {
+        deleteGroupControl.addEventListener('click', deleteSelectedGroup);
       }
 
       loadShowcaseBtn.addEventListener('click', () => {
@@ -3427,6 +4243,7 @@ ${track}
           stopSceneLoop();
           defaultScript = script;
           editor.value = script;
+          resetSceneDslHistory();
           setEditorMode('scene');
           sourceName.textContent = 'empty MotionLoom scene template';
           compileStatus.textContent = 'Loaded empty white Scene template.';
@@ -3488,13 +4305,14 @@ ${track}
               ? svgToMotionLoomDsl(svgText, file.name, canvasSpec, { skipBackground: shouldSkipBackground, suffix })
               : svgToMotionLoomSvgTagDsl(svgText, file.name, canvasSpec, { suffix });
             const insertedScript = result.track
-              ? insertSceneImportTrack(editor.value, result.track)
+              ? insertSceneImport(editor.value, result.track, result.defs || '')
               : null;
             if (result.assetName) {
               importedSvgAssets.set(result.assetName, new TextEncoder().encode(svgText));
             }
             requestPreviewPlaybackReset();
             stopSceneLoop();
+            pushSceneDslHistory(editor.value);
             defaultScript = insertedScript || result.script;
             editor.value = defaultScript;
             setEditorMode('scene');
@@ -3644,6 +4462,14 @@ ${track}
         setPlaygroundExpanded(!playgroundExpanded);
       });
       window.addEventListener('keydown', (event) => {
+        if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'z'
+          && sceneToolPanelSelect?.value === 'scene-controls'
+          && document.activeElement !== editor) {
+          event.preventDefault();
+          if (event.shiftKey) redoSceneDslHistory();
+          else undoSceneDslHistory();
+          return;
+        }
         if (event.key === 'Escape' && playgroundExpanded) {
           setPlaygroundExpanded(false);
         }
@@ -3658,6 +4484,12 @@ ${track}
         const commit = Boolean(event.detail && event.detail.commit);
         if (commit) compileNow();
         else scheduleCompile({ delayMs: 180 });
+        const requestedGroupId = String(event.detail?.groupId || '');
+        if (requestedGroupId && cachedGroupControls.some((group) => group.id === requestedGroupId)) {
+          selectedGroupId = requestedGroupId;
+          if (groupControlSelect) groupControlSelect.value = requestedGroupId;
+          updateGroupControlInputs();
+        }
       });
       editor.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) compileNow();
