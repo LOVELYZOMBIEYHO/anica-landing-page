@@ -113,6 +113,7 @@ import BaseLayout from '@components/BaseLayout.astro';
                 <button type="button" data-semantic-mode="click" aria-pressed="true">Pointer</button>
                 <button type="button" data-semantic-mode="marquee" aria-pressed="false">Marquee</button>
                 <button type="button" data-semantic-mode="lasso" aria-pressed="false">Lasso</button>
+                <button type="button" data-semantic-mode="unselect" aria-pressed="false">Unselect</button>
               </div>
               <output data-semantic-count>0 Elements</output>
               <button type="button" data-delete-semantic disabled>Delete Selected</button>
@@ -166,6 +167,27 @@ import BaseLayout from '@components/BaseLayout.astro';
                     >Delete Group</button>
                   </div>
                   <p id="group-control-status" class="mt-3 min-h-[1rem] font-mono text-[0.65rem] text-anica-paper/45"></p>
+
+                  <div class="mt-4 rounded-xl border border-anica-lime/20 bg-anica-ink/35 p-3">
+                    <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+                      <strong class="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-anica-lime">
+                        Combine Groups <span id="combine-current-group-label" class="text-anica-paper/60"></span>
+                      </strong>
+                      <span class="font-mono text-[0.58rem] text-anica-paper/40">Selection moves inside · Group links</span>
+                    </div>
+                    <div class="grid gap-2 sm:grid-cols-2">
+                      <label class="grid gap-1">
+                        <span class="font-mono text-[0.58rem] font-bold uppercase tracking-[0.12em] text-anica-paper/50">Combine current with</span>
+                        <select id="combine-group-select" class="min-w-0 rounded-lg border border-anica-paper/25 bg-anica-ink/70 px-3 py-2 font-mono text-[0.65rem] font-bold text-anica-paper outline-none focus:border-anica-lime"></select>
+                      </label>
+                      <label class="grid gap-1">
+                        <span class="font-mono text-[0.58rem] font-bold uppercase tracking-[0.12em] text-anica-paper/50">Combined Group ID</span>
+                        <input id="combine-group-id" type="text" value="" class="min-w-0 rounded-lg border border-anica-paper/25 bg-anica-ink/70 px-3 py-2 font-mono text-[0.65rem] font-bold text-anica-paper outline-none focus:border-anica-lime" />
+                      </label>
+                    </div>
+                    <button id="combine-groups-control" type="button" class="mt-3 rounded-lg border border-anica-lime/45 px-3 py-2 font-mono text-[0.65rem] font-bold uppercase tracking-[0.12em] text-anica-lime transition hover:bg-anica-lime/10 disabled:cursor-not-allowed disabled:opacity-35">Combine Groups</button>
+                    <p id="combine-group-status" class="mt-2 min-h-[1rem] font-mono text-[0.6rem] text-anica-paper/45">Select the first Group above, then choose the second Group here.</p>
+                  </div>
                 </div>
               </section>
 
@@ -179,13 +201,17 @@ import BaseLayout from '@components/BaseLayout.astro';
                     <button type="button" data-semantic-mode="click" aria-pressed="true">Pointer</button>
                     <button type="button" data-semantic-mode="marquee" aria-pressed="false">Marquee</button>
                     <button type="button" data-semantic-mode="lasso" aria-pressed="false">Lasso</button>
+                    <button type="button" data-semantic-mode="unselect" aria-pressed="false">Unselect</button>
                   </div>
                   <div class="drawing-semantic-actions">
                     <button type="button" id="drawing-select-similar">Select Similar</button>
                     <button type="button" id="drawing-grow-selection">Grow Connected</button>
                     <button type="button" id="drawing-clear-semantic">Clear</button>
+                    <button type="button" id="drawing-split-semantic-path">Split Path</button>
+                    <button type="button" id="drawing-locate-semantic" disabled>Locate DSL</button>
                     <button type="button" data-delete-semantic disabled>Delete Selected</button>
                   </div>
+                  <output id="drawing-semantic-path-state" class="mt-2 block min-h-[1rem] font-mono text-[0.65rem] text-anica-lime/75">Select one element to inspect its DSL source.</output>
                   <div class="drawing-semantic-options">
                     <label><span>Color tolerance</span><input id="drawing-semantic-color" type="number" min="0" max="442" step="1" value="56" /></label>
                     <label><span>Adjacency px</span><input id="drawing-semantic-adjacency" type="number" min="0" step="1" value="12" /></label>
@@ -238,6 +264,7 @@ import BaseLayout from '@components/BaseLayout.astro';
             <canvas id="motionloom-canvas-webgpu" class="absolute inset-0 h-full w-full object-contain opacity-0"></canvas>
             <canvas id="motionloom-canvas" class="absolute inset-0 h-full w-full object-contain opacity-100"></canvas>
             <svg id="motionloom-drawing-overlay" class="pointer-events-none absolute inset-0 hidden h-full w-full touch-none" aria-label="MotionLoom drawing canvas"></svg>
+            <svg id="motionloom-puppet-overlay" class="pointer-events-none absolute inset-0 z-30 hidden h-full w-full touch-none" aria-label="MotionLoom Puppet Warp pins"></svg>
             <div id="webgpu-status" class="absolute bottom-3 left-3 rounded-full border border-anica-lime/30 bg-anica-ink/80 px-3 py-1 font-mono text-xs text-anica-lime backdrop-blur-md">
               Canvas 2D pipeline
             </div>
@@ -1284,11 +1311,63 @@ import BaseLayout from '@components/BaseLayout.astro';
     #puppet-warp-content #puppet-pin-list button b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     #puppet-warp-content #puppet-pin-list button span { color: rgb(242 237 223 / 0.42); font-size: 0.5rem; text-transform: none; }
     #puppet-warp-content #puppet-pin-list button.is-selected { border-color: #B9FF39; background: rgb(185 255 57 / 0.1); color: #B9FF39; }
-    #motionloom-drawing-overlay.puppet-overlay-active { cursor: crosshair; }
-    #motionloom-drawing-overlay .puppet-pin-link { stroke: #B9FF39; stroke-width: 2; stroke-dasharray: 8 5; pointer-events: none; }
-    #motionloom-drawing-overlay .puppet-pin-source { fill: #11120d; stroke: #f2eddf; stroke-width: 3; pointer-events: none; }
-    #motionloom-drawing-overlay .puppet-pin-target { fill: #B9FF39; stroke: #11120d; stroke-width: 4; cursor: move; pointer-events: all; }
-    #motionloom-drawing-overlay .puppet-pin-target.is-selected { filter: drop-shadow(0 0 8px #B9FF39); }
+    #motionloom-puppet-overlay.puppet-overlay-active { cursor: crosshair; }
+    #motionloom-puppet-overlay .puppet-pin-radius {
+      fill: rgb(185 255 57 / 0.08);
+      stroke: #B9FF39;
+      stroke-width: 1.5;
+      stroke-dasharray: 7 6;
+      vector-effect: non-scaling-stroke;
+      pointer-events: none;
+    }
+
+    #puppet-warp-content .puppet-hair-animation-card {
+      grid-column: 1 / -1;
+    }
+
+    #puppet-warp-content .puppet-checkbox-label > span:last-child {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      min-height: 2.75rem;
+    }
+
+    #puppet-warp-content .puppet-checkbox-label input {
+      width: auto;
+    }
+    #motionloom-puppet-overlay .puppet-pin-link {
+      stroke: #B9FF39;
+      stroke-width: 2;
+      stroke-dasharray: 8 5;
+      vector-effect: non-scaling-stroke;
+      pointer-events: none;
+    }
+    #motionloom-puppet-overlay .puppet-pin-source {
+      fill: #11120d;
+      stroke: #f2eddf;
+      stroke-width: 3;
+      vector-effect: non-scaling-stroke;
+      pointer-events: none;
+    }
+    #motionloom-puppet-overlay .puppet-pin-target {
+      fill: #B9FF39;
+      stroke: #11120d;
+      stroke-width: 4;
+      vector-effect: non-scaling-stroke;
+      cursor: move;
+      pointer-events: all;
+    }
+    #motionloom-puppet-overlay .puppet-pin-core { fill: #11120d; pointer-events: none; }
+    #motionloom-puppet-overlay .puppet-pin-label {
+      fill: #B9FF39;
+      stroke: #11120d;
+      stroke-width: 3;
+      paint-order: stroke;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      pointer-events: none;
+    }
+    #motionloom-puppet-overlay .puppet-pin-target.is-selected { filter: drop-shadow(0 0 8px #B9FF39); }
 
     @media (max-width: 900px) {
       #puppet-warp-content .puppet-tools-grid { grid-template-columns: 1fr; }
@@ -1438,6 +1517,11 @@ import BaseLayout from '@components/BaseLayout.astro';
       const sceneHistoryRedo = document.getElementById('scene-history-redo');
       const deleteGroupControl = document.getElementById('delete-group-control');
       const groupControlStatus = document.getElementById('group-control-status');
+      const combineGroupSelect = document.getElementById('combine-group-select');
+      const combineGroupId = document.getElementById('combine-group-id');
+      const combineCurrentGroupLabel = document.getElementById('combine-current-group-label');
+      const combineGroupsControl = document.getElementById('combine-groups-control');
+      const combineGroupStatus = document.getElementById('combine-group-status');
       const playgroundPanel = document.getElementById('motionloom-playground-panel');
       const expandPlaygroundBtn = document.getElementById('btn-expand-playground');
       const processSourceControls = document.getElementById('process-source-controls');
@@ -1479,6 +1563,9 @@ import BaseLayout from '@components/BaseLayout.astro';
       let resetPreviewPlaybackOnNextCompile = true;
       let selectedGroupId = '';
       let cachedGroupControls = [];
+      let semanticSelectionCount = 0;
+      let combineDefaultsGroupId = '';
+      let combineSourceWasManuallySelected = false;
       const groupEditableAttrs = [
         { key: 'x', label: 'X', fallback: 0, decimals: 1, placeholder: 'e.g. -10' },
         { key: 'y', label: 'Y', fallback: 0, decimals: 1, placeholder: 'e.g. 24' },
@@ -2844,7 +2931,6 @@ ${track}
           const initialFrame = playbackOptions.preservePlayback && playbackOptions.previous
             ? Math.max(0, Math.floor(playbackOptions.previous.frameFloat || 0))
             : 0;
-
           if (navigator.gpu) {
             try {
               renderer = typeof mod.WasmSceneRenderer.create === 'function'
@@ -3889,6 +3975,62 @@ ${track}
         if (deleteGroupControl) deleteGroupControl.disabled = disabled;
       }
 
+      function updateCombineGroupControls() {
+        if (!combineGroupSelect || !combineGroupsControl) return;
+        const selectedGroupChanged = selectedGroupId !== combineDefaultsGroupId;
+        if (selectedGroupChanged) {
+          combineDefaultsGroupId = selectedGroupId;
+          combineSourceWasManuallySelected = false;
+          if (combineGroupId) combineGroupId.value = selectedGroupId;
+        }
+        if (combineCurrentGroupLabel) {
+          combineCurrentGroupLabel.textContent = selectedGroupId
+            ? `- (${selectedGroupId}) selected`
+            : '- no Group selected';
+        }
+
+        const previous = combineSourceWasManuallySelected ? combineGroupSelect.value : '';
+        const candidates = cachedGroupControls.filter((group) => group.id !== selectedGroupId);
+        combineGroupSelect.innerHTML = '';
+        if (semanticSelectionCount > 0) {
+          const selectionOption = document.createElement('option');
+          selectionOption.value = '__scene_selection__';
+          selectionOption.textContent = `Current Scene Selection (${semanticSelectionCount} elements)`;
+          combineGroupSelect.append(selectionOption);
+        }
+        for (const group of candidates) {
+          const option = document.createElement('option');
+          option.value = group.id;
+          option.textContent = group.id;
+          combineGroupSelect.append(option);
+        }
+        const previousSelectionIsValid = previous === '__scene_selection__' && semanticSelectionCount > 0;
+        const previousGroupIsValid = candidates.some((group) => group.id === previous);
+        if (combineSourceWasManuallySelected && (previousSelectionIsValid || previousGroupIsValid)) {
+          combineGroupSelect.value = previous;
+        } else if (semanticSelectionCount > 0) {
+          combineGroupSelect.value = '__scene_selection__';
+          combineSourceWasManuallySelected = false;
+        } else if (candidates.length > 0) {
+          combineGroupSelect.value = candidates[0].id;
+          combineSourceWasManuallySelected = false;
+        }
+        const hasSources = semanticSelectionCount > 0 || candidates.length > 0;
+        combineGroupSelect.disabled = !hasSources;
+        combineGroupsControl.disabled = !selectedGroupId || !hasSources;
+        const movingSelection = combineGroupSelect.value === '__scene_selection__';
+        if (combineGroupId) {
+          combineGroupId.disabled = movingSelection;
+          if (movingSelection) combineGroupId.value = selectedGroupId;
+        }
+
+        if (combineGroupStatus && selectedGroupChanged) {
+          combineGroupStatus.textContent = semanticSelectionCount > 0
+            ? `Current Scene Selection will be moved physically inside “${selectedGroupId}”. Its visual position will be preserved.`
+            : `“${selectedGroupId}” is the current Group. Select Scene elements or choose another Group to combine.`;
+        }
+      }
+
       function findGroupBlockEnd(source, tagStart) {
         const token = /<Group\b[^>]*>|<\/Group\s*>/gi;
         token.lastIndex = tagStart;
@@ -3954,9 +4096,79 @@ ${track}
         compileNow();
       }
 
+      function setLinkedGroupAttribute(tagText, linkedId) {
+        const escaped = linkedId.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+        const linkedRe = /(\slinkedGroup\s*=\s*)(?:"[^"]*"|'[^']*'|[^\s>]+)/i;
+        if (linkedRe.test(tagText)) return tagText.replace(linkedRe, ` linkedGroup="${escaped}"`);
+        return tagText.replace(/\s*(\/?>)$/, ` linkedGroup="${escaped}"$1`);
+      }
+
+      function combineSelectedGroups() {
+        const first = selectedGroupTarget();
+        const selectedSource = combineGroupSelect?.value;
+        const second = cachedGroupControls.find((group) => group.id === selectedSource);
+        const requestedId = selectedSource === '__scene_selection__'
+          ? String(first?.id || '').trim()
+          : String(combineGroupId?.value || '').trim();
+        if (!first || (!second && selectedSource !== '__scene_selection__') || first.id === second?.id) {
+          if (combineGroupStatus) combineGroupStatus.textContent = 'Choose two different Groups.';
+          return;
+        }
+        if (!/^[A-Za-z_][A-Za-z0-9_.:-]*$/.test(requestedId)) {
+          if (combineGroupStatus) combineGroupStatus.textContent = 'Combined Group ID must start with a letter or underscore.';
+          return;
+        }
+        if (cachedGroupControls.some((group) => group.id === requestedId && group.id !== first.id && group.id !== second?.id)) {
+          if (combineGroupStatus) combineGroupStatus.textContent = `Group id “${requestedId}” already exists.`;
+          return;
+        }
+        if (selectedSource === '__scene_selection__') {
+          if (!semanticSelectionCount) {
+            if (combineGroupStatus) combineGroupStatus.textContent = 'Select Scene elements first.';
+            return;
+          }
+          if (combineGroupStatus) combineGroupStatus.textContent = `Moving ${semanticSelectionCount} selected elements inside “${first.id}”...`;
+          window.dispatchEvent(new CustomEvent('motionloom:semantic-combine-request', {
+            detail: { currentGroupId: first.id, combinedGroupId: requestedId },
+          }));
+          return;
+        }
+
+        const uniqueMembers = new Map();
+        for (const member of [...(first.members || [first]), ...(second.members || [second])]) {
+          uniqueMembers.set(member.tagStart, member);
+        }
+        const members = [...uniqueMembers.values()];
+        const blocks = members.map((member) => ({ member, end: findGroupBlockEnd(editor.value, member.tagStart) }));
+        const nested = blocks.some((left, index) => blocks.some((right, otherIndex) => (
+          index !== otherIndex && right.member.tagStart > left.member.tagStart && right.member.tagStart < left.end
+        )));
+        if (nested) {
+          if (combineGroupStatus) combineGroupStatus.textContent = 'Cannot combine a Group with one of its own nested Groups.';
+          return;
+        }
+
+        pushSceneDslHistory(editor.value);
+        let nextSource = editor.value;
+        for (const member of members.sort((left, right) => right.tagStart - left.tagStart)) {
+          const nextTag = setLinkedGroupAttribute(member.tagText, requestedId);
+          nextSource = `${nextSource.slice(0, member.tagStart)}${nextTag}${nextSource.slice(member.tagEnd)}`;
+        }
+        editor.value = nextSource;
+        selectedGroupId = requestedId;
+        refreshGroupControls({ keepSelection: true });
+        requestPreviewPlaybackReset();
+        compileNow();
+        if (combineGroupStatus) {
+          combineGroupStatus.textContent = `Combined “${first.id}” and “${second.id}” as linked Group “${requestedId}”. Their source order and internal transforms are preserved.`;
+        }
+      }
+
       function refreshGroupControls(options = {}) {
         const previousSelection = options.keepSelection === false ? '' : (selectedGroupId || groupControlSelect?.value || '');
-        cachedGroupControls = readGroupControlTargets(editor.value);
+        cachedGroupControls = readGroupControlTargets(editor.value).filter((group) => (
+          group.id !== 'drawing_tools_group' && !group.id.startsWith('drawing_tools_')
+        ));
 
         if (groupControlSelect) {
           groupControlSelect.innerHTML = '';
@@ -3974,6 +4186,7 @@ ${track}
           : (cachedGroupControls[0]?.id || '');
 
         if (groupControlSelect) groupControlSelect.value = selectedGroupId;
+        updateCombineGroupControls();
         updateGroupControlInputs();
       }
 
@@ -4075,6 +4288,14 @@ ${track}
         }
         editor.value = nextSource;
         refreshGroupControls({ keepSelection: true });
+        // Moving a Group aside is part of the semantic-selection workflow:
+        // users expose the ungrouped artwork, select the missing paths, then
+        // restore the Group before combining. Keep the Scene Selection overlay
+        // indexed to every intermediate Group position while preserving the
+        // selected path keys.
+        window.dispatchEvent(new CustomEvent('motionloom:dsl-source-change', {
+          detail: { preserveSemanticSelection: true, reason: 'group-attribute-edit' },
+        }));
         pausePreviewPlaybackForEdit();
         if (wasmSceneRenderer && typeof wasmSceneRenderer.set_group_attr === 'function') {
           try {
@@ -4247,15 +4468,51 @@ ${track}
         pushSceneDslHistory(String(event.detail?.source ?? editor.value));
       });
 
+      window.addEventListener('motionloom:semantic-selection-change', (event) => {
+        semanticSelectionCount = Math.max(0, Number(event.detail?.count) || 0);
+        updateCombineGroupControls();
+      });
+
+      window.addEventListener('motionloom:semantic-combine-result', (event) => {
+        if (!combineGroupStatus) return;
+        if (event.detail?.error) {
+          combineGroupStatus.textContent = event.detail.error;
+          return;
+        }
+        combineGroupStatus.textContent = event.detail?.physical
+          ? `Moved ${event.detail?.moved || 0} selected elements physically inside Group “${event.detail?.id}”. Visual transforms were preserved.`
+          : `Combined the current Group and Scene Selection as linked Group “${event.detail?.id}”. Original z-order is preserved.`;
+      });
+
       if (groupControlSelect) {
         groupControlSelect.addEventListener('change', () => {
           selectedGroupId = groupControlSelect.value;
+          updateCombineGroupControls();
           updateGroupControlInputs();
         });
       }
 
       if (deleteGroupControl) {
         deleteGroupControl.addEventListener('click', deleteSelectedGroup);
+      }
+
+      if (combineGroupsControl) {
+        combineGroupsControl.addEventListener('click', combineSelectedGroups);
+      }
+
+      if (combineGroupSelect) {
+        combineGroupSelect.addEventListener('change', () => {
+          combineSourceWasManuallySelected = true;
+          if (!combineGroupStatus) return;
+          const movingSelection = combineGroupSelect.value === '__scene_selection__';
+          if (combineGroupId) {
+            combineGroupId.disabled = movingSelection;
+            if (movingSelection) combineGroupId.value = selectedGroupId;
+          }
+          combineGroupStatus.textContent = combineGroupSelect.value === '__scene_selection__'
+            ? `Current Scene Selection will be moved physically inside “${selectedGroupId}”.`
+            : `“${selectedGroupId}” + “${combineGroupSelect.value}” will use Group ID “${combineGroupId?.value || selectedGroupId}”.`;
+        });
       }
 
       loadShowcaseBtn.addEventListener('click', () => {

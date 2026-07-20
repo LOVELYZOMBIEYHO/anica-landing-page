@@ -5,6 +5,7 @@ type Affine = { a: number; b: number; c: number; d: number; e: number; f: number
 type SemanticParent = {
   tag: 'group' | 'layer';
   id: string;
+  linkedGroup: string;
   start: number;
   openEnd: number;
   closeStart: number;
@@ -55,6 +56,19 @@ function multiply(left: Affine, right: Affine): Affine {
     d: left.b * right.c + left.d * right.d,
     e: left.a * right.e + left.c * right.f + left.e,
     f: left.b * right.e + left.d * right.f + left.f,
+  };
+}
+
+function inverse(matrix: Affine): Affine | null {
+  const determinant = matrix.a * matrix.d - matrix.b * matrix.c;
+  if (Math.abs(determinant) < 1e-8) return null;
+  return {
+    a: matrix.d / determinant,
+    b: -matrix.b / determinant,
+    c: -matrix.c / determinant,
+    d: matrix.a / determinant,
+    e: (matrix.c * matrix.f - matrix.d * matrix.e) / determinant,
+    f: (matrix.b * matrix.e - matrix.a * matrix.f) / determinant,
   };
 }
 
@@ -283,6 +297,7 @@ export function indexSemanticPaths(source: string): SemanticPath[] {
       const group: SemanticParent = {
         tag: lower,
         id: attrs.id || '',
+        linkedGroup: attrs.linkedGroup || '',
         start: match.index,
         openEnd: token.lastIndex,
         closeStart: -1,
@@ -452,6 +467,57 @@ export function deleteSemanticPaths(source: string, paths: SemanticPath[], selec
   return { source: output, error: '', deleted: ranges.length };
 }
 
+function splitExplicitContours(d: string) {
+  const starts = [...d.matchAll(/[Mm](?=\s*[-+.\d])/g)].map((match) => match.index ?? -1).filter((index) => index >= 0);
+  return starts.map((start, index) => d.slice(start, starts[index + 1] ?? d.length).trim()).filter(Boolean);
+}
+
+export function semanticPathContourCount(path: SemanticPath) {
+  return path.nodeType.toLowerCase() === 'path' ? splitExplicitContours(path.d).length : 0;
+}
+
+export function splitSemanticCompoundPath(source: string, paths: SemanticPath[], selectedKeys: Set<string>) {
+  const selected = paths.filter((path) => selectedKeys.has(path.key));
+  if (selected.length !== 1) return { source, error: 'Select exactly one compound Path to split.', ids: [] as string[] };
+  const path = selected[0];
+  if (path.nodeType.toLowerCase() !== 'path') return { source, error: 'Split Path only supports <Path> elements.', ids: [] as string[] };
+
+  const contours = splitExplicitContours(path.d);
+  if (contours.length < 2) return { source, error: 'This Path has only one contour. Use a future Knife tool to cut continuous geometry.', ids: [] as string[] };
+  if (contours.slice(1).some((contour) => contour.startsWith('m'))) {
+    return { source, error: 'This compound Path uses relative contour origins and cannot be split safely.', ids: [] as string[] };
+  }
+
+  const raw = source.slice(path.start, path.end);
+  const dAttribute = /\bd\s*=\s*(["'])([\s\S]*?)\1/i.exec(raw);
+  if (!dAttribute) return { source, error: 'The selected Path does not have a quoted d attribute.', ids: [] as string[] };
+  const idAttribute = /\bid\s*=\s*(["'])([^"']*)\1/i.exec(raw);
+  const usedIds = new Set([...source.matchAll(/\bid\s*=\s*["']([^"']+)["']/gi)].map((match) => match[1]));
+  const baseId = safeId(path.id || 'split_path');
+  const ids: string[] = [];
+  const indent = source.slice(source.lastIndexOf('\n', path.start - 1) + 1, path.start).match(/^\s*/)?.[0] || '';
+
+  const tags = contours.map((contour, index) => {
+    let candidate = `${baseId}_part_${String(index + 1).padStart(3, '0')}`;
+    let suffix = 2;
+    while (usedIds.has(candidate)) candidate = `${baseId}_part_${String(index + 1).padStart(3, '0')}_${suffix++}`;
+    usedIds.add(candidate);
+    ids.push(candidate);
+
+    let tag = raw.replace(dAttribute[0], `d=${dAttribute[1]}${contour}${dAttribute[1]}`);
+    tag = idAttribute
+      ? tag.replace(idAttribute[0], `id=${idAttribute[1]}${candidate}${idAttribute[1]}`)
+      : tag.replace(/^<Path\b/i, `<Path id="${candidate}"`);
+    return tag.trim();
+  });
+  const replacement = tags.join(`\n${indent}`);
+  return {
+    source: `${source.slice(0, path.start)}${replacement}${source.slice(path.end)}`,
+    error: '',
+    ids,
+  };
+}
+
 export function groupSemanticPaths(source: string, paths: SemanticPath[], selectedKeys: Set<string>, requestedId: string) {
   const selected = paths.filter((path) => selectedKeys.has(path.key)).sort((a, b) => a.start - b.start);
   if (!selected.length) return { source, error: 'Select at least one Scene element.' };
@@ -519,4 +585,208 @@ export function groupSemanticPaths(source: string, paths: SemanticPath[], select
     }
   }
   return { source: output, id, error: '', linked: linkedParts > 1, parts: linkedParts };
+}
+
+function setLinkedGroup(tag: string, linkedId: string) {
+  const escaped = linkedId.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+  if (/\slinkedGroup\s*=\s*["'][^"']*["']/i.test(tag)) {
+    return tag.replace(/\slinkedGroup\s*=\s*["'][^"']*["']/i, ` linkedGroup="${escaped}"`);
+  }
+  return tag.replace(/\s*(\/?>)$/, ` linkedGroup="${escaped}"$1`);
+}
+
+function formatTransformNumber(value: number) {
+  const normalized = Math.abs(value) < 1e-8 ? 0 : value;
+  return Number(normalized.toFixed(6)).toString();
+}
+
+// Express an affine matrix using the same transform order as MotionLoom Group:
+// translate * rotate * skewX * scale. This lets selected leaf nodes move under
+// another Group without changing their rendered world position.
+function affineGroupAttributes(matrix: Affine) {
+  const scaleX = Math.hypot(matrix.a, matrix.b);
+  if (scaleX < 1e-8) return null;
+  const rotation = Math.atan2(matrix.b, matrix.a);
+  const cos = Math.cos(rotation);
+  const sin = Math.sin(rotation);
+  const scaleY = (matrix.a * matrix.d - matrix.b * matrix.c) / scaleX;
+  if (Math.abs(scaleY) < 1e-8) return null;
+  const skewX = Math.atan2(cos * matrix.c + sin * matrix.d, scaleY);
+  return [
+    `x="${formatTransformNumber(matrix.e)}"`,
+    `y="${formatTransformNumber(matrix.f)}"`,
+    `rotation="${formatTransformNumber(rotation * 180 / Math.PI)}"`,
+    `scaleX="${formatTransformNumber(scaleX)}"`,
+    `scaleY="${formatTransformNumber(scaleY)}"`,
+    `skewX="${formatTransformNumber(skewX * 180 / Math.PI)}"`,
+    'transformOriginX="0"',
+    'transformOriginY="0"',
+  ].join(' ');
+}
+
+function parentChainIncludes(parent: SemanticParent | null, targetStart: number) {
+  for (let current = parent; current; current = current.parent) {
+    if (current.start === targetStart) return true;
+  }
+  return false;
+}
+
+function containingLayer(parent: SemanticParent | null) {
+  for (let current = parent; current; current = current.parent) {
+    if (current.tag === 'layer') return current;
+  }
+  return null;
+}
+
+export function moveSemanticSelectionIntoGroup(
+  source: string,
+  _paths: SemanticPath[],
+  selectedKeys: Set<string>,
+  currentGroupId: string,
+) {
+  // Group transform edits can change the DSL length without immediately
+  // changing the current Scene Selection. Never use the caller's cached
+  // character ranges for a source rewrite: even a change such as y="0" to
+  // y="-4" shifts every following range and can split tags like <Path> and
+  // </Group>. Keys remain stable across attribute-only edits, so re-index the
+  // exact source being rewritten and resolve the selection against it.
+  const paths = indexSemanticPaths(source);
+  const parents = new Map<number, SemanticParent>();
+  for (const path of paths) {
+    for (let parent = path.parent; parent; parent = parent.parent) parents.set(parent.start, parent);
+  }
+  const targets = [...parents.values()].filter((parent) => (
+    parent.tag === 'group'
+    && (parent.id === currentGroupId || parent.linkedGroup === currentGroupId)
+  ));
+  if (!targets.length) return { source, error: `Group “${currentGroupId}” no longer exists.` };
+  if (targets.length > 1) {
+    return { source, error: `Group “${currentGroupId}” is currently linked across ${targets.length} physical Groups. Undo that link before moving Scene Selection inside it.` };
+  }
+
+  const target = targets[0];
+  if (target.closeStart < target.openEnd) return { source, error: `Could not locate the closing tag for Group “${currentGroupId}”.` };
+  const targetInverse = inverse(target.matrix);
+  if (!targetInverse) return { source, error: `Group “${currentGroupId}” has a non-invertible transform.` };
+  const targetLayer = containingLayer(target);
+  const chosen = paths
+    .filter((path) => selectedKeys.has(path.key))
+    .sort((left, right) => left.start - right.start);
+  if (!chosen.length) return { source, error: 'Select at least one Scene element.' };
+
+  const movable = chosen.filter((path) => !parentChainIncludes(path.parent, target.start));
+  if (!movable.length) {
+    return { source, error: `Every selected element is already inside Group “${currentGroupId}”.` };
+  }
+  if (movable.some((path) => containingLayer(path.parent)?.start !== targetLayer?.start)) {
+    return { source, error: 'Physical Group merge only supports Scene elements from the same Layer as the current Group.' };
+  }
+
+  const buckets = new Map<number, { matrix: Affine; paths: SemanticPath[] }>();
+  for (const path of movable) {
+    const key = path.parent?.start ?? -1;
+    const bucket = buckets.get(key) || { matrix: path.matrix, paths: [] };
+    bucket.paths.push(path);
+    buckets.set(key, bucket);
+  }
+
+  const targetLineStart = source.lastIndexOf('\n', target.closeStart - 1) + 1;
+  const targetIndent = source.slice(targetLineStart, target.closeStart).match(/^\s*/)?.[0] || '';
+  const childIndent = `${targetIndent}  `;
+  const wrappers: string[] = [];
+  for (const bucket of [...buckets.values()].sort((left, right) => left.paths[0].start - right.paths[0].start)) {
+    const relative = multiply(targetInverse, bucket.matrix);
+    const transformAttrs = affineGroupAttributes(relative);
+    if (!transformAttrs) return { source, error: 'Could not preserve a selected element transform while moving it into the Group.' };
+    const children = bucket.paths.map((path) => source.slice(path.start, path.end).trim()
+      .split('\n').map((line) => `${childIndent}  ${line.trim()}`).join('\n')).join('\n');
+    wrappers.push(`<Group ${transformAttrs}>\n${children}\n${childIndent}</Group>`);
+  }
+
+  const ranges = movable
+    .map((path) => ({ start: path.start, end: path.end }))
+    .sort((left, right) => left.start - right.start || right.end - left.end)
+    .filter((range, index, all) => !all.some((candidate, candidateIndex) => (
+      candidateIndex < index && range.start >= candidate.start && range.end <= candidate.end
+    )));
+  const insertion = `${wrappers.join(`\n${childIndent}`)}\n${targetIndent}`;
+  // Apply every rewrite against original source coordinates, from right to
+  // left. This avoids repeatedly adjusting an insertion offset while many
+  // selected elements are removed from positions before the target Group.
+  const edits = [
+    ...ranges.map((range) => ({ ...range, replacement: '' })),
+    { start: target.closeStart, end: target.closeStart, replacement: insertion },
+  ].sort((left, right) => right.start - left.start || right.end - left.end);
+  let output = source;
+  for (const edit of edits) {
+    output = `${output.slice(0, edit.start)}${edit.replacement}${output.slice(edit.end)}`;
+  }
+  return {
+    source: output,
+    id: currentGroupId,
+    error: '',
+    moved: movable.length,
+    alreadyInside: chosen.length - movable.length,
+    wrappers: wrappers.length,
+    physical: true,
+  };
+}
+
+export function combineSemanticSelectionWithGroup(
+  source: string,
+  paths: SemanticPath[],
+  selectedKeys: Set<string>,
+  currentGroupId: string,
+  requestedId: string,
+) {
+  const id = safeId(requestedId);
+  const groupTags = [...source.matchAll(/<Group\b[^>]*>/gi)];
+  const currentExists = groupTags.some((match) => {
+    const attrs = attributes(match[0]);
+    return attrs.id === currentGroupId || attrs.linkedGroup === currentGroupId;
+  });
+  if (!currentExists) return { source, error: `Group “${currentGroupId}” no longer exists.` };
+  if (id !== currentGroupId && groupTags.some((match) => {
+    const attrs = attributes(match[0]);
+    return attrs.id === id || attrs.linkedGroup === id;
+  })) {
+    return { source, error: `Group id “${id}” already exists.` };
+  }
+
+  // Scene Selection means a physical merge: move the selected DSL elements
+  // inside the current Group so PuppetWarp and other parent effects include
+  // them. Group + Group continues to use linkedGroup in the page workflow.
+  if (id === currentGroupId) {
+    return moveSemanticSelectionIntoGroup(source, paths, selectedKeys, currentGroupId);
+  }
+
+  let suffix = 1;
+  let temporaryId = `__semantic_combine_${suffix}`;
+  while (groupTags.some((match) => Object.values(attributes(match[0])).includes(temporaryId))) {
+    temporaryId = `__semantic_combine_${++suffix}`;
+  }
+  // As with a physical merge, source offsets supplied by the UI may predate a
+  // Group attribute edit. Re-index before any structural rewrite.
+  const grouped = groupSemanticPaths(source, indexSemanticPaths(source), selectedKeys, temporaryId);
+  if (grouped.error) return { source, error: grouped.error };
+  // groupSemanticPaths normalizes requested IDs (including trimming leading
+  // underscores). Match the ID it actually wrote, not the pre-normalized
+  // temporary request, otherwise Scene Selection can never be linked.
+  const selectionGroupId = grouped.id || safeId(temporaryId);
+
+  let currentParts = 0;
+  let selectionParts = 0;
+  const output = grouped.source.replace(/<Group\b[^>]*>/gi, (tag) => {
+    const attrs = attributes(tag);
+    const belongsToCurrent = attrs.id === currentGroupId || attrs.linkedGroup === currentGroupId;
+    const belongsToSelection = attrs.id === selectionGroupId || attrs.linkedGroup === selectionGroupId;
+    if (!belongsToCurrent && !belongsToSelection) return tag;
+    if (belongsToCurrent) currentParts += 1;
+    if (belongsToSelection) selectionParts += 1;
+    return setLinkedGroup(tag, id);
+  });
+  if (!currentParts || !selectionParts) {
+    return { source, error: 'Could not link both the current Group and Scene Selection.' };
+  }
+  return { source: output, id, error: '', currentParts, selectionParts };
 }

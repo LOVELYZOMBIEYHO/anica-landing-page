@@ -13,6 +13,7 @@ import {
 } from './motionloom-drawing-core';
 import {
   affineToSvg,
+  combineSemanticSelectionWithGroup,
   deleteSemanticPaths,
   growConnectedSelection,
   groupSemanticPaths,
@@ -20,6 +21,8 @@ import {
   pathsInLasso,
   pathsInMarquee,
   selectSimilarPaths,
+  semanticPathContourCount,
+  splitSemanticCompoundPath,
   transformBounds,
   type SemanticPath,
 } from './motionloom-semantic-selection';
@@ -45,6 +48,46 @@ function svgElement<K extends keyof SVGElementTagNameMap>(name: K, attributes: R
 function finiteNumber(value: string, fallback: number) {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function scrollTextareaOffsetIntoView(editor: HTMLTextAreaElement, offset: number) {
+  const computed = getComputedStyle(editor);
+  const mirror = document.createElement('div');
+  Object.assign(mirror.style, {
+    position: 'fixed',
+    visibility: 'hidden',
+    pointerEvents: 'none',
+    left: '-100000px',
+    top: '0',
+    width: `${editor.clientWidth}px`,
+    height: 'auto',
+    boxSizing: 'border-box',
+    overflow: 'hidden',
+    whiteSpace: 'pre-wrap',
+    overflowWrap: 'break-word',
+    wordBreak: computed.wordBreak,
+    padding: computed.padding,
+    border: '0',
+    fontFamily: computed.fontFamily,
+    fontSize: computed.fontSize,
+    fontStyle: computed.fontStyle,
+    fontWeight: computed.fontWeight,
+    fontVariant: computed.fontVariant,
+    lineHeight: computed.lineHeight,
+    letterSpacing: computed.letterSpacing,
+    wordSpacing: computed.wordSpacing,
+    tabSize: computed.tabSize,
+    textTransform: computed.textTransform,
+    direction: computed.direction,
+  });
+  mirror.append(document.createTextNode(editor.value.slice(0, offset)));
+  const marker = document.createElement('span');
+  marker.textContent = editor.value[offset] || '\u200b';
+  mirror.append(marker);
+  document.body.append(mirror);
+  const targetTop = marker.offsetTop;
+  mirror.remove();
+  editor.scrollTop = Math.max(0, targetTop - editor.clientHeight * 0.2);
 }
 
 export function installMotionLoomDrawingTools() {
@@ -122,6 +165,9 @@ export function installMotionLoomDrawingTools() {
     const semanticScore = sq<HTMLInputElement>('#drawing-semantic-score');
     const semanticGroupId = sq<HTMLInputElement>('#drawing-semantic-group-id');
     const semanticStatus = sq<HTMLElement>('#scene-selection-status');
+    const semanticPathState = sq<HTMLOutputElement>('#drawing-semantic-path-state');
+    const semanticSplitButton = sq<HTMLButtonElement>('#drawing-split-semantic-path');
+    const semanticLocateButton = sq<HTMLButtonElement>('#drawing-locate-semantic');
     const toolButtons = [...panel.querySelectorAll<HTMLButtonElement>('[data-drawing-tool]')];
     let tool: DrawingTool = 'selection';
     let panelActive = panelSelect?.value === 'drawing-tools';
@@ -148,7 +194,8 @@ export function installMotionLoomDrawingTools() {
     let semanticSource = '';
     const semanticGeometryCache = new Map<string, Pick<SemanticPath, 'bounds' | 'samples'>>();
     let semanticPointer = false;
-    let semanticMode: 'click' | 'marquee' | 'lasso' = 'click';
+    type SemanticMode = 'click' | 'marquee' | 'lasso' | 'unselect';
+    let semanticMode: SemanticMode = 'click';
     let semanticDrag: DrawingPoint[] = [];
     let semanticDragRemove = false;
     let semanticDragAdd = false;
@@ -345,7 +392,27 @@ export function installMotionLoomDrawingTools() {
       }
       if (panelActive) renderLayers();
       semanticCounts.forEach((count) => { count.textContent = `${semanticSelected.size} Element${semanticSelected.size === 1 ? '' : 's'}`; });
+      window.dispatchEvent(new CustomEvent('motionloom:semantic-selection-change', {
+        detail: { count: semanticSelected.size },
+      }));
       semanticDeleteButtons.forEach((button) => { button.disabled = semanticSelected.size === 0; });
+      const selectedSemanticPaths = semanticPaths.filter((path) => semanticSelected.has(path.key));
+      const selectedSemanticPath = selectedSemanticPaths.length === 1 ? selectedSemanticPaths[0] : null;
+      const contourCount = selectedSemanticPath ? semanticPathContourCount(selectedSemanticPath) : 0;
+      const canSplit = Boolean(selectedSemanticPath && selectedSemanticPath.nodeType.toLowerCase() === 'path' && contourCount > 1);
+      semanticLocateButton.disabled = !selectedSemanticPath;
+      semanticSplitButton.disabled = !canSplit;
+      semanticSplitButton.textContent = canSplit ? `Split ${contourCount} Contours` : 'Needs Knife';
+      semanticSplitButton.title = canSplit
+        ? `Split ${contourCount} independent M... contours into separate Path elements.`
+        : selectedSemanticPath
+          ? 'This element has one continuous contour. It needs a Knife cut line, not compound-path splitting.'
+          : 'Select one compound Path first.';
+      semanticPathState.textContent = selectedSemanticPath
+        ? `${selectedSemanticPath.nodeType} · #${selectedSemanticPath.id}${selectedSemanticPath.nodeType.toLowerCase() === 'path' ? ` · ${contourCount || 1} contour${contourCount === 1 ? '' : 's'}` : ''}`
+        : semanticSelected.size > 1
+          ? `${semanticSelected.size} elements selected. Locate DSL requires exactly one element.`
+          : 'Select one element to inspect its DSL source.';
       activePathState.textContent = model.activePathId
         ? `Active: ${model.activePathId}`
         : semanticSelected.size ? `${semanticSelected.size} scene element${semanticSelected.size === 1 ? '' : 's'}` : 'No active path';
@@ -399,7 +466,7 @@ export function installMotionLoomDrawingTools() {
       const target = event.target instanceof SVGElement ? event.target : null;
       transformHandle = target?.dataset.transformHandle || '';
       if (sceneSelectionActive) {
-        if (semanticMode !== 'click') {
+        if (semanticMode === 'marquee' || semanticMode === 'lasso') {
           semanticPointer = true;
           semanticDrag = [point];
           semanticDragAdd = event.shiftKey;
@@ -415,13 +482,27 @@ export function installMotionLoomDrawingTools() {
           const hitKeys = [...document.elementsFromPoint(event.clientX, event.clientY)]
             .flatMap((element) => element instanceof SVGElement && element.dataset.semanticKey ? [element.dataset.semanticKey] : [])
             .filter((key, index, values) => values.indexOf(key) === index);
-          let pickedKey = semanticKey;
-          if (event.altKey && hitKeys.length > 1) {
+          let pickedKey = semanticMode === 'unselect'
+            ? hitKeys.find((key) => semanticSelected.has(key)) || ''
+            : semanticKey;
+          if (semanticMode !== 'unselect' && event.altKey && hitKeys.length > 1) {
             const samePoint = Math.hypot(semanticCycle.x - point.x, semanticCycle.y - point.y) < 6
               && hitKeys.join('|') === semanticCycle.keys.join('|');
             semanticCycle = { x: point.x, y: point.y, keys: hitKeys, index: samePoint ? (semanticCycle.index + 1) % hitKeys.length : 0 };
             pickedKey = hitKeys[semanticCycle.index];
           } else semanticCycle = { x: point.x, y: point.y, keys: hitKeys, index: hitKeys.indexOf(semanticKey) };
+          if (semanticMode === 'unselect') {
+            if (!pickedKey) {
+              semanticStatus.textContent = 'Unselect only removes currently selected elements. Nothing selected was hit.';
+              render();
+              return;
+            }
+            semanticSelected.delete(pickedKey);
+            const removed = semanticPaths.find((path) => path.key === pickedKey);
+            semanticStatus.textContent = `Unselected ${removed?.nodeType || 'element'} “${removed?.id || 'unnamed'}”.`;
+            render();
+            return;
+          }
           if (!event.shiftKey) semanticSelected.clear();
           if (event.shiftKey && semanticSelected.has(pickedKey)) semanticSelected.delete(pickedKey);
           else semanticSelected.add(pickedKey);
@@ -431,9 +512,11 @@ export function installMotionLoomDrawingTools() {
           render();
           return;
         }
-        semanticSelected.clear();
-        semanticSeedKey = null;
-        semanticStatus.textContent = 'No Scene element selected.';
+        if (semanticMode !== 'unselect') {
+          semanticSelected.clear();
+          semanticSeedKey = null;
+          semanticStatus.textContent = 'No Scene element selected.';
+        } else semanticStatus.textContent = 'Unselect mode only removes selected elements; the current selection is unchanged.';
         render();
         return;
       }
@@ -579,13 +662,15 @@ export function installMotionLoomDrawingTools() {
     const redo = () => { const snapshot = history.redo(model.snapshot()); if (snapshot) { model.restore(snapshot); sync(true); } };
     toolButtons.forEach((button) => button.addEventListener('click', () => setTool(button.dataset.drawingTool as DrawingTool)));
     semanticModeButtons.forEach((button) => button.addEventListener('click', () => {
-      semanticMode = button.dataset.semanticMode as 'click' | 'marquee' | 'lasso';
+      semanticMode = button.dataset.semanticMode as SemanticMode;
       semanticModeButtons.forEach((candidate) => candidate.setAttribute('aria-pressed', String(candidate.dataset.semanticMode === semanticMode)));
       semanticStatus.textContent = semanticMode === 'click'
         ? 'Click exact visible Scene elements. Alt-click cycles overlapping elements.'
         : semanticMode === 'marquee'
           ? 'Drag left-to-right to contain; right-to-left to intersect.'
-          : 'Draw a freeform lasso around the Scene elements to select.';
+          : semanticMode === 'lasso'
+            ? 'Draw a freeform lasso around the Scene elements to select.'
+            : 'Click currently selected Scene elements to remove them. Unselected elements and empty space are ignored.';
       render();
     }));
     q('#drawing-undo').addEventListener('click', undo); q('#drawing-redo').addEventListener('click', redo);
@@ -609,6 +694,46 @@ export function installMotionLoomDrawingTools() {
     });
     sq('#drawing-clear-semantic').addEventListener('click', () => {
       semanticSelected.clear(); semanticSeedKey = null; semanticStatus.textContent = 'Selection cleared.'; render();
+    });
+    semanticSplitButton.addEventListener('click', () => {
+      const result = splitSemanticCompoundPath(editor.value, semanticPaths, semanticSelected);
+      if (result.error) { semanticStatus.textContent = result.error; semanticPathState.textContent = result.error; return; }
+      window.dispatchEvent(new CustomEvent('motionloom:dsl-history-push', { detail: { source: editor.value } }));
+      editor.value = result.source;
+      refreshSemanticIndex(false);
+      semanticSelected = new Set(semanticPaths.filter((path) => result.ids.includes(path.id)).map((path) => path.key));
+      semanticSeedKey = [...semanticSelected][0] || null;
+      semanticStatus.textContent = `Split compound Path into ${result.ids.length} independently selectable contours.`;
+      render();
+      window.dispatchEvent(new CustomEvent('motionloom:drawing-dsl-change', { detail: { commit: true } }));
+    });
+    semanticLocateButton.addEventListener('click', () => {
+      const selected = semanticPaths.filter((path) => semanticSelected.has(path.key));
+      if (selected.length !== 1) {
+        semanticStatus.textContent = 'Select exactly one Scene element to locate its DSL.';
+        return;
+      }
+      const identity = selected[0];
+      const freshPaths = indexSemanticPaths(editor.value);
+      const path = freshPaths.find((candidate) => (
+        candidate.id === identity.id
+        && candidate.nodeType.toLowerCase() === identity.nodeType.toLowerCase()
+      ));
+      if (!path) {
+        semanticStatus.textContent = `Could not find <${identity.nodeType} id="${identity.id}"> in the current DSL. Re-select the element and try again.`;
+        semanticPathState.textContent = `Missing DSL target · ${identity.nodeType} #${identity.id}`;
+        return;
+      }
+      semanticPaths = freshPaths;
+      semanticSource = editor.value;
+      semanticSelected = new Set([path.key]);
+      semanticSeedKey = path.key;
+      semanticStatus.textContent = `Located DSL target <${path.nodeType} id="${path.id}">; the complete tag is selected by exact ID.`;
+      render();
+      editor.focus({ preventScroll: true });
+      editor.setSelectionRange(path.start, path.end, 'backward');
+      editor.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      requestAnimationFrame(() => scrollTextareaOffsetIntoView(editor, path.start));
     });
     const deleteSemanticSelection = () => {
       const result = deleteSemanticPaths(editor.value, semanticPaths, semanticSelected);
@@ -635,6 +760,49 @@ export function installMotionLoomDrawingTools() {
         : `Created <Group id="${result.id}">. It is now available in Scene Controls.`;
       render();
       window.dispatchEvent(new CustomEvent('motionloom:drawing-dsl-change', { detail: { commit: true, groupId: result.id } }));
+    });
+    window.addEventListener('motionloom:semantic-combine-request', (event: Event) => {
+      const detail = (event as CustomEvent).detail || {};
+      const currentGroupId = String(detail.currentGroupId || '');
+      const requestedId = String(detail.combinedGroupId || '');
+      const result = combineSemanticSelectionWithGroup(
+        editor.value,
+        semanticPaths,
+        semanticSelected,
+        currentGroupId,
+        requestedId,
+      );
+      if (result.error) {
+        semanticStatus.textContent = result.error;
+        window.dispatchEvent(new CustomEvent('motionloom:semantic-combine-result', {
+          detail: { error: result.error },
+        }));
+        return;
+      }
+      window.dispatchEvent(new CustomEvent('motionloom:dsl-history-push', { detail: { source: editor.value } }));
+      editor.value = result.source;
+      semanticSelected.clear();
+      semanticSeedKey = null;
+      refreshSemanticIndex(false);
+      const physical = 'physical' in result && result.physical === true;
+      const moved = 'moved' in result ? Number(result.moved) : 0;
+      semanticStatus.textContent = physical
+        ? `Moved ${moved} selected Scene element${moved === 1 ? '' : 's'} inside Group “${currentGroupId}”; visual transforms were preserved.`
+        : `Combined Scene Selection with “${currentGroupId}” as linked Group “${result.id}”.`;
+      render();
+      window.dispatchEvent(new CustomEvent('motionloom:drawing-dsl-change', {
+        detail: { commit: true, groupId: result.id },
+      }));
+      window.dispatchEvent(new CustomEvent('motionloom:semantic-combine-result', {
+        detail: {
+          id: result.id,
+          currentParts: 'currentParts' in result ? result.currentParts : undefined,
+          selectionParts: 'selectionParts' in result ? result.selectionParts : undefined,
+          physical,
+          moved,
+          alreadyInside: 'alreadyInside' in result ? result.alreadyInside : 0,
+        },
+      }));
     });
     q('#drawing-swap-colors').addEventListener('click', () => { [fillInput.value, strokeInput.value] = [strokeInput.value, fillInput.value === 'none' ? '#11130F' : fillInput.value]; applyStyle(); });
     q('#drawing-no-fill').addEventListener('click', () => { fillInput.value = 'none'; applyStyle(); });
