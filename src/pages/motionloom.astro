@@ -1,5 +1,15 @@
 ---
 import BaseLayout from '@components/BaseLayout.astro';
+// @ts-expect-error Astro executes frontmatter in Node; this project omits Node ambient types.
+import { createHash } from 'node:crypto';
+// @ts-expect-error Astro executes frontmatter in Node; this project omits Node ambient types.
+import { readFileSync } from 'node:fs';
+
+// Tie the browser cache key to the generated binary so every WASM rebuild gets a new URL.
+const motionLoomWasmVersion = createHash('sha256')
+  .update(readFileSync('public/motionloom-wasm/pkg/motionloom_bg.wasm'))
+  .digest('hex')
+  .slice(0, 16);
 ---
 
 <BaseLayout
@@ -1196,10 +1206,21 @@ import BaseLayout from '@components/BaseLayout.astro';
       line-height: 1.5;
     }
 
-    #puppet-warp-content { color: #f2eddf; }
+    #puppet-warp-content {
+      container-name: puppet-panel;
+      container-type: inline-size;
+      min-width: 0;
+      max-width: 100%;
+      overflow: hidden;
+      color: #f2eddf;
+    }
     #puppet-warp-content .puppet-tools-shell {
       display: grid;
       gap: 0.8rem;
+      min-width: 0;
+      width: 100%;
+      max-width: 100%;
+      overflow: hidden;
       border: 1px solid rgb(242 237 223 / 0.14);
       border-radius: 1rem;
       background: #11120d;
@@ -1210,10 +1231,11 @@ import BaseLayout from '@components/BaseLayout.astro';
       align-items: center;
       justify-content: space-between;
       gap: 0.75rem;
+      min-width: 0;
       border-bottom: 1px solid rgb(242 237 223 / 0.12);
       padding-bottom: 0.7rem;
     }
-    #puppet-warp-content header div { display: grid; gap: 0.16rem; }
+    #puppet-warp-content header div { display: grid; min-width: 0; gap: 0.16rem; }
     #puppet-warp-content header strong,
     #puppet-warp-content h3 {
       color: #B9FF39;
@@ -1231,6 +1253,7 @@ import BaseLayout from '@components/BaseLayout.astro';
       font-size: 0.6rem;
     }
     #puppet-warp-content header output {
+      min-width: 0;
       max-width: 50%;
       overflow: hidden;
       border: 1px solid rgb(185 255 57 / 0.45);
@@ -1239,6 +1262,487 @@ import BaseLayout from '@components/BaseLayout.astro';
       color: #B9FF39;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+    #puppet-warp-content .puppet-command-bar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      min-width: 0;
+      width: 100%;
+      max-width: 100%;
+      gap: 0.35rem;
+      border: 1px solid rgb(242 237 223 / 0.13);
+      border-radius: 0.8rem;
+      background: rgb(7 9 5 / 0.96);
+      padding: 0.38rem;
+      box-shadow: 0 0.75rem 1.6rem rgb(0 0 0 / 0.24);
+      backdrop-filter: blur(12px);
+    }
+    #puppet-warp-content .puppet-command-bar .hidden { display: none; }
+    #puppet-warp-content .puppet-icon-tool {
+      display: grid;
+      place-items: center;
+      gap: 0.18rem;
+      min-width: 0;
+      min-height: 3.8rem;
+      border-color: transparent;
+      border-radius: 0.62rem;
+      background: transparent;
+      padding: 0.4rem 0.25rem;
+      color: rgb(242 237 223 / 0.62);
+    }
+    #puppet-warp-content .puppet-icon-tool .puppet-tool-glyph {
+      display: grid;
+      place-items: center;
+      width: 1.7rem;
+      height: 1.7rem;
+      font-family: var(--font-mono);
+      font-size: 1.15rem;
+      line-height: 1;
+    }
+    #puppet-warp-content .puppet-icon-tool .puppet-pin-glyph {
+      border: 2px solid currentColor;
+      border-radius: 999px;
+      font-size: 0.55rem;
+    }
+    #puppet-warp-content .puppet-icon-tool small {
+      overflow: hidden;
+      max-width: 100%;
+      font-family: var(--font-mono);
+      font-size: 0.48rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      text-overflow: ellipsis;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    #puppet-warp-content .puppet-icon-tool.is-selected {
+      border-color: #B9FF39;
+      background: rgb(185 255 57 / 0.12);
+      color: #B9FF39;
+      box-shadow: inset 0 -2px #B9FF39;
+    }
+    #puppet-warp-content #puppet-tool-refine.is-selected {
+      border-color: #63d9ff;
+      background: rgb(99 217 255 / 0.1);
+      color: #63d9ff;
+      box-shadow: inset 0 -2px #63d9ff;
+    }
+    #puppet-warp-content .puppet-target-scope {
+      display: grid;
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr) minmax(0, 1.25fr);
+      gap: 0.55rem;
+      align-items: end;
+      min-width: 0;
+      max-width: 100%;
+      overflow: hidden;
+      border: 1px solid rgb(99 217 255 / 0.16);
+      border-radius: 0.72rem;
+      background: rgb(99 217 255 / 0.035);
+      padding: 0.58rem;
+    }
+    #puppet-warp-content .puppet-target-scope label {
+      display: grid;
+      min-width: 0;
+      gap: 0.28rem;
+    }
+    #puppet-warp-content .puppet-target-scope label > span {
+      color: #63d9ff;
+      font-family: var(--font-mono);
+      font-size: 0.5rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    #puppet-warp-content .puppet-target-scope p {
+      align-self: center;
+      min-width: 0;
+      margin: 0;
+      color: rgb(242 237 223 / 0.52);
+      font-family: var(--font-mono);
+      font-size: 0.52rem;
+      line-height: 1.45;
+    }
+    #puppet-warp-content .puppet-target-scope .hidden { display: none; }
+    #puppet-warp-content:not(.is-refining) .puppet-limb-region-actions,
+    #puppet-warp-content:not(.is-refining) #puppet-limb-envelope-state,
+    #puppet-warp-content:not(.is-refining) #puppet-isolate-workflow .puppet-mesh-card {
+      display: none;
+    }
+    #puppet-warp-content[data-puppet-tool="position"] #puppet-mesh-bend-rotation,
+    #puppet-warp-content[data-puppet-tool="position"] label[for="puppet-mesh-bend-rotation"],
+    #puppet-warp-content[data-puppet-tool="bend"] #puppet-mesh-radius,
+    #puppet-warp-content[data-puppet-tool="bend"] label[for="puppet-mesh-radius"] {
+      display: none;
+    }
+    #puppet-warp-content #puppet-quick-mesh-controls > .puppet-quick-steps,
+    #puppet-warp-content #puppet-quick-chain-controls > .puppet-quick-steps {
+      display: none;
+    }
+    #puppet-warp-content .puppet-mode-switch {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.4rem;
+      border: 1px solid rgb(242 237 223 / 0.12);
+      border-radius: 0.75rem;
+      background: #090b07;
+      padding: 0.3rem;
+    }
+    #puppet-warp-content .puppet-mode-switch button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.45rem;
+      border-color: transparent;
+      background: transparent;
+      color: rgb(242 237 223 / 0.48);
+    }
+    #puppet-warp-content .puppet-mode-switch button span {
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      padding: 0.12rem 0.35rem;
+      font-size: 0.44rem;
+      opacity: 0.72;
+    }
+    #puppet-warp-content .puppet-mode-switch button.is-selected {
+      border-color: rgb(185 255 57 / 0.58);
+      background: rgb(185 255 57 / 0.11);
+      color: #B9FF39;
+    }
+    #puppet-warp-content .puppet-quick-workflow {
+      display: grid;
+      gap: 0.75rem;
+      min-width: 0;
+      max-width: 100%;
+      overflow: hidden;
+      border: 1px solid rgb(185 255 57 / 0.28);
+      border-radius: 0.85rem;
+      background:
+        radial-gradient(circle at 10% 0%, rgb(185 255 57 / 0.09), transparent 36%),
+        rgb(5 7 3 / 0.62);
+      padding: 0.8rem;
+    }
+    #puppet-warp-content .puppet-quick-workflow.hidden,
+    #puppet-warp-content #puppet-isolate-workflow.hidden,
+    #puppet-warp-content #puppet-quick-ik-controls.hidden,
+    #puppet-warp-content .puppet-quick-mesh-controls.hidden { display: none; }
+    #puppet-warp-content .puppet-quick-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+    #puppet-warp-content .puppet-quick-heading > div {
+      display: grid;
+      gap: 0.2rem;
+    }
+    #puppet-warp-content .puppet-quick-heading b {
+      color: #B9FF39;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    #puppet-warp-content .puppet-quick-heading span {
+      color: rgb(242 237 223 / 0.55);
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+    }
+    #puppet-warp-content .puppet-quick-heading output {
+      max-width: 46%;
+      overflow: hidden;
+      border: 1px solid rgb(99 217 255 / 0.45);
+      border-radius: 999px;
+      padding: 0.35rem 0.6rem;
+      color: #63d9ff;
+      font-family: var(--font-mono);
+      font-size: 0.54rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    #puppet-warp-content .puppet-quick-kind-switch {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.45rem;
+    }
+    #puppet-warp-content .puppet-quick-kind-switch button {
+      display: grid;
+      gap: 0.16rem;
+      justify-items: start;
+      border-color: rgb(99 217 255 / 0.2);
+      background: rgb(99 217 255 / 0.035);
+      text-align: left;
+    }
+    #puppet-warp-content .puppet-quick-kind-switch button strong {
+      color: #f2eddf;
+      font-size: 0.62rem;
+    }
+    #puppet-warp-content .puppet-quick-kind-switch button span {
+      color: rgb(242 237 223 / 0.42);
+      font-size: 0.48rem;
+      font-weight: 500;
+      text-transform: none;
+    }
+    #puppet-warp-content .puppet-quick-kind-switch button.is-selected {
+      border-color: #63d9ff;
+      background: rgb(99 217 255 / 0.1);
+    }
+    #puppet-warp-content .puppet-quick-kind-switch button.is-selected strong { color: #63d9ff; }
+    #puppet-warp-content #puppet-quick-ik-controls,
+    #puppet-warp-content .puppet-quick-mesh-controls {
+      display: grid;
+      gap: 0.65rem;
+    }
+    #puppet-warp-content .puppet-quick-steps {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.45rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    #puppet-warp-content .puppet-quick-steps li {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 0.45rem;
+      align-items: start;
+      min-width: 0;
+      border: 1px solid rgb(242 237 223 / 0.12);
+      border-radius: 0.65rem;
+      padding: 0.55rem;
+      opacity: 0.48;
+    }
+    #puppet-warp-content .puppet-quick-steps li > b {
+      display: grid;
+      place-items: center;
+      width: 1.35rem;
+      height: 1.35rem;
+      border: 1px solid rgb(242 237 223 / 0.28);
+      border-radius: 999px;
+      color: #f2eddf;
+      font-family: var(--font-mono);
+      font-size: 0.56rem;
+    }
+    #puppet-warp-content .puppet-quick-steps li span { display: grid; gap: 0.16rem; min-width: 0; }
+    #puppet-warp-content .puppet-quick-steps li strong {
+      color: #f2eddf;
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      text-transform: uppercase;
+    }
+    #puppet-warp-content .puppet-quick-steps li small {
+      color: rgb(242 237 223 / 0.48);
+      font-family: var(--font-mono);
+      font-size: 0.5rem;
+      line-height: 1.45;
+    }
+    #puppet-warp-content .puppet-quick-steps li.is-current {
+      border-color: #B9FF39;
+      background: rgb(185 255 57 / 0.08);
+      opacity: 1;
+    }
+    #puppet-warp-content .puppet-quick-steps li.is-current > b {
+      border-color: #B9FF39;
+      background: #B9FF39;
+      color: #11120d;
+    }
+    #puppet-warp-content .puppet-quick-steps li.is-complete {
+      border-color: rgb(99 217 255 / 0.4);
+      opacity: 0.8;
+    }
+    #puppet-warp-content .puppet-quick-steps li.is-complete > b {
+      border-color: #63d9ff;
+      color: #63d9ff;
+    }
+    #puppet-warp-content .puppet-quick-actions {
+      display: grid;
+      grid-template-columns: 1.25fr repeat(3, minmax(0, 1fr));
+      gap: 0.45rem;
+    }
+    #puppet-warp-content .puppet-mesh-steps {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    #puppet-warp-content .puppet-mesh-actions {
+      display: grid;
+      grid-template-columns: 1.3fr repeat(3, minmax(0, 1fr));
+      gap: 0.45rem;
+    }
+    #puppet-warp-content .puppet-mesh-actions button:first-child {
+      border-color: #B9FF39;
+      background: #B9FF39;
+      color: #11120d;
+    }
+    #puppet-warp-content .puppet-limb-region-actions {
+      grid-column: 1 / -1;
+      grid-template-columns: repeat(3, minmax(8.5rem, 1fr));
+      width: 100%;
+    }
+    #puppet-warp-content .puppet-limb-region-actions button {
+      min-height: 2.8rem;
+      padding-inline: 0.65rem;
+      line-height: 1.25;
+      white-space: normal;
+    }
+    #puppet-warp-content .puppet-limb-region-actions button:nth-child(-n + 3) {
+      border-color: rgb(99 217 255 / 0.72);
+      background: rgb(99 217 255 / 0.08);
+      color: #63D9FF;
+    }
+    #puppet-warp-content .puppet-limb-region-actions button.is-selected {
+      border-color: #B9FF39;
+      background: #B9FF39;
+      color: #11120d;
+    }
+    #puppet-warp-content .puppet-mesh-settings {
+      display: grid;
+      grid-template-columns: minmax(7rem, 0.42fr) minmax(8rem, 0.58fr);
+      gap: 0.45rem 0.75rem;
+      align-items: center;
+      border: 1px solid rgb(99 217 255 / 0.22);
+      border-radius: 0.65rem;
+      background: rgb(99 217 255 / 0.045);
+      padding: 0.6rem;
+    }
+    #puppet-warp-content .puppet-mesh-settings input[type="range"] {
+      width: 100%;
+      accent-color: #B9FF39;
+    }
+    #puppet-warp-content .puppet-mesh-settings output {
+      color: #63d9ff;
+      font-variant-numeric: tabular-nums;
+    }
+    #puppet-warp-content .puppet-mesh-settings .puppet-mesh-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: rgb(242 237 223 / 0.62);
+      font-family: var(--font-mono);
+      font-size: 0.52rem;
+    }
+    #puppet-warp-content .puppet-mesh-settings .puppet-mesh-checkbox input { width: auto; }
+    #puppet-warp-content .puppet-mesh-pin-list {
+      display: grid;
+      gap: 0.4rem;
+      border: 1px solid rgb(242 237 223 / 0.12);
+      border-radius: 0.65rem;
+      padding: 0.55rem;
+    }
+    #puppet-warp-content .puppet-mesh-pin-list > div:first-child {
+      display: flex;
+      justify-content: space-between;
+      color: #f2eddf;
+      font-family: var(--font-mono);
+      font-size: 0.56rem;
+      text-transform: uppercase;
+    }
+    #puppet-warp-content .puppet-mesh-pin-list output { color: #B9FF39; }
+    #puppet-warp-content #puppet-quick-pin-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.3rem;
+      max-height: 8rem;
+      overflow: auto;
+    }
+    #puppet-warp-content #puppet-quick-pin-list button {
+      display: grid;
+      min-width: 0;
+      gap: 0.15rem;
+      text-align: left;
+    }
+    #puppet-warp-content #puppet-quick-pin-list button b,
+    #puppet-warp-content #puppet-quick-pin-list button span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    #puppet-warp-content #puppet-quick-pin-list button span {
+      color: rgb(242 237 223 / 0.42);
+      font-size: 0.46rem;
+      text-transform: none;
+    }
+    #puppet-warp-content #puppet-quick-pin-list button.is-selected {
+      border-color: #B9FF39;
+      background: rgb(185 255 57 / 0.1);
+      color: #B9FF39;
+    }
+    #puppet-warp-content .puppet-mesh-note {
+      margin: 0;
+      line-height: 1.5;
+    }
+    #puppet-warp-content .puppet-quick-actions button:first-child {
+      border-color: #B9FF39;
+      background: #B9FF39;
+      color: #11120d;
+    }
+    #puppet-warp-content .puppet-quick-actions button:first-child:disabled {
+      border-color: rgb(99 217 255 / 0.42);
+      background: rgb(99 217 255 / 0.08);
+      color: #63d9ff;
+    }
+    #puppet-warp-content .puppet-quick-pin-size {
+      display: grid;
+      grid-template-columns: minmax(6.5rem, 0.32fr) minmax(10rem, 1fr);
+      gap: 0.35rem 0.75rem;
+      align-items: center;
+      border: 1px solid rgb(99 217 255 / 0.22);
+      border-radius: 0.6rem;
+      background: rgb(99 217 255 / 0.045);
+      padding: 0.55rem 0.65rem;
+      font-family: var(--font-mono);
+    }
+    #puppet-warp-content .puppet-quick-pin-size label {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.6rem;
+      color: #f2eddf;
+      font-size: 0.58rem;
+      text-transform: uppercase;
+    }
+    #puppet-warp-content .puppet-quick-pin-size output {
+      color: #63d9ff;
+      font-variant-numeric: tabular-nums;
+    }
+    #puppet-warp-content .puppet-quick-pin-size input[type="range"] {
+      width: 100%;
+      accent-color: #B9FF39;
+    }
+    #puppet-warp-content .puppet-quick-pin-size small {
+      grid-column: 2;
+      color: rgb(242 237 223 / 0.5);
+      font-size: 0.5rem;
+      line-height: 1.4;
+    }
+    #puppet-warp-content #puppet-limb-envelope-state {
+      grid-column: 1 / -1;
+      min-height: 1.4em;
+    }
+    #puppet-warp-content .puppet-quick-tip {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 0.65rem;
+      align-items: center;
+      border-left: 2px solid #B9FF39;
+      background: rgb(185 255 57 / 0.06);
+      padding: 0.55rem 0.65rem;
+      font-family: var(--font-mono);
+    }
+    #puppet-warp-content .puppet-quick-tip b {
+      color: #B9FF39;
+      font-size: 0.58rem;
+      text-transform: uppercase;
+    }
+    #puppet-warp-content .puppet-quick-tip span {
+      color: rgb(242 237 223 / 0.62);
+      font-size: 0.56rem;
+    }
+    #puppet-warp-content .puppet-text-button {
+      justify-self: start;
+      border-color: transparent;
+      padding-inline: 0;
+      color: rgb(99 217 255 / 0.78);
+      text-transform: none;
     }
     #puppet-warp-content .puppet-quick-start {
       display: grid;
@@ -1257,7 +1761,7 @@ import BaseLayout from '@components/BaseLayout.astro';
     #puppet-warp-content .puppet-quick-start span { color: rgb(242 237 223 / 0.68); line-height: 1.5; }
     #puppet-warp-content .puppet-tools-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
       gap: 0.65rem;
     }
     #puppet-warp-content .puppet-tool-card {
@@ -1304,12 +1808,41 @@ import BaseLayout from '@components/BaseLayout.astro';
       text-transform: uppercase;
     }
     #puppet-warp-content button:hover { border-color: #B9FF39; color: #B9FF39; }
+    #puppet-warp-content button:disabled {
+      cursor: not-allowed;
+      border-color: rgb(242 237 223 / 0.1);
+      color: rgb(242 237 223 / 0.25);
+    }
     #puppet-warp-content .puppet-inline-fields,
     #puppet-warp-content .puppet-action-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.45rem; }
+    #puppet-warp-content #puppet-mesh-state {
+      border-left: 2px solid #B9FF39;
+      background: rgb(185 255 57 / 0.06);
+      padding: 0.45rem 0.55rem;
+      color: #B9FF39;
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+    }
     #puppet-warp-content #puppet-pin-list { display: grid; gap: 0.3rem; max-height: 10rem; overflow: auto; }
-    #puppet-warp-content #puppet-pin-list button { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.4rem; text-align: left; }
+    #puppet-warp-content #puppet-pin-list button {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, auto);
+      gap: 0.4rem;
+      min-width: 0;
+      width: 100%;
+      max-width: 100%;
+      overflow: hidden;
+      text-align: left;
+    }
     #puppet-warp-content #puppet-pin-list button b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    #puppet-warp-content #puppet-pin-list button span { color: rgb(242 237 223 / 0.42); font-size: 0.5rem; text-transform: none; }
+    #puppet-warp-content #puppet-pin-list button span {
+      overflow: hidden;
+      color: rgb(242 237 223 / 0.42);
+      font-size: 0.5rem;
+      text-overflow: ellipsis;
+      text-transform: none;
+      white-space: nowrap;
+    }
     #puppet-warp-content #puppet-pin-list button.is-selected { border-color: #B9FF39; background: rgb(185 255 57 / 0.1); color: #B9FF39; }
     #motionloom-puppet-overlay.puppet-overlay-active { cursor: crosshair; }
     #motionloom-puppet-overlay .puppet-pin-radius {
@@ -1319,6 +1852,47 @@ import BaseLayout from '@components/BaseLayout.astro';
       stroke-dasharray: 7 6;
       vector-effect: non-scaling-stroke;
       pointer-events: none;
+    }
+    #motionloom-puppet-overlay .puppet-mesh-edge {
+      stroke: #63d9ff;
+      stroke-width: 1.5;
+      stroke-opacity: 0.88;
+      vector-effect: non-scaling-stroke;
+      pointer-events: none;
+    }
+    #motionloom-puppet-overlay .puppet-auto-mesh-edge {
+      stroke-width: 1;
+      stroke-opacity: 0.38;
+    }
+    #motionloom-puppet-overlay .puppet-mesh-vertex {
+      fill: #11120d;
+      stroke: #63d9ff;
+      stroke-width: 3;
+      vector-effect: non-scaling-stroke;
+      cursor: move;
+      pointer-events: all;
+    }
+    #motionloom-puppet-overlay .puppet-mesh-vertex:hover {
+      fill: #63d9ff;
+      filter: drop-shadow(0 0 6px #63d9ff);
+    }
+    #motionloom-puppet-overlay .puppet-mesh-draft {
+      fill: none;
+      stroke: #ff5dcb;
+      stroke-width: 2.5;
+      stroke-dasharray: 8 5;
+      vector-effect: non-scaling-stroke;
+      pointer-events: none;
+    }
+    #motionloom-puppet-overlay .puppet-mesh-draft-point {
+      fill: #ff5dcb;
+      stroke: #11120d;
+      stroke-width: 3;
+      vector-effect: non-scaling-stroke;
+      pointer-events: none;
+    }
+    #motionloom-puppet-overlay .puppet-mesh-draft-point.is-first {
+      fill: #B9FF39;
     }
 
     #puppet-warp-content .puppet-hair-animation-card {
@@ -1369,8 +1943,71 @@ import BaseLayout from '@components/BaseLayout.astro';
     }
     #motionloom-puppet-overlay .puppet-pin-target.is-selected { filter: drop-shadow(0 0 8px #B9FF39); }
 
+    @container puppet-panel (max-width: 58rem) {
+      #puppet-warp-content .puppet-target-scope {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      #puppet-warp-content .puppet-target-scope p {
+        grid-column: 1 / -1;
+      }
+      #puppet-warp-content .puppet-tools-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    @container puppet-panel (max-width: 42rem) {
+      #puppet-warp-content .puppet-command-bar {
+        position: static;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      #puppet-warp-content .puppet-target-scope,
+      #puppet-warp-content .puppet-tools-grid {
+        grid-template-columns: 1fr;
+      }
+      #puppet-warp-content header {
+        align-items: flex-start;
+      }
+      #puppet-warp-content header output {
+        max-width: 44%;
+      }
+    }
+    @container puppet-panel (max-width: 27rem) {
+      #puppet-warp-content .puppet-command-bar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      #puppet-warp-content header {
+        display: grid;
+      }
+      #puppet-warp-content header output {
+        max-width: 100%;
+      }
+    }
+
     @media (max-width: 900px) {
       #puppet-warp-content .puppet-tools-grid { grid-template-columns: 1fr; }
+      #puppet-warp-content .puppet-command-bar {
+        position: static;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      #puppet-warp-content .puppet-target-scope { grid-template-columns: 1fr; }
+      #puppet-warp-content .puppet-quick-steps,
+      #puppet-warp-content .puppet-quick-actions,
+      #puppet-warp-content .puppet-mesh-actions,
+      #puppet-warp-content #puppet-quick-pin-list,
+      #puppet-warp-content .puppet-quick-kind-switch { grid-template-columns: 1fr; }
+      #puppet-warp-content .puppet-quick-heading,
+      #puppet-warp-content .puppet-quick-tip { grid-template-columns: 1fr; align-items: start; }
+      #puppet-warp-content .puppet-quick-heading { display: grid; }
+      #puppet-warp-content .puppet-quick-heading output { max-width: 100%; }
+      #puppet-warp-content .puppet-quick-pin-size { grid-template-columns: 1fr; }
+      #puppet-warp-content .puppet-quick-pin-size small { grid-column: 1; }
+      #puppet-warp-content .puppet-limb-region-actions {
+        grid-template-columns: repeat(2, minmax(8rem, 1fr));
+      }
+      #puppet-warp-content .puppet-mesh-settings { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      #puppet-warp-content .puppet-command-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      #puppet-warp-content .puppet-limb-region-actions { grid-template-columns: 1fr; }
     }
     #motionloom-drawing-overlay.pointer-events-auto { cursor: crosshair; }
     #motionloom-drawing-overlay .drawing-overlay-path { pointer-events: stroke; }
@@ -1482,8 +2119,9 @@ import BaseLayout from '@components/BaseLayout.astro';
     </div>
   </section>
 
-  <script is:inline define:vars={{ baseUrl: import.meta.env.BASE_URL }}>
+  <script is:inline define:vars={{ baseUrl: import.meta.env.BASE_URL, motionLoomWasmVersion }}>
     window.MOTIONLOOM_BASE = baseUrl;
+    window.MOTIONLOOM_WASM_VERSION = motionLoomWasmVersion;
   </script>
   <script>
     import { installMotionLoomDrawingTools } from '../scripts/motionloom-drawing-tools';
@@ -2520,7 +3158,7 @@ ${track}
       const base = (typeof window !== 'undefined' && window.MOTIONLOOM_BASE) ? window.MOTIONLOOM_BASE : '/';
       const demoImageUrl = base.replace(/\/$/, '') + '/demo.jpg';
       const wasmPkgBase = base.replace(/\/$/, '') + '/motionloom-wasm/pkg';
-      const motionLoomWasmVersion = '2026-07-16-adaptive-path-flatten';
+      const motionLoomWasmVersion = window.MOTIONLOOM_WASM_VERSION || 'development';
       const exampleRawRoot = 'https://raw.githubusercontent.com/LOVELYZOMBIEYHO/motionloom-example/refs/heads/main';
       const processExampleManifestUrl = `${exampleRawRoot}/dataset/layer-fx-templates.json`;
       const motionLoomFontUrls = [
@@ -2899,6 +3537,27 @@ ${track}
         gpuCanvas.classList.add('opacity-100');
         gpuCanvas.classList.remove('opacity-0');
       }
+
+      // Puppet tools need a bind-pose alpha snapshot when the visible preview
+      // is a WebGPU presentation surface. Reading that canvas after present can
+      // return transparent pixels, so provide a one-shot CPU render instead.
+      window.motionloomRenderSceneRgba = async function(script, frame = 0) {
+        const mod = await loadMotionLoomWasm();
+        if (!mod || typeof mod.WasmSceneRenderer !== 'function') {
+          throw new Error('MotionLoom WASM package does not expose WasmSceneRenderer');
+        }
+        const graph = parseGraph(script);
+        const size = graph.renderSize || graph.size;
+        const renderer = new mod.WasmSceneRenderer(script, 'cpu');
+        try {
+          addImportedSvgAssets(renderer);
+          await attachMotionLoomFonts(renderer);
+          const rgba = await renderer.render_frame(Math.max(0, Math.floor(frame)));
+          return { rgba, width: size[0], height: size[1] };
+        } finally {
+          if (typeof renderer.free === 'function') renderer.free();
+        }
+      };
 
       async function withTimeout(promise, ms, message) {
         let timeoutId;
