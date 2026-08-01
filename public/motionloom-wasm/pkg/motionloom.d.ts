@@ -158,6 +158,7 @@ export function motionloom_render_scene_frame_with_profile(script: string, frame
  * Render one frame through the legacy world compatibility path.
  *
  * New DSL must use `<Scene>`; `<World>` is no longer a valid authoring tag.
+ *
  * This convenience function uses the default path-based asset resolver.
  * To supply in-memory assets use `WasmWorldRenderer`.
  */
