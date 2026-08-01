@@ -78,7 +78,9 @@ export class WasmSceneRenderer {
 }
 
 /**
- * WASM-facing wrapper around a parsed world graph with renderer-owned assets.
+ * WASM-facing wrapper for the legacy world compatibility renderer.
+ *
+ * New DSL must use `<Scene>`; `<World>` is no longer a valid authoring tag.
  */
 export class WasmWorldRenderer {
     free(): void;
@@ -153,8 +155,9 @@ export function motionloom_render_scene_frame_to_canvas_gpu(script: string, fram
 export function motionloom_render_scene_frame_with_profile(script: string, frame: number, width: number, height: number, profile: string): Promise<Uint8Array>;
 
 /**
- * Render one frame of a world graph script to an RGBA byte buffer.
+ * Render one frame through the legacy world compatibility path.
  *
+ * New DSL must use `<Scene>`; `<World>` is no longer a valid authoring tag.
  * This convenience function uses the default path-based asset resolver.
  * To supply in-memory assets use `WasmWorldRenderer`.
  */

@@ -1,7 +1,7 @@
 {
   "name": "motionloom",
   "type": "module",
-  "description": "MotionLoom DSL parser and renderer for video effects, scene graphs, motion graphics, and world graphs.",
+  "description": "MotionLoom DSL parser and renderer for video effects, unified scene graphs, motion graphics, and Scene-based 3D.",
   "version": "0.1.0",
   "license": "Apache-2.0",
   "repository": {

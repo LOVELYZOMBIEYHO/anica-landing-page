@@ -3173,6 +3173,8 @@ ${track}
       let processExamples = [];
       let processExamplesPromise = null;
       const importedSvgAssets = new Map();
+      const graphAssetByteCache = new Map();
+      let currentGraphAssetBaseUrl = null;
       let svgImportCounter = 0;
 
       function nextSvgImportSuffix() {
@@ -3363,6 +3365,7 @@ ${track}
             throw new Error(`${response.status} ${response.statusText}`);
           }
           const script = await response.text();
+          currentGraphAssetBaseUrl = new URL('.', new URL(url, window.location.href)).href;
           defaultScript = script;
           editor.value = script;
           resetSceneDslHistory();
@@ -3403,6 +3406,7 @@ ${track}
             throw new Error(`${response.status} ${response.statusText}`);
           }
           const script = await response.text();
+          currentGraphAssetBaseUrl = new URL('.', new URL(url, window.location.href)).href;
           defaultScript = script;
           editor.value = script;
           resetSceneDslHistory();
@@ -3419,6 +3423,7 @@ ${track}
         } catch (err) {
           if (options.fallbackScript) {
             defaultScript = options.fallbackScript;
+            currentGraphAssetBaseUrl = null;
             editor.value = options.fallbackScript;
             resetSceneDslHistory();
             setEditorMode('scene');
@@ -3496,6 +3501,108 @@ ${track}
         }
       }
 
+      function collectGraphAssetSources(script) {
+        const sources = new Set();
+        const assetTag = /<(?:ModelAsset|ImageAsset|VideoAsset|AudioAsset|FontAsset)\b[^>]*\bsrc\s*=\s*"([^"]+)"/gi;
+        let match;
+        while ((match = assetTag.exec(script)) !== null) {
+          const src = String(match[1] || '').trim();
+          if (src && !src.startsWith('data:')) sources.add(src);
+        }
+        return [...sources];
+      }
+
+      function bytesToDataUri(bytes, mime = 'application/octet-stream') {
+        let binary = '';
+        const chunkSize = 0x8000;
+        for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+          binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
+        }
+        return `data:${mime};base64,${btoa(binary)}`;
+      }
+
+      async function inlineGltfDependencies(bytes, modelUrl) {
+        let url;
+        try {
+          url = new URL(modelUrl, window.location.href);
+        } catch (_) {
+          return bytes;
+        }
+        if (!url.pathname.toLowerCase().endsWith('.gltf')) return bytes;
+
+        let document;
+        try {
+          document = JSON.parse(new TextDecoder().decode(bytes));
+        } catch (_) {
+          return bytes;
+        }
+        if (String(document?.asset?.version || '').split('.')[0] !== '2') return bytes;
+
+        const inlineUri = async (entry, defaultMime) => {
+          const uri = String(entry?.uri || '').trim();
+          if (!uri || uri.startsWith('data:')) return;
+          const dependencyUrl = new URL(uri, url).href;
+          let dependencyBytes = graphAssetByteCache.get(dependencyUrl);
+          let mime = defaultMime;
+          if (!dependencyBytes) {
+            const response = await fetch(dependencyUrl, { mode: 'cors', cache: 'no-store' });
+            if (!response.ok) {
+              throw new Error(`glTF dependency fetch failed for ${uri}: ${response.status} ${response.statusText}`);
+            }
+            dependencyBytes = new Uint8Array(await response.arrayBuffer());
+            graphAssetByteCache.set(dependencyUrl, dependencyBytes);
+            mime = response.headers.get('content-type') || defaultMime;
+          }
+          entry.uri = bytesToDataUri(dependencyBytes, mime);
+        };
+
+        for (const buffer of document.buffers || []) {
+          await inlineUri(buffer, 'application/octet-stream');
+        }
+        for (const image of document.images || []) {
+          const lower = String(image?.uri || '').toLowerCase();
+          const fallbackMime = lower.endsWith('.png')
+            ? 'image/png'
+            : lower.endsWith('.webp')
+              ? 'image/webp'
+              : 'image/jpeg';
+          await inlineUri(image, fallbackMime);
+        }
+        return new TextEncoder().encode(JSON.stringify(document));
+      }
+
+      async function attachGraphAssets(renderer, script) {
+        if (!renderer || typeof renderer.add_asset !== 'function') return;
+        const sources = collectGraphAssetSources(script);
+        for (const src of sources) {
+          let fetchUrl = src;
+          try {
+            if (currentGraphAssetBaseUrl) {
+              fetchUrl = new URL(src, currentGraphAssetBaseUrl).href;
+            } else if (!/^(?:https?:)?\/\//i.test(src) && !src.startsWith('/')) {
+              // A pasted/local graph has no source document URL. Keep the
+              // original name registered only when the host can resolve it.
+              fetchUrl = new URL(src, window.location.href).href;
+            }
+          } catch (_) {}
+
+          let bytes = graphAssetByteCache.get(fetchUrl);
+          if (!bytes) {
+            const response = await fetch(fetchUrl, { mode: 'cors', cache: 'no-store' });
+            if (!response.ok) {
+              throw new Error(`asset fetch failed for ${src}: ${response.status} ${response.statusText}`);
+            }
+            bytes = new Uint8Array(await response.arrayBuffer());
+            bytes = await inlineGltfDependencies(bytes, fetchUrl);
+            graphAssetByteCache.set(fetchUrl, bytes);
+          }
+          // The renderer resolves the exact DSL `src`, while the absolute URL
+          // alias is useful for graphs that refer to the same asset directly.
+          renderer.add_asset(src, bytes);
+          if (fetchUrl !== src) renderer.add_asset(fetchUrl, bytes);
+        }
+      }
+
       function formatWasmError(err) {
         if (!err) return 'unknown error';
         if (typeof err === 'string') return err;
@@ -3551,6 +3658,7 @@ ${track}
         const renderer = new mod.WasmSceneRenderer(script, 'cpu');
         try {
           addImportedSvgAssets(renderer);
+          await attachGraphAssets(renderer, script);
           await attachMotionLoomFonts(renderer);
           const rgba = await renderer.render_frame(Math.max(0, Math.floor(frame)));
           return { rgba, width: size[0], height: size[1] };
@@ -3597,6 +3705,7 @@ ${track}
                 : new mod.WasmSceneRenderer(script, 'gpu');
               if (!isCurrentCompile()) return null;
               addImportedSvgAssets(renderer);
+              await attachGraphAssets(renderer, script);
               await attachMotionLoomFonts(renderer);
               if (!isCurrentCompile()) return null;
               if (typeof renderer.render_frame_to_canvas !== 'function') {
@@ -3620,6 +3729,7 @@ ${track}
           renderer = new mod.WasmSceneRenderer(script, 'cpu');
           if (!isCurrentCompile()) return null;
           addImportedSvgAssets(renderer);
+          await attachGraphAssets(renderer, script);
           await attachMotionLoomFonts(renderer);
           if (!isCurrentCompile()) return null;
           const rgba = await renderer.render_frame(initialFrame);
@@ -3639,6 +3749,136 @@ ${track}
           // Do not manually free the WASM renderer here. The animation loop may
           // still hold it across async frame renders; explicit free can race and
           // cause "null pointer passed to rust" on the next frame.
+        }
+      }
+
+      function resolveProcessSceneSource(graph) {
+        for (const proc of graph.processes || []) {
+          for (const texture of proc.textures || []) {
+            const from = String(texture.from || '').trim();
+            if (from.startsWith('scene:')) {
+              return from.slice('scene:'.length).trim();
+            }
+          }
+        }
+        return graph.scenes?.[0]?.id || '';
+      }
+
+      function presentSceneForIntermediateRender(script, sceneId) {
+        if (!sceneId) return script;
+        const present = `<Present from="${sceneId}" />`;
+        if (/<Present\b[^>]*\/>/i.test(script)) {
+          return script.replace(/<Present\b[^>]*\/>/gi, present);
+        }
+        return script.replace(/<\/Graph>\s*$/i, `  ${present}\n</Graph>`);
+      }
+
+      async function tryRenderSceneProcessWithWasm(
+        script,
+        graph,
+        playbackOptions = {},
+        expectedCompileToken
+      ) {
+        const isCurrentCompile = () => expectedCompileToken === undefined || expectedCompileToken === compileRunToken;
+        let sceneRenderer = null;
+        try {
+          webgpuStatus.textContent = 'Loading MotionLoom Scene + Process WASM...';
+          const mod = await withTimeout(
+            loadMotionLoomWasm(),
+            15000,
+            'MotionLoom WASM load timed out'
+          );
+          if (!isCurrentCompile()) return null;
+          if (
+            !mod ||
+            typeof mod.WasmSceneRenderer !== 'function' ||
+            typeof mod.motionloom_render_process_frame !== 'function'
+          ) {
+            throw new Error('MotionLoom WASM package does not expose the combined Scene + Process runtime');
+          }
+
+          const sceneId = resolveProcessSceneSource(graph);
+          if (!sceneId) {
+            throw new Error('Process graph does not reference a Scene texture');
+          }
+          const sceneScript = presentSceneForIntermediateRender(script, sceneId);
+          const size = graph.renderSize || graph.size;
+          const initialFrame = playbackOptions.preservePlayback && playbackOptions.previous
+            ? Math.max(0, Math.floor(playbackOptions.previous.frameFloat || 0))
+            : 0;
+
+          // The Scene is rendered to an RGBA texture first. The existing
+          // Process graph then consumes that texture, so Scene + Process uses
+          // the same DSL and the same WGSL effects as process-only playback.
+          sceneRenderer = new mod.WasmSceneRenderer(sceneScript, 'cpu');
+          addImportedSvgAssets(sceneRenderer);
+          await attachGraphAssets(sceneRenderer, sceneScript);
+          await attachMotionLoomFonts(sceneRenderer);
+          if (!isCurrentCompile()) return null;
+
+          const combinedRenderer = {
+            total_frames: sceneRenderer.total_frames,
+            async render_frame(frame) {
+              const rgba = await sceneRenderer.render_frame(frame);
+              return mod.motionloom_render_process_frame(
+                script,
+                frame,
+                size[0],
+                size[1],
+                rgba
+              );
+            },
+            async render_frame_to_canvas(frame, targetCanvas) {
+              const rgba = await sceneRenderer.render_frame(frame);
+              if (
+                navigator.gpu &&
+                typeof mod.motionloom_render_process_frame_to_canvas_gpu === 'function'
+              ) {
+                await mod.motionloom_render_process_frame_to_canvas_gpu(
+                  script,
+                  frame,
+                  size[0],
+                  size[1],
+                  rgba,
+                  targetCanvas
+                );
+                return;
+              }
+              const rendered = mod.motionloom_render_process_frame(
+                script,
+                frame,
+                size[0],
+                size[1],
+                rgba
+              );
+              drawRgbaBuffer(rendered, size[0], size[1]);
+            }
+          };
+
+          if (
+            navigator.gpu &&
+            typeof mod.motionloom_render_process_frame_to_canvas_gpu === 'function'
+          ) {
+            showWebGpuPreview(size[0], size[1]);
+            await combinedRenderer.render_frame_to_canvas(initialFrame, gpuCanvas);
+            if (!isCurrentCompile()) return null;
+            startWasmSceneLoop(combinedRenderer, graph, size, 'webgpu', playbackOptions);
+            webgpuStatus.textContent = 'MotionLoom Scene → Process WebGPU';
+            return 'MotionLoom Scene → Process WebGPU';
+          }
+
+          const rgba = await combinedRenderer.render_frame(initialFrame);
+          if (!isCurrentCompile()) return null;
+          drawRgbaBuffer(rgba, size[0], size[1]);
+          startWasmSceneLoop(combinedRenderer, graph, size, 'cpu', playbackOptions);
+          webgpuStatus.textContent = 'MotionLoom Scene → Process CPU';
+          return 'MotionLoom Scene → Process CPU';
+        } catch (err) {
+          if (!isCurrentCompile()) return null;
+          window.__motionloomWasmError = err;
+          console.warn('MotionLoom combined Scene + Process render failed.', err);
+          webgpuStatus.textContent = `MotionLoom WASM error: ${formatWasmError(err)}`;
+          throw err;
         }
       }
 
@@ -5033,7 +5273,17 @@ ${track}
             compileStatus.textContent = `Compiled: ${graph.scenes.length} scene(s), ${layerCount} layer(s) | ${graph.fps}fps${graph.hasExplicitDuration ? `, ${graph.duration}s` : ''}`;
             compileStatus.classList.remove('text-anica-signal');
             compileStatus.classList.add('text-anica-lime/80');
-            const sceneWasmMode = await tryRenderSceneWithWasm(rawScript, graph, playbackOptions, compileToken);
+            // Keep every Scene on the native WebGPU scene renderer. A
+            // Scene-to-Process bridge that reads the Scene back through the
+            // CPU makes otherwise GPU-native showcases dramatically slower.
+            // Combined Scene effects must be lowered into the GPU render-pass
+            // DAG instead of routing all frames through CPU RGBA.
+            const sceneWasmMode = await tryRenderSceneWithWasm(
+              rawScript,
+              graph,
+              playbackOptions,
+              compileToken
+            );
             if (compileToken !== compileRunToken) return;
             if (sceneWasmMode) {
               compileStatus.textContent += ` | rendered by ${sceneWasmMode}`;

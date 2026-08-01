@@ -1211,6 +1211,16 @@ export function installMotionLoomPuppetTools() {
   const directQuickPuppets = () => (
     puppets.filter((item) => item.target === '@layer' && item.parentLayerStart === quickLayerStart)
   );
+  // Bone rigs may deliberately target an imported Group instead of @layer so
+  // their deformation surface excludes the canvas background.  They still
+  // belong to the current Layer and must remain visible/selectable beside the
+  // @layer limbs in the full-body overlay.
+  const quickLayerPuppets = () => (
+    puppets.filter((item) => (
+      item.parentLayerStart === quickLayerStart
+      && (item.target === '@layer' || item.solver === 'bones')
+    ))
+  );
   const directQuickPuppet = () => {
     const candidates = directQuickPuppets();
     return candidates.find((item) => item.id === activeQuickPuppetId)
@@ -1219,7 +1229,12 @@ export function installMotionLoomPuppetTools() {
   };
   // A loaded example often contains one Group-target rig. Quick Puppet may
   // inspect and pose that unique rig, but creation/rebuild remains @layer-only.
-  const inspectedQuickPuppet = () => directQuickPuppet() || (puppets.length === 1 ? puppets[0] : null);
+  const inspectedQuickPuppet = () => {
+    const candidates = quickLayerPuppets();
+    return candidates.find((item) => item.id === activeQuickPuppetId)
+      || directQuickPuppet()
+      || (puppets.length === 1 ? puppets[0] : null);
+  };
   // Never animate an unrelated fallback warp when the user has selected a
   // different semantic Group. A target without a warp must create its own.
   const activePuppet = () => {
@@ -1359,17 +1374,18 @@ export function installMotionLoomPuppetTools() {
     const previousBind = bindSelect.value;
     bindSelect.innerHTML = descendants.map((group) => `<option value="${escapeAttr(group.id)}">${group.id}</option>`).join('');
     if (descendants.some((group) => group.id === previousBind)) bindSelect.value = previousBind;
-    const quickLayerPuppets = directQuickPuppets();
-    if (!quickLayerPuppets.some((item) => item.id === activeQuickPuppetId)) {
-      activeQuickPuppetId = quickLayerPuppets[quickLayerPuppets.length - 1]?.id || '';
+    const availableQuickPuppets = quickLayerPuppets();
+    const hasMixedQuickTargets = availableQuickPuppets.some((item) => item.target !== '@layer');
+    if (!availableQuickPuppets.some((item) => item.id === activeQuickPuppetId)) {
+      activeQuickPuppetId = availableQuickPuppets[availableQuickPuppets.length - 1]?.id || '';
     }
-    quickIkRigSelect.innerHTML = quickLayerPuppets.length
-      ? quickLayerPuppets.map((item, index) => (
+    quickIkRigSelect.innerHTML = availableQuickPuppets.length
+      ? availableQuickPuppets.map((item, index) => (
         `<option value="${escapeAttr(item.id)}">Limb ${index + 1} · ${escapeAttr(item.id)}</option>`
       )).join('')
       : '<option value="">No Bone IK limb</option>';
     quickIkRigSelect.value = activeQuickPuppetId;
-    quickIkRigSelect.disabled = quickLayerPuppets.length < 2;
+    quickIkRigSelect.disabled = availableQuickPuppets.length < 2;
     const puppet = activePuppet();
     const rigKey = puppet ? `${puppet.id}:${puppet.solver}` : '';
     if (puppetMode === 'quick' && puppet && rigKey !== autoDetectedRigKey) {
@@ -1427,7 +1443,7 @@ export function installMotionLoomPuppetTools() {
     quickTargetOutput.textContent = borrowedQuick && puppet
       ? `${puppet.target} · loaded Group rig`
       : quickLayer
-        ? `${quickLayer.id || 'Current Layer'} · @layer${quickLayerPuppets.length ? ` · Limb ${Math.max(1, quickLayerPuppets.findIndex((item) => item.id === activeQuickPuppetId) + 1)}/${quickLayerPuppets.length}` : ''}`
+        ? `${quickLayer.id || 'Current Layer'} · ${hasMixedQuickTargets ? 'mixed targets' : '@layer'}${availableQuickPuppets.length ? ` · Limb ${Math.max(1, availableQuickPuppets.findIndex((item) => item.id === activeQuickPuppetId) + 1)}/${availableQuickPuppets.length}` : ''}`
         : 'No Layer found';
     quickStartButton.textContent = directQuick ? 'Reset Selected Limb' : 'Start Quick Puppet';
     quickStartButton.disabled = !quickTargetId;
@@ -1645,8 +1661,70 @@ export function installMotionLoomPuppetTools() {
     overlay.classList.add('pointer-events-auto', 'puppet-overlay-active');
     const puppet = activePuppet();
     if (!puppet) return;
+    const drawPuppetPins = (
+      renderedPuppet: PuppetBlock,
+      container: SVGElement,
+      interactive: boolean,
+    ) => {
+      const renderedTransform = puppetTransform(renderedPuppet);
+      const renderedRadiusScale = affineScale(renderedTransform);
+      for (const pin of renderedPuppet.pins) {
+        const selected = interactive && pin.id === selectedPinId;
+        const [sourceX, sourceY] = affinePoint(renderedTransform, pin.x, pin.y);
+        const [targetX, targetY] = affinePoint(renderedTransform, pin.targetX, pin.targetY);
+        if (
+          !interactive
+          || puppetMode !== 'quick'
+          || !['mesh', 'chain'].includes(quickRigKind)
+          || selected
+        ) {
+          const radius = document.createElementNS(SVG_NS, 'circle');
+          radius.setAttribute('cx', String(sourceX)); radius.setAttribute('cy', String(sourceY));
+          radius.setAttribute('r', String(Math.max(handleRadius * 1.5, pin.radius * renderedRadiusScale)));
+          radius.setAttribute('class', 'puppet-pin-radius');
+          container.append(radius);
+        }
+        const line = document.createElementNS(SVG_NS, 'line');
+        line.setAttribute('x1', String(sourceX)); line.setAttribute('y1', String(sourceY));
+        line.setAttribute('x2', String(targetX)); line.setAttribute('y2', String(targetY));
+        line.setAttribute('class', 'puppet-pin-link');
+        container.append(line);
+        const source = document.createElementNS(SVG_NS, 'circle');
+        source.setAttribute('cx', String(sourceX)); source.setAttribute('cy', String(sourceY)); source.setAttribute('r', String(handleRadius * 0.62));
+        source.setAttribute('class', 'puppet-pin-source');
+        container.append(source);
+        const target = document.createElementNS(SVG_NS, 'circle');
+        target.setAttribute('cx', String(targetX)); target.setAttribute('cy', String(targetY));
+        target.setAttribute('r', String(selected ? handleRadius * 1.2 : handleRadius));
+        target.setAttribute('class', `puppet-pin-target${selected ? ' is-selected' : ''}`);
+        if (interactive) target.dataset.pinId = pin.id;
+        container.append(target);
+        const core = document.createElementNS(SVG_NS, 'circle');
+        core.setAttribute('cx', String(targetX)); core.setAttribute('cy', String(targetY));
+        core.setAttribute('r', String(handleRadius * 0.28)); core.setAttribute('class', 'puppet-pin-core');
+        container.append(core);
+        const label = document.createElementNS(SVG_NS, 'text');
+        label.setAttribute('x', String(targetX + handleRadius * 1.55));
+        label.setAttribute('y', String(targetY - handleRadius * 1.25));
+        label.setAttribute('font-size', String(labelSize)); label.setAttribute('class', 'puppet-pin-label');
+        label.textContent = pin.id;
+        container.append(label);
+      }
+    };
+    if (puppetMode === 'quick' && quickRigKind === 'ik') {
+      for (const inactivePuppet of quickLayerPuppets()) {
+        if (inactivePuppet.id === puppet.id) continue;
+        const inactivePins = document.createElementNS(SVG_NS, 'g');
+        inactivePins.setAttribute('class', 'puppet-rig-pins is-inactive');
+        inactivePins.setAttribute('opacity', '0.28');
+        inactivePins.setAttribute('pointer-events', 'none');
+        inactivePins.setAttribute('aria-hidden', 'true');
+        inactivePins.dataset.puppetId = inactivePuppet.id;
+        overlay.append(inactivePins);
+        drawPuppetPins(inactivePuppet, inactivePins, false);
+      }
+    }
     const transform = puppetTransform(puppet);
-    const radiusScale = affineScale(transform);
     if (
       puppetMode === 'quick'
       && (quickRigKind === 'mesh' || quickRigKind === 'chain')
@@ -1787,42 +1865,11 @@ export function installMotionLoomPuppetTools() {
         overlay.append(handle);
       });
     }
-    for (const pin of puppet.pins) {
-      const [sourceX, sourceY] = affinePoint(transform, pin.x, pin.y);
-      const [targetX, targetY] = affinePoint(transform, pin.targetX, pin.targetY);
-      if (puppetMode !== 'quick' || !['mesh', 'chain'].includes(quickRigKind) || pin.id === selectedPinId) {
-        const radius = document.createElementNS(SVG_NS, 'circle');
-        radius.setAttribute('cx', String(sourceX)); radius.setAttribute('cy', String(sourceY));
-        radius.setAttribute('r', String(Math.max(handleRadius * 1.5, pin.radius * radiusScale)));
-        radius.setAttribute('class', 'puppet-pin-radius');
-        overlay.append(radius);
-      }
-      const line = document.createElementNS(SVG_NS, 'line');
-      line.setAttribute('x1', String(sourceX)); line.setAttribute('y1', String(sourceY));
-      line.setAttribute('x2', String(targetX)); line.setAttribute('y2', String(targetY));
-      line.setAttribute('class', 'puppet-pin-link');
-      overlay.append(line);
-      const source = document.createElementNS(SVG_NS, 'circle');
-      source.setAttribute('cx', String(sourceX)); source.setAttribute('cy', String(sourceY)); source.setAttribute('r', String(handleRadius * 0.62));
-      source.setAttribute('class', 'puppet-pin-source');
-      overlay.append(source);
-      const target = document.createElementNS(SVG_NS, 'circle');
-      target.setAttribute('cx', String(targetX)); target.setAttribute('cy', String(targetY));
-      target.setAttribute('r', String(pin.id === selectedPinId ? handleRadius * 1.2 : handleRadius));
-      target.setAttribute('class', `puppet-pin-target${pin.id === selectedPinId ? ' is-selected' : ''}`);
-      target.dataset.pinId = pin.id;
-      overlay.append(target);
-      const core = document.createElementNS(SVG_NS, 'circle');
-      core.setAttribute('cx', String(targetX)); core.setAttribute('cy', String(targetY));
-      core.setAttribute('r', String(handleRadius * 0.28)); core.setAttribute('class', 'puppet-pin-core');
-      overlay.append(core);
-      const label = document.createElementNS(SVG_NS, 'text');
-      label.setAttribute('x', String(targetX + handleRadius * 1.55));
-      label.setAttribute('y', String(targetY - handleRadius * 1.25));
-      label.setAttribute('font-size', String(labelSize)); label.setAttribute('class', 'puppet-pin-label');
-      label.textContent = pin.id;
-      overlay.append(label);
-    }
+    const activePins = document.createElementNS(SVG_NS, 'g');
+    activePins.setAttribute('class', 'puppet-rig-pins is-active');
+    activePins.dataset.puppetId = puppet.id;
+    overlay.append(activePins);
+    drawPuppetPins(puppet, activePins, true);
   }
 
   function quickRolePin(puppet: PuppetBlock, role: 'anchor' | 'joint' | 'control'): PuppetPin | undefined {
