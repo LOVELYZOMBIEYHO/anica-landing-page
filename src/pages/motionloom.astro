@@ -73,6 +73,7 @@ const motionLoomWasmVersion = createHash('sha256')
               value="1"
             />
             <button id="btn-load-showcase" class="shrink-0 rounded-full border border-anica-paper/30 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper transition hover:bg-anica-paper/10">Load</button>
+            <button id="btn-inspect-glb" class="shrink-0 rounded-full border border-anica-lime/40 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-lime transition hover:bg-anica-lime/10">Inspect GLB skeleton</button>
             <button id="btn-empty-scene-template" class="shrink-0 rounded-full border border-anica-lime/40 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-lime transition hover:bg-anica-lime/10">Empty template</button>
             <select id="svg-import-mode" class="shrink-0 rounded-full border border-anica-lime/40 bg-anica-black px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-anica-lime outline-none transition hover:bg-anica-lime/10">
               <option value="svg">Import as SVG tag</option>
@@ -87,6 +88,10 @@ const motionLoomWasmVersion = createHash('sha256')
               Import SVG
             </label>
           </div>
+          <details id="glb-inspection-panel" class="hidden rounded-2xl border border-anica-lime/25 bg-anica-black/55 p-3">
+            <summary id="glb-inspection-summary" class="cursor-pointer font-mono text-xs font-bold uppercase tracking-wider text-anica-lime">GLB skeleton report</summary>
+            <pre id="glb-inspection-report" class="mt-3 max-h-96 overflow-auto whitespace-pre-wrap break-words font-mono text-[0.68rem] leading-relaxed text-anica-paper/75"></pre>
+          </details>
           <div id="process-github-example-bar" class="hidden w-full min-w-0 flex-wrap items-center gap-2 rounded-2xl border border-anica-paper/15 bg-anica-paper/5 px-3 py-2">
             <span class="shrink-0 font-mono text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper/60">GitHub process example</span>
             <select
@@ -263,6 +268,7 @@ const motionLoomWasmVersion = createHash('sha256')
               <select id="export-format" class="min-w-0 max-w-full rounded-full border-2 border-anica-lime/40 bg-anica-ink px-3 py-1 font-mono text-xs font-bold uppercase tracking-wider text-anica-lime">
                 <option value="png">PNG</option>
                 <option value="mp4-h264">MP4 H.264</option>
+                <option value="mp4-hevc-main">MP4 HEVC Main (8-bit)</option>
                 <option value="webm-vp8">WebM VP8</option>
                 <option value="webm-vp9">WebM VP9</option>
                 <option value="webm-av1">WebM AV1</option>
@@ -2166,6 +2172,10 @@ const motionLoomWasmVersion = createHash('sha256')
       const showcaseNumber = document.getElementById('showcase-number');
       const exampleCategory = document.getElementById('example-category');
       const loadShowcaseBtn = document.getElementById('btn-load-showcase');
+      const inspectGlbBtn = document.getElementById('btn-inspect-glb');
+      const glbInspectionPanel = document.getElementById('glb-inspection-panel');
+      const glbInspectionSummary = document.getElementById('glb-inspection-summary');
+      const glbInspectionReport = document.getElementById('glb-inspection-report');
       const emptySceneTemplateBtn = document.getElementById('btn-empty-scene-template');
       const svgImportInput = document.getElementById('svg-import');
       const svgImportMode = document.getElementById('svg-import-mode');
@@ -2198,6 +2208,7 @@ const motionLoomWasmVersion = createHash('sha256')
         lastTickMs: 0,
         needsRender: true,
       };
+      let isVideoExporting = false;
       let resetPreviewPlaybackOnNextCompile = true;
       let selectedGroupId = '';
       let cachedGroupControls = [];
@@ -3603,6 +3614,71 @@ ${track}
         }
       }
 
+      async function inspectFirstGlbSkeleton() {
+        const assetTag = /<ModelAsset\b[^>]*>/gi;
+        let assetId = '';
+        let src = '';
+        for (const match of editor.value.matchAll(assetTag)) {
+          const tag = match[0];
+          const candidateSrc = /\bsrc\s*=\s*"([^"]+)"/i.exec(tag)?.[1] || '';
+          if (!candidateSrc.toLowerCase().split('?')[0].endsWith('.glb')) continue;
+          assetId = /\bid\s*=\s*"([^"]+)"/i.exec(tag)?.[1] || candidateSrc;
+          src = candidateSrc;
+          break;
+        }
+        if (!src) {
+          compileStatus.textContent = 'No .glb ModelAsset found in the current DSL.';
+          compileStatus.classList.add('text-anica-signal');
+          return;
+        }
+        inspectGlbBtn.disabled = true;
+        compileStatus.textContent = `Inspecting ${assetId} skeleton...`;
+        compileStatus.classList.remove('text-anica-signal');
+        try {
+          const mod = await loadMotionLoomWasm();
+          if (!mod || typeof mod.motionloom_inspect_glb_skeleton_json !== 'function') {
+            throw new Error('Current MotionLoom WASM does not expose GLB skeleton inspection');
+          }
+          let fetchUrl = src;
+          if (currentGraphAssetBaseUrl) {
+            fetchUrl = new URL(src, currentGraphAssetBaseUrl).href;
+          } else if (!/^(?:https?:)?\/\//i.test(src) && !src.startsWith('/')) {
+            fetchUrl = new URL(src, window.location.href).href;
+          }
+          let bytes = graphAssetByteCache.get(fetchUrl);
+          if (!bytes) {
+            const response = await fetch(fetchUrl, { mode: 'cors', cache: 'no-store' });
+            if (!response.ok) throw new Error(`asset fetch failed: ${response.status} ${response.statusText}`);
+            bytes = new Uint8Array(await response.arrayBuffer());
+            graphAssetByteCache.set(fetchUrl, bytes);
+          }
+          const report = JSON.parse(mod.motionloom_inspect_glb_skeleton_json(assetId, bytes));
+          const confidence = `${Math.round(Number(report.overallConfidence || 0) * 100)}%`;
+          glbInspectionSummary.textContent = `${assetId} · ${report.restPose?.kind || 'unknown pose'} · ${confidence} confidence${report.manualReviewRequired ? ' · review required' : ''}`;
+          glbInspectionReport.textContent = [
+            `Mapped ${report.mappings?.length || 0} humanoid bones from ${report.skinJointCount || 0} joints.`,
+            '',
+            'DIAGNOSTICS',
+            ...(report.diagnostics || []).map((item) => `[${String(item.severity || 'info').toUpperCase()}] ${item.message}\nFix: ${item.recommendation}`),
+            '',
+            'PROPOSED MODEL PROFILE',
+            report.profileDsl || '',
+            '',
+            'FULL MACHINE REPORT',
+            JSON.stringify(report, null, 2),
+          ].join('\n');
+          glbInspectionPanel.classList.remove('hidden');
+          glbInspectionPanel.open = true;
+          compileStatus.textContent = `GLB skeleton inspected: ${confidence} confidence.`;
+          compileStatus.classList.add('text-anica-lime/80');
+        } catch (err) {
+          compileStatus.textContent = `GLB inspection failed: ${formatWasmError(err)}`;
+          compileStatus.classList.add('text-anica-signal');
+        } finally {
+          inspectGlbBtn.disabled = false;
+        }
+      }
+
       function formatWasmError(err) {
         if (!err) return 'unknown error';
         if (typeof err === 'string') return err;
@@ -3710,6 +3786,19 @@ ${track}
               if (!isCurrentCompile()) return null;
               if (typeof renderer.render_frame_to_canvas !== 'function') {
                 throw new Error('WASM package does not expose render_frame_to_canvas');
+              }
+              const totalFrames = Math.max(
+                1,
+                renderer.total_frames || Math.round((graph.duration || 1) * Math.max(1, graph.fps || 30))
+              );
+              const warmupFrames = collectWasmWarmupFrames(graph, totalFrames);
+              if (warmupFrames.some((frame) => frame !== initialFrame)) {
+                webgpuStatus.textContent = 'Preparing MotionLoom GPU assets...';
+                for (const frame of warmupFrames) {
+                  if (frame === initialFrame) continue;
+                  await renderer.render_frame_to_canvas(frame, gpuCanvas);
+                  if (!isCurrentCompile()) return null;
+                }
               }
               await renderer.render_frame_to_canvas(initialFrame, gpuCanvas);
               if (!isCurrentCompile()) return null;
@@ -4124,6 +4213,29 @@ ${track}
         const m = val.match(/^([\d.]+)\s*s$/);
         if (m) return parseFloat(m[1]);
         return parseFloat(val) || 0;
+      }
+
+      function collectWasmWarmupFrames(graph, totalFrames) {
+        const fps = Math.max(1, graph?.fps || 30);
+        const lastFrame = Math.max(0, totalFrames - 1);
+        const frames = new Set([0]);
+        for (const scene of graph?.scenes || []) {
+          for (const timeline of scene.timelines || []) {
+            for (const track of timeline.tracks || []) {
+              for (const sequence of track.sequences || []) {
+                // A Sequence becomes active on the first frame whose time is
+                // at or after `from`. `round()` prewarmed frame 167 for a
+                // 5.58s boundary even though the GLB starts on frame 168.
+                const frame = Math.min(
+                  lastFrame,
+                  Math.max(0, Math.ceil(Math.max(0, sequence.from || 0) * fps))
+                );
+                frames.add(frame);
+              }
+            }
+          }
+        }
+        return [...frames].sort((a, b) => a - b).slice(0, 16);
       }
 
       function parseCurve(val) {
@@ -4658,14 +4770,32 @@ ${track}
 
       function pauseSceneLoopForExport() {
         sceneLoopToken++;
+        compileRunToken++;
+        runtimeSceneRenderToken++;
         isScenePlaying = false;
+        previewPlayback.playing = false;
+        previewPlayback.lastTickMs = 0;
+        previewPlayback.needsRender = false;
         if (sceneAnimationId) {
           cancelAnimationFrame(sceneAnimationId);
           sceneAnimationId = null;
         }
+        if (compileDebounceId) {
+          window.clearTimeout(compileDebounceId);
+          compileDebounceId = null;
+        }
+        if (runtimeSceneRenderDebounceId) {
+          window.clearTimeout(runtimeSceneRenderDebounceId);
+          runtimeSceneRenderDebounceId = null;
+        }
+        if (currentImage instanceof HTMLVideoElement) {
+          currentImage.pause();
+        }
+        updatePreviewTimelineControls();
       }
 
       function scheduleRuntimeSceneRender(delayMs = 80) {
+        if (isVideoExporting) return false;
         if (!wasmSceneRenderer) return false;
         if (runtimeSceneRenderDebounceId) {
           window.clearTimeout(runtimeSceneRenderDebounceId);
@@ -4688,21 +4818,39 @@ ${track}
         return true;
       }
 
-      async function renderPreviewFrameForExport(graph, frame) {
+      async function renderPreviewFrameForExport(graph, frame, targetCanvas = activePreviewCanvas) {
         const fps = Math.max(1, graph.fps || 30);
         const size = graph.renderSize || graph.size;
         if (graph.scenes.length > 0) {
           if (wasmSceneRenderer && typeof wasmSceneRenderer.render_frame_to_canvas === 'function' && activePreviewCanvas === gpuCanvas) {
-            showWebGpuPreview(size[0], size[1]);
-            await wasmSceneRenderer.render_frame_to_canvas(frame, gpuCanvas);
+            await wasmSceneRenderer.render_frame_to_canvas(frame, targetCanvas);
             return;
           }
           if (wasmSceneRenderer && typeof wasmSceneRenderer.render_frame === 'function') {
             const rgba = await wasmSceneRenderer.render_frame(frame);
-            drawRgbaBuffer(rgba, size[0], size[1]);
+            if (targetCanvas === canvas) {
+              drawRgbaBuffer(rgba, size[0], size[1]);
+            } else {
+              if (targetCanvas.width !== size[0]) targetCanvas.width = size[0];
+              if (targetCanvas.height !== size[1]) targetCanvas.height = size[1];
+              const targetContext = targetCanvas.getContext('2d');
+              if (!targetContext) throw new Error('Export canvas 2D context is unavailable.');
+              const clamped = rgba instanceof Uint8ClampedArray
+                ? rgba
+                : ArrayBuffer.isView(rgba)
+                  ? new Uint8ClampedArray(rgba.buffer, rgba.byteOffset, rgba.byteLength)
+                  : new Uint8ClampedArray(rgba);
+              targetContext.putImageData(new ImageData(clamped, size[0], size[1]), 0, 0);
+            }
             return;
           }
           executeScene(graph, frame / fps);
+          if (targetCanvas !== canvas) {
+            const targetContext = targetCanvas.getContext('2d');
+            if (!targetContext) throw new Error('Export canvas 2D context is unavailable.');
+            targetContext.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
+            targetContext.drawImage(canvas, 0, 0, targetCanvas.width, targetCanvas.height);
+          }
         }
       }
 
@@ -5222,6 +5370,7 @@ ${track}
       }
 
       function scheduleCompile(options = {}) {
+        if (isVideoExporting) return;
         if (compileDebounceId) {
           window.clearTimeout(compileDebounceId);
         }
@@ -5236,6 +5385,7 @@ ${track}
       }
 
       function compileNow(options = {}) {
+        if (isVideoExporting) return;
         if (compileDebounceId) {
           window.clearTimeout(compileDebounceId);
           compileDebounceId = null;
@@ -5245,6 +5395,7 @@ ${track}
       }
 
       async function compile(options = {}) {
+        if (isVideoExporting) return;
         const compileToken = ++compileRunToken;
         const previousPlayback = {
           frameFloat: previewPlayback.frameFloat,
@@ -5428,6 +5579,10 @@ ${track}
         loadRemoteExample(showcaseNumber.value || '1');
       });
 
+      if (inspectGlbBtn) {
+        inspectGlbBtn.addEventListener('click', inspectFirstGlbSkeleton);
+      }
+
       if (emptySceneTemplateBtn) {
         emptySceneTemplateBtn.addEventListener('click', () => {
           const script = emptySceneTemplateDsl();
@@ -5546,12 +5701,16 @@ ${track}
           vid.playsInline = true;
           vid.onloadeddata = () => {
             currentImage = vid;
-            vid.play();
-            compile();
+            if (!isVideoExporting) {
+              vid.play();
+              compile();
+            }
             // Render loop for video
             function renderLoop() {
               if (isVideo) {
-                compile();
+                if (!isVideoExporting && !vid.paused) {
+                  compile();
+                }
                 requestAnimationFrame(renderLoop);
               }
             }
@@ -5569,6 +5728,7 @@ ${track}
 
       if (previewPlayBtn) {
         previewPlayBtn.addEventListener('click', () => {
+          if (isVideoExporting) return;
           previewPlayback.playing = !previewPlayback.playing;
           previewPlayback.lastTickMs = performance.now();
           previewPlayback.needsRender = true;
@@ -5605,14 +5765,26 @@ ${track}
         const originalText = downloadBtn.textContent;
         downloadBtn.disabled = true;
         downloadBtn.textContent = 'Exporting...';
+        if (previewPlayBtn) previewPlayBtn.disabled = true;
+        isVideoExporting = true;
+        pauseSceneLoopForExport();
         try {
           const exportGraph = parseGraph(editor.value);
-          pauseSceneLoopForExport();
-          await exporter(activePreviewCanvas, {
+          const exportSize = exportGraph.renderSize || exportGraph.size;
+          // Export into a detached canvas so frame-by-frame encoding never
+          // animates the visible preview or competes with its presentation surface.
+          const exportCanvas = document.createElement('canvas');
+          exportCanvas.width = Math.max(1, Number(exportSize?.[0]) || activePreviewCanvas.width || 1);
+          exportCanvas.height = Math.max(1, Number(exportSize?.[1]) || activePreviewCanvas.height || 1);
+          if (activePreviewCanvas === canvas) {
+            const exportContext = exportCanvas.getContext('2d');
+            exportContext?.drawImage(canvas, 0, 0, exportCanvas.width, exportCanvas.height);
+          }
+          await exporter(exportCanvas, {
             format: selectedFormat,
             duration: exportGraph.duration || 4,
             fps: exportGraph.fps || 30,
-            beforeFrame: (frame) => renderPreviewFrameForExport(exportGraph, frame),
+            beforeFrame: (frame) => renderPreviewFrameForExport(exportGraph, frame, exportCanvas),
             onStatus: (message) => {
               webgpuStatus.textContent = message;
             },
@@ -5620,9 +5792,13 @@ ${track}
         } catch (err) {
           compileStatus.textContent = `Export error: ${formatWasmError(err)}`;
         } finally {
+          isVideoExporting = false;
           downloadBtn.disabled = false;
           downloadBtn.textContent = originalText;
-          compile();
+          if (previewPlayBtn) previewPlayBtn.disabled = false;
+          previewPlayback.playing = false;
+          previewPlayback.needsRender = false;
+          updatePreviewTimelineControls();
         }
       });
 

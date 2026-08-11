@@ -105,9 +105,36 @@ export class WasmWorldRenderer {
 }
 
 /**
+ * Analyze one DSL revision for a concrete renderer such as `wasm-webgpu`.
+ */
+export function motionloom_analyze_script_for_target_json(script: string, target: string): string;
+
+/**
+ * Analyze one DSL revision and return parse, semantic, compatibility, and repair diagnostics.
+ */
+export function motionloom_analyze_script_json(script: string): string;
+
+/**
+ * Return the same AnimationTarget capability registry used by native editors.
+ */
+export function motionloom_animation_property_schema_json(): string;
+
+/**
  * Inspect a script and return the document type as a string.
  */
 export function motionloom_document_type(script: string): string;
+
+/**
+ * Return structured AnimationTarget binding diagnostics for one graph script.
+ */
+export function motionloom_inspect_animation_targets(script: string): string;
+
+export function motionloom_inspect_glb_environment_json(asset_label: string, bytes: Uint8Array): string;
+
+/**
+ * Inspect GLB bytes and propose humanoid mapping, axes, rest pose, and confidence.
+ */
+export function motionloom_inspect_glb_skeleton_json(asset_label: string, bytes: Uint8Array): string;
 
 /**
  * Parse a MotionLoom script and return a short diagnostic summary.
@@ -165,6 +192,11 @@ export function motionloom_render_scene_frame_with_profile(script: string, frame
 export function motionloom_render_world_frame(script: string, frame: number, asset_root: string): Uint8Array;
 
 /**
+ * Return the machine-readable syntax slice demonstrated by one showcase script.
+ */
+export function motionloom_showcase_schema_json(script: string): string;
+
+/**
  * Render a white empty scene texture and present it to an HTML canvas for debugging.
  */
 export function motionloom_webgpu_debug_empty_scene_texture_to_canvas(canvas: HTMLCanvasElement, width: number, height: number): Promise<void>;
@@ -184,6 +216,13 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 export interface InitOutput {
     readonly memory: WebAssembly.Memory;
     readonly motionloom_parse_summary: (a: number, b: number) => [number, number, number, number];
+    readonly motionloom_animation_property_schema_json: () => [number, number];
+    readonly motionloom_analyze_script_json: (a: number, b: number) => [number, number];
+    readonly motionloom_analyze_script_for_target_json: (a: number, b: number, c: number, d: number) => [number, number];
+    readonly motionloom_showcase_schema_json: (a: number, b: number) => [number, number];
+    readonly motionloom_inspect_glb_skeleton_json: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+    readonly motionloom_inspect_glb_environment_json: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+    readonly motionloom_inspect_animation_targets: (a: number, b: number) => [number, number, number, number];
     readonly motionloom_render_scene_frame: (a: number, b: number, c: number, d: number, e: number) => any;
     readonly motionloom_render_scene_frame_with_profile: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => any;
     readonly motionloom_render_scene_frame_to_canvas_gpu: (a: number, b: number, c: number, d: number, e: number, f: any) => any;
@@ -214,7 +253,7 @@ export interface InitOutput {
     readonly wasmworldrenderer_render_frame: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly wasm_bindgen__convert__closures_____invoke__h4aa3e05baac20cce: (a: number, b: number, c: any) => [number, number];
     readonly wasm_bindgen__convert__closures_____invoke__h45c32c0111268609: (a: number, b: number, c: any, d: any) => void;
-    readonly wasm_bindgen__convert__closures_____invoke__h3233e5dc2b476618: (a: number, b: number, c: any) => void;
+    readonly wasm_bindgen__convert__closures_____invoke__h200a21b777a48c32: (a: number, b: number, c: any) => void;
     readonly __wbindgen_malloc: (a: number, b: number) => number;
     readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
     readonly __wbindgen_exn_store: (a: number) => void;

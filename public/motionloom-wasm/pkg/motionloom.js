@@ -255,6 +255,66 @@ export class WasmWorldRenderer {
 if (Symbol.dispose) WasmWorldRenderer.prototype[Symbol.dispose] = WasmWorldRenderer.prototype.free;
 
 /**
+ * Analyze one DSL revision for a concrete renderer such as `wasm-webgpu`.
+ * @param {string} script
+ * @param {string} target
+ * @returns {string}
+ */
+export function motionloom_analyze_script_for_target_json(script, target) {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passStringToWasm0(script, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(target, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.motionloom_analyze_script_for_target_json(ptr0, len0, ptr1, len1);
+        deferred3_0 = ret[0];
+        deferred3_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
+}
+
+/**
+ * Analyze one DSL revision and return parse, semantic, compatibility, and repair diagnostics.
+ * @param {string} script
+ * @returns {string}
+ */
+export function motionloom_analyze_script_json(script) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(script, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.motionloom_analyze_script_json(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Return the same AnimationTarget capability registry used by native editors.
+ * @returns {string}
+ */
+export function motionloom_animation_property_schema_json() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.motionloom_animation_property_schema_json();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
  * Inspect a script and return the document type as a string.
  * @param {string} script
  * @returns {string}
@@ -271,6 +331,89 @@ export function motionloom_document_type(script) {
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
         wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Return structured AnimationTarget binding diagnostics for one graph script.
+ * @param {string} script
+ * @returns {string}
+ */
+export function motionloom_inspect_animation_targets(script) {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passStringToWasm0(script, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.motionloom_inspect_animation_targets(ptr0, len0);
+        var ptr2 = ret[0];
+        var len2 = ret[1];
+        if (ret[3]) {
+            ptr2 = 0; len2 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred3_0 = ptr2;
+        deferred3_1 = len2;
+        return getStringFromWasm0(ptr2, len2);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
+}
+
+/**
+ * @param {string} asset_label
+ * @param {Uint8Array} bytes
+ * @returns {string}
+ */
+export function motionloom_inspect_glb_environment_json(asset_label, bytes) {
+    let deferred4_0;
+    let deferred4_1;
+    try {
+        const ptr0 = passStringToWasm0(asset_label, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.motionloom_inspect_glb_environment_json(ptr0, len0, ptr1, len1);
+        var ptr3 = ret[0];
+        var len3 = ret[1];
+        if (ret[3]) {
+            ptr3 = 0; len3 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred4_0 = ptr3;
+        deferred4_1 = len3;
+        return getStringFromWasm0(ptr3, len3);
+    } finally {
+        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
+    }
+}
+
+/**
+ * Inspect GLB bytes and propose humanoid mapping, axes, rest pose, and confidence.
+ * @param {string} asset_label
+ * @param {Uint8Array} bytes
+ * @returns {string}
+ */
+export function motionloom_inspect_glb_skeleton_json(asset_label, bytes) {
+    let deferred4_0;
+    let deferred4_1;
+    try {
+        const ptr0 = passStringToWasm0(asset_label, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.motionloom_inspect_glb_skeleton_json(ptr0, len0, ptr1, len1);
+        var ptr3 = ret[0];
+        var len3 = ret[1];
+        if (ret[3]) {
+            ptr3 = 0; len3 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred4_0 = ptr3;
+        deferred4_1 = len3;
+        return getStringFromWasm0(ptr3, len3);
+    } finally {
+        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
     }
 }
 
@@ -430,6 +573,26 @@ export function motionloom_render_world_frame(script, frame, asset_root) {
     var v3 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
     wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
     return v3;
+}
+
+/**
+ * Return the machine-readable syntax slice demonstrated by one showcase script.
+ * @param {string} script
+ * @returns {string}
+ */
+export function motionloom_showcase_schema_json(script) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(script, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.motionloom_showcase_schema_json(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
 }
 
 /**
@@ -596,6 +759,9 @@ function __wbg_get_imports() {
         __wbg_end_68d2bd9f647a2a38: function(arg0) {
             arg0.end();
         },
+        __wbg_error_933f449d72fef598: function(arg0) {
+            console.error(arg0);
+        },
         __wbg_features_308760f9ae699ee0: function(arg0) {
             const ret = arg0.features;
             return ret;
@@ -682,6 +848,10 @@ function __wbg_get_imports() {
             return ret;
         },
         __wbg_limits_5bca67036d8c5c3d: function(arg0) {
+            const ret = arg0.limits;
+            return ret;
+        },
+        __wbg_limits_ea41c3962a6b95bc: function(arg0) {
             const ret = arg0.limits;
             return ret;
         },
@@ -1486,12 +1656,12 @@ function __wbg_get_imports() {
             arg0.writeTexture(arg1, arg2, arg3, arg4);
         }, arguments); },
         __wbindgen_cast_0000000000000001: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 1208, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
-            const ret = makeMutClosure(arg0, arg1, wasm_bindgen__convert__closures_____invoke__h3233e5dc2b476618);
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 1278, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
+            const ret = makeMutClosure(arg0, arg1, wasm_bindgen__convert__closures_____invoke__h200a21b777a48c32);
             return ret;
         },
         __wbindgen_cast_0000000000000002: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 1447, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 1525, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
             const ret = makeMutClosure(arg0, arg1, wasm_bindgen__convert__closures_____invoke__h4aa3e05baac20cce);
             return ret;
         },
@@ -1533,8 +1703,8 @@ function __wbg_get_imports() {
     };
 }
 
-function wasm_bindgen__convert__closures_____invoke__h3233e5dc2b476618(arg0, arg1, arg2) {
-    wasm.wasm_bindgen__convert__closures_____invoke__h3233e5dc2b476618(arg0, arg1, arg2);
+function wasm_bindgen__convert__closures_____invoke__h200a21b777a48c32(arg0, arg1, arg2) {
+    wasm.wasm_bindgen__convert__closures_____invoke__h200a21b777a48c32(arg0, arg1, arg2);
 }
 
 function wasm_bindgen__convert__closures_____invoke__h4aa3e05baac20cce(arg0, arg1, arg2) {
