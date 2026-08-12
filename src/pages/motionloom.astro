@@ -3755,6 +3755,43 @@ ${track}
         }
       }
 
+      function resolveBrowserPreviewSize(graph) {
+        const authored = graph.renderSize || graph.size || [1920, 1080];
+        const logical = graph.size || authored;
+        const memory = Number(navigator.deviceMemory || 0);
+        const mobileLike = window.matchMedia('(pointer: coarse)').matches
+          || Math.min(window.screen.width || 9999, window.screen.height || 9999) < 820
+          || (memory > 0 && memory <= 4);
+        const mobileCpu = mobileLike && !navigator.gpu;
+        const maxWidth = mobileCpu ? 640 : mobileLike ? 960 : 1920;
+        const maxHeight = mobileCpu ? 360 : mobileLike ? 540 : 1080;
+        // Preview never needs more pixels than the logical composition. The
+        // authored renderSize remains untouched and is used by PNG/video export.
+        const sourceWidth = Math.max(1, Math.min(Number(authored[0]) || 1, Number(logical[0]) || 1));
+        const sourceHeight = Math.max(1, Math.min(Number(authored[1]) || 1, Number(logical[1]) || 1));
+        const scale = Math.min(1, maxWidth / sourceWidth, maxHeight / sourceHeight);
+        const even = (value) => Math.max(2, Math.round(value / 2) * 2);
+        return [even(sourceWidth * scale), even(sourceHeight * scale)];
+      }
+
+      function withPreviewRenderSize(script, size) {
+        const replacement = `renderSize={[${size[0]},${size[1]}]}`;
+        const renderSizePattern = /renderSize\s*=\s*\{\s*\[\s*[^,\]]+\s*,\s*[^\]]+\s*\]\s*\}/i;
+        if (renderSizePattern.test(script)) {
+          return script.replace(renderSizePattern, replacement);
+        }
+        return script.replace(/<Graph\b/i, `<Graph ${replacement}`);
+      }
+
+      function freeWasmRenderer(renderer) {
+        if (!renderer || typeof renderer.free !== 'function') return;
+        try {
+          renderer.free();
+        } catch (err) {
+          console.debug('MotionLoom renderer was already released.', err);
+        }
+      }
+
       async function tryRenderSceneWithWasm(script, graph, playbackOptions = {}, expectedCompileToken) {
         let renderer = null;
         const isCurrentCompile = () => expectedCompileToken === undefined || expectedCompileToken === compileRunToken;
@@ -3809,6 +3846,7 @@ ${track}
               return 'MotionLoom WASM WebGPU';
             } catch (err) {
               if (!isCurrentCompile()) return null;
+              freeWasmRenderer(renderer);
               renderer = null;
               console.info('MotionLoom WASM WebGPU unavailable; trying WASM CPU.', err);
               showCanvas2dPreview();
@@ -3835,9 +3873,9 @@ ${track}
           webgpuStatus.textContent = `MotionLoom WASM error: ${formatWasmError(err)}`;
           throw err;
         } finally {
-          // Do not manually free the WASM renderer here. The animation loop may
-          // still hold it across async frame renders; explicit free can race and
-          // cause "null pointer passed to rust" on the next frame.
+          // Ownership is transferred to startWasmSceneLoop by setting this
+          // local to null. All other exits are safe to release here.
+          freeWasmRenderer(renderer);
         }
       }
 
@@ -4408,6 +4446,7 @@ ${track}
       let isScenePlaying = false;
       let sceneLoopToken = 0;
       let wasmSceneRenderer = null;
+      let activeWasmLoopController = null;
       let compileRunToken = 0;
       let runtimeSceneRenderDebounceId = null;
       let runtimeSceneRenderToken = 0;
@@ -4680,6 +4719,13 @@ ${track}
       function startWasmSceneLoop(renderer, graph, size, mode, playbackOptions = {}) {
         stopSceneLoop();
         wasmSceneRenderer = renderer;
+        const controller = {
+          renderer,
+          renderInFlight: false,
+          stopped: false,
+          disposed: false,
+        };
+        activeWasmLoopController = controller;
         isScenePlaying = true;
         const token = ++sceneLoopToken;
         const fps = Math.max(1, graph.fps || 30);
@@ -4688,7 +4734,13 @@ ${track}
         let renderInFlight = false;
 
         async function loop(nowMs) {
-          if (!isScenePlaying || token !== sceneLoopToken) return;
+          if (!isScenePlaying || token !== sceneLoopToken || controller.stopped) {
+            if (!controller.renderInFlight && !controller.disposed) {
+              controller.disposed = true;
+              freeWasmRenderer(controller.renderer);
+            }
+            return;
+          }
           if (isComparingOriginal) {
             sceneAnimationId = requestAnimationFrame(loop);
             return;
@@ -4696,6 +4748,7 @@ ${track}
           const frame = tickPreviewPlayback(nowMs || performance.now());
           if (!renderInFlight && previewPlayback.needsRender) {
             renderInFlight = true;
+            controller.renderInFlight = true;
             previewPlayback.needsRender = false;
             try {
               if (mode === 'webgpu') {
@@ -4720,8 +4773,14 @@ ${track}
               return;
             } finally {
               renderInFlight = false;
+              controller.renderInFlight = false;
+              if (controller.stopped && !controller.disposed) {
+                controller.disposed = true;
+                freeWasmRenderer(controller.renderer);
+              }
             }
           }
+          if (!isScenePlaying || token !== sceneLoopToken || controller.stopped) return;
           updatePreviewTimelineControls();
           sceneAnimationId = requestAnimationFrame(loop);
         }
@@ -4760,8 +4819,15 @@ ${track}
           cancelAnimationFrame(sceneAnimationId);
           sceneAnimationId = null;
         }
-        // Let JavaScript GC release the WASM wrapper. Manual `.free()` is unsafe
-        // here because render_frame_to_canvas is async and may still be in-flight.
+        if (activeWasmLoopController) {
+          const controller = activeWasmLoopController;
+          controller.stopped = true;
+          if (!controller.renderInFlight && !controller.disposed) {
+            controller.disposed = true;
+            freeWasmRenderer(controller.renderer);
+          }
+          activeWasmLoopController = null;
+        }
         wasmSceneRenderer = null;
         previewPlayback.lastTickMs = 0;
         previewPlayback.needsRender = false;
@@ -4769,17 +4835,12 @@ ${track}
       }
 
       function pauseSceneLoopForExport() {
-        sceneLoopToken++;
+        stopSceneLoop();
         compileRunToken++;
         runtimeSceneRenderToken++;
-        isScenePlaying = false;
         previewPlayback.playing = false;
         previewPlayback.lastTickMs = 0;
         previewPlayback.needsRender = false;
-        if (sceneAnimationId) {
-          cancelAnimationFrame(sceneAnimationId);
-          sceneAnimationId = null;
-        }
         if (compileDebounceId) {
           window.clearTimeout(compileDebounceId);
           compileDebounceId = null;
@@ -4852,6 +4913,45 @@ ${track}
             targetContext.drawImage(canvas, 0, 0, targetCanvas.width, targetCanvas.height);
           }
         }
+      }
+
+      async function createFullResolutionExportRenderer(script) {
+        const mod = await loadMotionLoomWasm();
+        if (!mod || typeof mod.WasmSceneRenderer !== 'function') {
+          throw new Error('MotionLoom WASM package does not expose WasmSceneRenderer');
+        }
+        const mode = navigator.gpu ? 'gpu' : 'cpu';
+        const renderer = mode === 'gpu' && typeof mod.WasmSceneRenderer.create === 'function'
+          ? await mod.WasmSceneRenderer.create(script, mode)
+          : new mod.WasmSceneRenderer(script, mode);
+        try {
+          addImportedSvgAssets(renderer);
+          await attachGraphAssets(renderer, script);
+          await attachMotionLoomFonts(renderer);
+          return { renderer, mode };
+        } catch (err) {
+          freeWasmRenderer(renderer);
+          throw err;
+        }
+      }
+
+      async function renderExportFrameWithRenderer(exportRuntime, graph, frame, targetCanvas) {
+        const size = graph.renderSize || graph.size;
+        if (exportRuntime.mode === 'gpu') {
+          await exportRuntime.renderer.render_frame_to_canvas(frame, targetCanvas);
+          return;
+        }
+        const rgba = await exportRuntime.renderer.render_frame(frame);
+        if (targetCanvas.width !== size[0]) targetCanvas.width = size[0];
+        if (targetCanvas.height !== size[1]) targetCanvas.height = size[1];
+        const targetContext = targetCanvas.getContext('2d');
+        if (!targetContext) throw new Error('Export canvas 2D context is unavailable.');
+        const clamped = rgba instanceof Uint8ClampedArray
+          ? rgba
+          : ArrayBuffer.isView(rgba)
+            ? new Uint8ClampedArray(rgba.buffer, rgba.byteOffset, rgba.byteLength)
+            : new Uint8ClampedArray(rgba);
+        targetContext.putImageData(new ImageData(clamped, size[0], size[1]), 0, 0);
       }
 
       function applyHslaOverlay(ctx, w, h, params) {
@@ -5429,15 +5529,24 @@ ${track}
             // CPU makes otherwise GPU-native showcases dramatically slower.
             // Combined Scene effects must be lowered into the GPU render-pass
             // DAG instead of routing all frames through CPU RGBA.
+            const previewSize = resolveBrowserPreviewSize(graph);
+            const previewScript = withPreviewRenderSize(rawScript, previewSize);
+            const previewGraph = parseGraph(previewScript);
             const sceneWasmMode = await tryRenderSceneWithWasm(
-              rawScript,
-              graph,
+              previewScript,
+              previewGraph,
               playbackOptions,
               compileToken
             );
             if (compileToken !== compileRunToken) return;
             if (sceneWasmMode) {
+              const authoredSize = graph.renderSize || graph.size;
+              const scaledPreview = authoredSize
+                && (Number(authoredSize[0]) !== previewSize[0] || Number(authoredSize[1]) !== previewSize[1]);
               compileStatus.textContent += ` | rendered by ${sceneWasmMode}`;
+              if (scaledPreview) {
+                compileStatus.textContent += ` | preview ${previewSize[0]}×${previewSize[1]}`;
+              }
               return;
             }
             throw new Error('MotionLoom WASM scene renderer returned no render mode.');
@@ -5768,6 +5877,7 @@ ${track}
         if (previewPlayBtn) previewPlayBtn.disabled = true;
         isVideoExporting = true;
         pauseSceneLoopForExport();
+        let exportRuntime = null;
         try {
           const exportGraph = parseGraph(editor.value);
           const exportSize = exportGraph.renderSize || exportGraph.size;
@@ -5780,11 +5890,16 @@ ${track}
             const exportContext = exportCanvas.getContext('2d');
             exportContext?.drawImage(canvas, 0, 0, exportCanvas.width, exportCanvas.height);
           }
+          if (exportGraph.scenes.length > 0) {
+            exportRuntime = await createFullResolutionExportRenderer(editor.value);
+          }
           await exporter(exportCanvas, {
             format: selectedFormat,
             duration: exportGraph.duration || 4,
             fps: exportGraph.fps || 30,
-            beforeFrame: (frame) => renderPreviewFrameForExport(exportGraph, frame, exportCanvas),
+            beforeFrame: (frame) => exportRuntime
+              ? renderExportFrameWithRenderer(exportRuntime, exportGraph, frame, exportCanvas)
+              : renderPreviewFrameForExport(exportGraph, frame, exportCanvas),
             onStatus: (message) => {
               webgpuStatus.textContent = message;
             },
@@ -5792,6 +5907,7 @@ ${track}
         } catch (err) {
           compileStatus.textContent = `Export error: ${formatWasmError(err)}`;
         } finally {
+          freeWasmRenderer(exportRuntime?.renderer);
           isVideoExporting = false;
           downloadBtn.disabled = false;
           downloadBtn.textContent = originalText;
@@ -5799,6 +5915,7 @@ ${track}
           previewPlayback.playing = false;
           previewPlayback.needsRender = false;
           updatePreviewTimelineControls();
+          compile({ resetPlayback: false });
         }
       });
 
