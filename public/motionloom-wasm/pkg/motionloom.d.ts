@@ -19,6 +19,12 @@ export class WasmSceneRenderer {
      */
     add_asset(name: string, bytes: Uint8Array): void;
     /**
+     * Register transformed GLB bounds alongside an already preloaded asset.
+     * This is optional and non-breaking; renderers fall back to inspecting
+     * the asset bytes when the hint is absent.
+     */
+    add_environment_bounds(name: string, bytes: Uint8Array): void;
+    /**
      * Register an in-memory font for this renderer only.
      *
      * Browser hosts should use this for CJK or brand-specific text because
@@ -125,6 +131,11 @@ export function motionloom_animation_property_schema_json(): string;
 export function motionloom_document_type(script: string): string;
 
 /**
+ * Return the complete machine-readable MotionLoom DSL capability catalog.
+ */
+export function motionloom_dsl_schema_json(): string;
+
+/**
  * Return structured AnimationTarget binding diagnostics for one graph script.
  */
 export function motionloom_inspect_animation_targets(script: string): string;
@@ -217,6 +228,7 @@ export interface InitOutput {
     readonly memory: WebAssembly.Memory;
     readonly motionloom_parse_summary: (a: number, b: number) => [number, number, number, number];
     readonly motionloom_animation_property_schema_json: () => [number, number];
+    readonly motionloom_dsl_schema_json: () => [number, number];
     readonly motionloom_analyze_script_json: (a: number, b: number) => [number, number];
     readonly motionloom_analyze_script_for_target_json: (a: number, b: number, c: number, d: number) => [number, number];
     readonly motionloom_showcase_schema_json: (a: number, b: number) => [number, number];
@@ -237,6 +249,7 @@ export interface InitOutput {
     readonly wasmscenerenderer_new: (a: number, b: number, c: number, d: number) => [number, number, number];
     readonly wasmscenerenderer_create: (a: number, b: number, c: number, d: number) => any;
     readonly wasmscenerenderer_add_asset: (a: number, b: number, c: number, d: number, e: number) => void;
+    readonly wasmscenerenderer_add_environment_bounds: (a: number, b: number, c: number, d: number, e: number) => void;
     readonly wasmscenerenderer_add_font: (a: number, b: number, c: number) => any;
     readonly wasmscenerenderer_clear_assets: (a: number) => void;
     readonly wasmscenerenderer_set_group_attr: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => [number, number, number];

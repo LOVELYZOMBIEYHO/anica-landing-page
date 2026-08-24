@@ -3,6 +3,7 @@
 export const memory: WebAssembly.Memory;
 export const motionloom_parse_summary: (a: number, b: number) => [number, number, number, number];
 export const motionloom_animation_property_schema_json: () => [number, number];
+export const motionloom_dsl_schema_json: () => [number, number];
 export const motionloom_analyze_script_json: (a: number, b: number) => [number, number];
 export const motionloom_analyze_script_for_target_json: (a: number, b: number, c: number, d: number) => [number, number];
 export const motionloom_showcase_schema_json: (a: number, b: number) => [number, number];
@@ -23,6 +24,7 @@ export const __wbg_wasmscenerenderer_free: (a: number, b: number) => void;
 export const wasmscenerenderer_new: (a: number, b: number, c: number, d: number) => [number, number, number];
 export const wasmscenerenderer_create: (a: number, b: number, c: number, d: number) => any;
 export const wasmscenerenderer_add_asset: (a: number, b: number, c: number, d: number, e: number) => void;
+export const wasmscenerenderer_add_environment_bounds: (a: number, b: number, c: number, d: number, e: number) => void;
 export const wasmscenerenderer_add_font: (a: number, b: number, c: number) => any;
 export const wasmscenerenderer_clear_assets: (a: number) => void;
 export const wasmscenerenderer_set_group_attr: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => [number, number, number];

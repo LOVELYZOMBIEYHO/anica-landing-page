@@ -3514,13 +3514,34 @@ ${track}
 
       function collectGraphAssetSources(script) {
         const sources = new Set();
-        const assetTag = /<(?:ModelAsset|ImageAsset|VideoAsset|AudioAsset|FontAsset)\b[^>]*\bsrc\s*=\s*"([^"]+)"/gi;
+        // Keep this list aligned with MotionLoom's GraphAssetKind. External
+        // Actions resolve their clip bytes through AnimationAsset, so omitting
+        // it here makes an otherwise valid GPU scene fail only in the browser
+        // and silently fall back to the less capable CPU renderer.
+        const assetTag = /<(?:ModelAsset|ImageAsset|VideoAsset|AudioAsset|AnimationAsset|FontAsset)\b[^>]*\bsrc\s*=\s*"([^"]+)"/gi;
         let match;
         while ((match = assetTag.exec(script)) !== null) {
           const src = String(match[1] || '').trim();
           if (src && !src.startsWith('data:')) sources.add(src);
         }
         return [...sources];
+      }
+
+      function collectGraphEnvironmentSources(script) {
+        const environmentIds = new Set();
+        const environmentTag = /<Environment\b[^>]*\basset\s*=\s*"([^"]+)"/gi;
+        let match;
+        while ((match = environmentTag.exec(script)) !== null) {
+          environmentIds.add(String(match[1] || '').trim());
+        }
+        const sources = new Set();
+        const modelTag = /<ModelAsset\b[^>]*\bid\s*=\s*"([^"]+)"[^>]*\bsrc\s*=\s*"([^"]+)"/gi;
+        while ((match = modelTag.exec(script)) !== null) {
+          if (environmentIds.has(String(match[1] || '').trim())) {
+            sources.add(String(match[2] || '').trim());
+          }
+        }
+        return sources;
       }
 
       function bytesToDataUri(bytes, mime = 'application/octet-stream') {
@@ -3585,6 +3606,7 @@ ${track}
       async function attachGraphAssets(renderer, script) {
         if (!renderer || typeof renderer.add_asset !== 'function') return;
         const sources = collectGraphAssetSources(script);
+        const environmentSources = collectGraphEnvironmentSources(script);
         for (const src of sources) {
           let fetchUrl = src;
           try {
@@ -3611,6 +3633,17 @@ ${track}
           // alias is useful for graphs that refer to the same asset directly.
           renderer.add_asset(src, bytes);
           if (fetchUrl !== src) renderer.add_asset(fetchUrl, bytes);
+          if (
+            environmentSources.has(src) &&
+            typeof renderer.add_environment_bounds === 'function'
+          ) {
+            // Browser Scene3D uses transformed GLB bounds to resolve semantic
+            // Surface/Anchor/Camera coordinates. Compute the compact hint
+            // during preload so semantic setup does not rescan the environment
+            // while producing the first presented frame.
+            renderer.add_environment_bounds(src, bytes);
+            if (fetchUrl !== src) renderer.add_environment_bounds(fetchUrl, bytes);
+          }
         }
       }
 

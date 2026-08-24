@@ -40,6 +40,20 @@ export class WasmSceneRenderer {
         wasm.wasmscenerenderer_add_asset(this.__wbg_ptr, ptr0, len0, ptr1, len1);
     }
     /**
+     * Register transformed GLB bounds alongside an already preloaded asset.
+     * This is optional and non-breaking; renderers fall back to inspecting
+     * the asset bytes when the hint is absent.
+     * @param {string} name
+     * @param {Uint8Array} bytes
+     */
+    add_environment_bounds(name, bytes) {
+        const ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
+        const len1 = WASM_VECTOR_LEN;
+        wasm.wasmscenerenderer_add_environment_bounds(this.__wbg_ptr, ptr0, len0, ptr1, len1);
+    }
+    /**
      * Register an in-memory font for this renderer only.
      *
      * Browser hosts should use this for CJK or brand-specific text because
@@ -331,6 +345,23 @@ export function motionloom_document_type(script) {
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
         wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Return the complete machine-readable MotionLoom DSL capability catalog.
+ * @returns {string}
+ */
+export function motionloom_dsl_schema_json() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.motionloom_dsl_schema_json();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
     }
 }
 
@@ -1668,12 +1699,12 @@ function __wbg_get_imports() {
             arg0.writeTexture(arg1, arg2, arg3, arg4);
         }, arguments); },
         __wbindgen_cast_0000000000000001: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 1280, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 1355, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
             const ret = makeMutClosure(arg0, arg1, wasm_bindgen__convert__closures_____invoke__h200a21b777a48c32);
             return ret;
         },
         __wbindgen_cast_0000000000000002: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 1527, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 1602, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
             const ret = makeMutClosure(arg0, arg1, wasm_bindgen__convert__closures_____invoke__h4aa3e05baac20cce);
             return ret;
         },
