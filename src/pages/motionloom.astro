@@ -3525,17 +3525,23 @@ ${track}
         }
       }
 
-      function collectGraphAssetSources(script) {
-        const sources = new Set();
+      function collectGraphAssetReferences(script) {
+        const references = new Map();
         // Keep this list aligned with MotionLoom's GraphAssetKind. Animation
         // assets still belong to scene/showcase playback and must be prefetched.
-        const assetTag = /<(?:ModelAsset|ImageAsset|VideoAsset|AudioAsset|AnimationAsset|FontAsset)\b[^>]*\bsrc\s*=\s*"([^"]+)"/gi;
+        // ActionLibrary is intentionally included even though it is not a
+        // GraphAsset: browser/WASM hosts cannot read its URL themselves and
+        // require the authored `src` to be registered in the memory resolver.
+        const assetTag = /<(ModelAsset|ImageAsset|VideoAsset|AudioAsset|AnimationAsset|FontAsset|ActionLibrary)\b[^>]*\bsrc\s*=\s*"([^"]+)"/gi;
         let match;
         while ((match = assetTag.exec(script)) !== null) {
-          const src = String(match[1] || '').trim();
-          if (src && !src.startsWith('data:')) sources.add(src);
+          const kind = String(match[1] || '');
+          const src = String(match[2] || '').trim();
+          if (src && !src.startsWith('data:') && !references.has(src)) {
+            references.set(src, { kind, src });
+          }
         }
-        return [...sources];
+        return [...references.values()];
       }
 
       function collectGraphEnvironmentSources(script) {
@@ -3616,13 +3622,23 @@ ${track}
 
       async function attachGraphAssets(renderer, script) {
         if (!renderer || typeof renderer.add_asset !== 'function') return;
-        const sources = collectGraphAssetSources(script);
         const environmentSources = collectGraphEnvironmentSources(script);
-        for (const src of sources) {
+        const pending = collectGraphAssetReferences(script).map((reference) => ({
+          ...reference,
+          baseUrl: currentGraphAssetBaseUrl
+        }));
+        const visitedUrls = new Set();
+        const maxPreloadedAssets = 256;
+
+        for (let index = 0; index < pending.length; index += 1) {
+          if (index >= maxPreloadedAssets) {
+            throw new Error(`asset preload exceeded ${maxPreloadedAssets} files`);
+          }
+          const { kind, src, baseUrl } = pending[index];
           let fetchUrl = src;
           try {
-            if (currentGraphAssetBaseUrl) {
-              fetchUrl = new URL(src, currentGraphAssetBaseUrl).href;
+            if (baseUrl) {
+              fetchUrl = new URL(src, baseUrl).href;
             } else if (!/^(?:https?:)?\/\//i.test(src) && !src.startsWith('/')) {
               // A pasted/local graph has no source document URL. Keep the
               // original name registered only when the host can resolve it.
@@ -3644,6 +3660,16 @@ ${track}
           // alias is useful for graphs that refer to the same asset directly.
           renderer.add_asset(src, bytes);
           if (fetchUrl !== src) renderer.add_asset(fetchUrl, bytes);
+
+          if (kind.toLowerCase() === 'actionlibrary' && !visitedUrls.has(fetchUrl)) {
+            visitedUrls.add(fetchUrl);
+            const libraryScript = new TextDecoder().decode(bytes);
+            const libraryBaseUrl = new URL('.', fetchUrl).href;
+            for (const reference of collectGraphAssetReferences(libraryScript)) {
+              pending.push({ ...reference, baseUrl: libraryBaseUrl });
+            }
+          }
+
           if (
             environmentSources.has(src) &&
             typeof renderer.add_environment_bounds === 'function'
