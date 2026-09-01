@@ -1,0 +1,102 @@
+<!-- Front kick phases: neutral, anticipation, chamber, release, extension, strike, retract, recovery, neutral. -->
+<Action id="kick_action" skeleton="humanoid_v1" duration="2.4s">
+  <Pose t="0s">
+    <Bone id="upper_arm_l" side="10" />
+    <Bone id="upper_arm_r" side="10" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="lower_leg_r" bend="-10" interpolation="ease" />
+  </Pose>
+
+  <Pose t="0.2s">
+    <Bone id="upper_arm_l" side="10" />
+    <Bone id="upper_arm_r" side="10" />
+    <Bone id="lower_leg_l" bend="-5" />
+    <Bone id="lower_leg_r" bend="2" interpolation="ease" />
+  </Pose>
+
+  <Pose t="0.333s">
+    <Bone id="hips" x="-0.04" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="30" side="38" />
+    <Bone id="forearm_r" bend="64" />
+    <Bone id="upper_leg_l" side="-4" />
+    <Bone id="lower_leg_l" bend="-9" />
+    <Bone id="upper_leg_r" forward="52" side="5" />
+    <Bone id="lower_leg_r" bend="122" interpolation="ease" />
+    <Bone id="foot_r" bend="-16" />
+  </Pose>
+
+  <Pose t="0.467s">
+    <Bone id="hips" x="-0.04" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="30" side="38" />
+    <Bone id="forearm_r" bend="64" />
+    <Bone id="upper_leg_l" side="-4" />
+    <Bone id="lower_leg_l" bend="-9" />
+    <Bone id="upper_leg_r" forward="52" side="5" />
+    <Bone id="lower_leg_r" bend="54" interpolation="ease" />
+    <Bone id="foot_r" bend="-16" />
+  </Pose>
+
+  <Pose t="0.633s">
+    <Bone id="hips" x="-0.04" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="30" side="38" />
+    <Bone id="forearm_r" bend="64" />
+    <Bone id="upper_leg_l" side="-4" />
+    <Bone id="lower_leg_l" bend="-9" />
+    <Bone id="upper_leg_r" forward="64" side="5" />
+    <Bone id="lower_leg_r" bend="-6" interpolation="ease" />
+    <Bone id="foot_r" bend="-18" />
+  </Pose>
+
+  <Pose t="0.867s">
+    <Bone id="hips" x="-0.07" turn="-12" />
+    <Bone id="spine" bend="-5" />
+    <Bone id="chest" bend="-8" turn="14" />
+    <Bone id="upper_arm_l" forward="-34" side="42" />
+    <Bone id="forearm_l" bend="66" />
+    <Bone id="upper_arm_r" forward="36" side="44" />
+    <Bone id="forearm_r" bend="68" />
+    <Bone id="upper_leg_l" side="-6" />
+    <Bone id="lower_leg_l" bend="-9" />
+    <Bone id="upper_leg_r" forward="82" side="4" />
+    <Bone id="lower_leg_r" bend="-6" interpolation="ease" />
+    <Bone id="foot_r" bend="-20" />
+  </Pose>
+
+  <Pose t="1.167s">
+    <Bone id="hips" x="-0.05" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="30" side="38" />
+    <Bone id="forearm_r" bend="64" />
+    <Bone id="upper_leg_r" forward="55" />
+    <Bone id="lower_leg_l" bend="-9" />
+    <Bone id="lower_leg_r" bend="30" interpolation="ease" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.65s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-5" />
+    <Bone id="lower_leg_r" bend="4" interpolation="ease" />
+    <Bone id="upper_arm_l" side="22" />
+    <Bone id="upper_arm_r" side="22" />
+  </Pose>
+
+  <Pose t="2.4s">
+    <Bone id="upper_arm_l" side="10" />
+    <Bone id="upper_arm_r" side="10" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="lower_leg_r" bend="-10" interpolation="ease" />
+  </Pose>
+</Action>

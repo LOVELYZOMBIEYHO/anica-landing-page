@@ -2299,6 +2299,7 @@ const motionLoomWasmVersion = createHash('sha256')
       function setSceneToolPanel(panel) {
         drawingToolsContent.classList.toggle('hidden', panel !== 'drawing-tools');
         puppetWarpContent.classList.toggle('hidden', panel !== 'puppet-warp');
+        try { window.localStorage.setItem('motionloom.sceneToolPanel', panel); } catch (_) {}
         applySceneInspectorState();
         window.dispatchEvent(new CustomEvent('motionloom:tool-panel-change', { detail: { panel } }));
       }
@@ -2338,6 +2339,12 @@ const motionLoomWasmVersion = createHash('sha256')
           } catch (_) {}
         });
       });
+      try {
+        const storedToolPanel = window.localStorage.getItem('motionloom.sceneToolPanel');
+        if (storedToolPanel && Array.from(sceneToolPanelSelect.options).some((option) => option.value === storedToolPanel)) {
+          sceneToolPanelSelect.value = storedToolPanel;
+        }
+      } catch (_) {}
       setSceneToolPanel(sceneToolPanelSelect.value);
 
       function setPlaygroundExpanded(expanded) {
@@ -3457,11 +3464,16 @@ ${track}
       async function loadMotionLoomWasm() {
         if (motionLoomWasmUnavailable) return null;
         if (motionLoomWasmPromise) return motionLoomWasmPromise;
+        if (window.MOTIONLOOM_WASM_PROMISE) {
+          motionLoomWasmPromise = window.MOTIONLOOM_WASM_PROMISE;
+          return motionLoomWasmPromise;
+        }
 
         const wasmJsUrl = `${wasmPkgBase}/motionloom.js?v=${motionLoomWasmVersion}`;
         const wasmBinaryUrl = `${wasmPkgBase}/motionloom_bg.wasm?v=${motionLoomWasmVersion}`;
 
-        motionLoomWasmPromise = import(/* @vite-ignore */ wasmJsUrl)
+        const nativeImport = new Function('url', 'return import(url)');
+        motionLoomWasmPromise = nativeImport(wasmJsUrl)
           .then(async (mod) => {
             if (typeof mod.default === 'function') {
               await mod.default({ module_or_path: wasmBinaryUrl });
@@ -3473,6 +3485,7 @@ ${track}
             console.info('MotionLoom WASM package unavailable; using Canvas fallback.', err);
             return null;
           });
+        window.MOTIONLOOM_WASM_PROMISE = motionLoomWasmPromise;
 
         return motionLoomWasmPromise;
       }
@@ -3514,10 +3527,8 @@ ${track}
 
       function collectGraphAssetSources(script) {
         const sources = new Set();
-        // Keep this list aligned with MotionLoom's GraphAssetKind. External
-        // Actions resolve their clip bytes through AnimationAsset, so omitting
-        // it here makes an otherwise valid GPU scene fail only in the browser
-        // and silently fall back to the less capable CPU renderer.
+        // Keep this list aligned with MotionLoom's GraphAssetKind. Animation
+        // assets still belong to scene/showcase playback and must be prefetched.
         const assetTag = /<(?:ModelAsset|ImageAsset|VideoAsset|AudioAsset|AnimationAsset|FontAsset)\b[^>]*\bsrc\s*=\s*"([^"]+)"/gi;
         let match;
         while ((match = assetTag.exec(script)) !== null) {
@@ -5580,6 +5591,9 @@ ${track}
               if (scaledPreview) {
                 compileStatus.textContent += ` | preview ${previewSize[0]}×${previewSize[1]}`;
               }
+              window.dispatchEvent(new CustomEvent('motionloom:preview-ready', {
+                detail: { mode: sceneWasmMode, fps: graph.fps },
+              }));
               return;
             }
             throw new Error('MotionLoom WASM scene renderer returned no render mode.');
@@ -6009,6 +6023,12 @@ ${track}
           if (groupControlSelect) groupControlSelect.value = requestedGroupId;
           updateGroupControlInputs();
         }
+      });
+      window.addEventListener('motionloom:load-example-request', (event) => {
+        const value = String(event.detail?.value || '').trim();
+        const category = String(event.detail?.category || 'showcase');
+        if (!value) return;
+        loadRemoteExample(value, { category });
       });
       editor.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) compileNow();

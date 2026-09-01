@@ -1,0 +1,1228 @@
+<!-- MotionLoom Official Action. Derived from Character1/Quaternius UAL1 Sitting_Idle_Loop (CC0 1.0), converted to humanoid_v1. -->
+<Action id="sit_idle_loop" skeleton="humanoid_v1" duration="1.667s">
+  <Pose t="0s">
+    <Bone id="chest" bend="-10.693254" rotationZ="0.028874" turn="0.010176" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="71.633621" rotationZ="-0.07238" twist="2.104308" />
+    <Bone id="forearm_r" bend="64.73716" rotationZ="0.83381" twist="-22.941286" />
+    <Bone id="hand_l" rotationX="35.057888" rotationZ="22.128117" twist="47.078201" />
+    <Bone id="hand_r" rotationX="56.616352" rotationZ="-48.552017" twist="-40.512459" />
+    <Bone id="head" bend="-0.940449" rotationZ="-0.129422" turn="11.00544" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="10.693271" rotationZ="-0.019613" turn="-0.033314" />
+    <Bone id="shoulder_l" rotationX="-2.423109" rotationY="-0.786988" rotationZ="-6.261801" />
+    <Bone id="shoulder_r" rotationX="-2.509129" rotationY="0.504602" rotationZ="-5.668337" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.032158" side="10.445213" twist="1.851758" />
+    <Bone id="upper_arm_r" forward="17.123219" side="21.435219" twist="-8.386721" />
+    <Bone id="upper_chest" bend="-10.693293" rotationZ="0.031272" turn="0.035582" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.033s">
+    <Bone id="chest" bend="-10.7012" rotationZ="0.028877" turn="0.010172" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="71.641304" rotationZ="-0.072672" twist="2.113259" />
+    <Bone id="forearm_r" bend="64.742706" rotationZ="0.83384" twist="-22.942385" />
+    <Bone id="hand_l" rotationX="35.053452" rotationZ="22.137346" twist="47.063488" />
+    <Bone id="hand_r" rotationX="56.610321" rotationZ="-48.558716" twist="-40.503975" />
+    <Bone id="head" bend="-0.90379" rotationZ="-0.136445" turn="11.005243" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="10.701247" rotationZ="-0.019615" turn="-0.033312" />
+    <Bone id="shoulder_l" rotationX="-2.423107" rotationY="-0.786985" rotationZ="-6.261802" />
+    <Bone id="shoulder_r" rotationX="-2.509117" rotationY="0.504601" rotationZ="-5.668344" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.038088" side="10.45813" twist="1.856257" />
+    <Bone id="upper_arm_r" forward="17.132996" side="21.445236" twist="-8.39185" />
+    <Bone id="upper_chest" bend="-10.701244" rotationZ="0.031277" turn="0.035574" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.067s">
+    <Bone id="chest" bend="-10.723168" rotationZ="0.028887" turn="0.01016" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="71.662766" rotationZ="-0.073631" twist="2.139956" />
+    <Bone id="forearm_r" bend="64.757385" rotationZ="0.834001" twist="-22.945932" />
+    <Bone id="hand_l" rotationX="35.040031" rotationZ="22.163462" twist="47.02113" />
+    <Bone id="hand_r" rotationX="56.59304" rotationZ="-48.577385" twist="-40.479698" />
+    <Bone id="head" bend="-0.805357" rotationZ="-0.155299" turn="11.004711" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="10.723212" rotationZ="-0.019622" turn="-0.033309" />
+    <Bone id="shoulder_l" rotationX="-2.423098" rotationY="-0.786993" rotationZ="-6.261796" />
+    <Bone id="shoulder_r" rotationX="-2.509111" rotationY="0.504605" rotationZ="-5.668344" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.054509" side="10.495422" twist="1.868652" />
+    <Bone id="upper_arm_r" forward="17.160614" side="21.473404" twist="-8.406273" />
+    <Bone id="upper_chest" bend="-10.723199" rotationZ="0.03129" turn="0.03555" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.1s">
+    <Bone id="chest" bend="-10.754999" rotationZ="0.0289" turn="0.010143" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="71.694016" rotationZ="-0.075057" twist="2.181283" />
+    <Bone id="forearm_r" bend="64.778984" rotationZ="0.834226" twist="-22.951958" />
+    <Bone id="hand_l" rotationX="35.01889" rotationZ="22.202158" twist="46.957199" />
+    <Bone id="hand_r" rotationX="56.566586" rotationZ="-48.604324" twist="-40.443909" />
+    <Bone id="head" bend="-0.666162" rotationZ="-0.181962" turn="11.003945" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="10.755013" rotationZ="-0.019631" turn="-0.033303" />
+    <Bone id="shoulder_l" rotationX="-2.423102" rotationY="-0.786986" rotationZ="-6.261815" />
+    <Bone id="shoulder_r" rotationX="-2.509117" rotationY="0.504605" rotationZ="-5.668341" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.078416" side="10.551537" twist="1.886566" />
+    <Bone id="upper_arm_r" forward="17.200968" side="21.515076" twist="-8.427252" />
+    <Bone id="upper_chest" bend="-10.75503" rotationZ="0.031309" turn="0.035516" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.133s">
+    <Bone id="chest" bend="-10.795238" rotationZ="0.028917" turn="0.010122" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="71.733437" rotationZ="-0.076939" twist="2.236564" />
+    <Bone id="forearm_r" bend="64.806152" rotationZ="0.834577" twist="-22.960541" />
+    <Bone id="hand_l" rotationX="34.990284" rotationZ="22.252232" twist="46.873249" />
+    <Bone id="hand_r" rotationX="56.531853" rotationZ="-48.638515" twist="-40.397766" />
+    <Bone id="head" bend="-0.494019" rotationZ="-0.214934" turn="11.002958" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="10.79528" rotationZ="-0.019643" turn="-0.033296" />
+    <Bone id="shoulder_l" rotationX="-2.423106" rotationY="-0.786986" rotationZ="-6.261793" />
+    <Bone id="shoulder_r" rotationX="-2.509118" rotationY="0.504599" rotationZ="-5.668373" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.108946" side="10.625092" twist="1.909359" />
+    <Bone id="upper_arm_r" forward="17.252514" side="21.568771" twist="-8.453941" />
+    <Bone id="upper_chest" bend="-10.795277" rotationZ="0.031333" turn="0.035473" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.167s">
+    <Bone id="chest" bend="-10.843733" rotationZ="0.028937" turn="0.010096" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="71.781143" rotationZ="-0.079344" twist="2.306479" />
+    <Bone id="forearm_r" bend="64.838989" rotationZ="0.835043" twist="-22.971933" />
+    <Bone id="hand_l" rotationX="34.95369" rotationZ="22.313816" twist="46.768997" />
+    <Bone id="hand_r" rotationX="56.488468" rotationZ="-48.679768" twist="-40.341263" />
+    <Bone id="head" bend="-0.290509" rotationZ="-0.253913" turn="11.00174" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="10.843771" rotationZ="-0.019657" turn="-0.033288" />
+    <Bone id="shoulder_l" rotationX="-2.423107" rotationY="-0.786978" rotationZ="-6.261799" />
+    <Bone id="shoulder_r" rotationX="-2.509125" rotationY="0.504602" rotationZ="-5.668353" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.145946" side="10.716423" twist="1.936806" />
+    <Bone id="upper_arm_r" forward="17.315163" side="21.634552" twist="-8.486187" />
+    <Bone id="upper_chest" bend="-10.843777" rotationZ="0.031362" turn="0.035421" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.2s">
+    <Bone id="chest" bend="-10.896419" rotationZ="0.02896" turn="0.010068" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="71.83287" rotationZ="-0.082089" twist="2.385451" />
+    <Bone id="forearm_r" bend="64.874855" rotationZ="0.835595" twist="-22.985336" />
+    <Bone id="hand_l" rotationX="34.911957" rotationZ="22.382006" twist="46.652599" />
+    <Bone id="hand_r" rotationX="56.439857" rotationZ="-48.724682" twist="-40.279099" />
+    <Bone id="head" bend="-0.073303" rotationZ="-0.295512" turn="11.00038" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="10.896461" rotationZ="-0.019673" turn="-0.033279" />
+    <Bone id="shoulder_l" rotationX="-2.423104" rotationY="-0.786984" rotationZ="-6.261802" />
+    <Bone id="shoulder_r" rotationX="-2.509114" rotationY="0.504607" rotationZ="-5.668331" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.186517" side="10.818451" twist="1.966741" />
+    <Bone id="upper_arm_r" forward="17.383667" side="21.707085" twist="-8.52125" />
+    <Bone id="upper_chest" bend="-10.896465" rotationZ="0.031393" turn="0.035365" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.233s">
+    <Bone id="chest" bend="-10.953711" rotationZ="0.028984" turn="0.010037" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="71.889175" rotationZ="-0.085122" twist="2.474181" />
+    <Bone id="forearm_r" bend="64.913788" rotationZ="0.836225" twist="-23.00082" />
+    <Bone id="hand_l" rotationX="34.864586" rotationZ="22.457338" twist="46.523151" />
+    <Bone id="hand_r" rotationX="56.385666" rotationZ="-48.773705" twist="-40.210655" />
+    <Bone id="head" bend="0.158924" rotationZ="-0.339987" turn="10.998854" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="10.95376" rotationZ="-0.019689" turn="-0.033269" />
+    <Bone id="shoulder_l" rotationX="-2.423104" rotationY="-0.786995" rotationZ="-6.261812" />
+    <Bone id="shoulder_r" rotationX="-2.509121" rotationY="0.504597" rotationZ="-5.668353" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.230975" side="10.931969" twist="1.999344" />
+    <Bone id="upper_arm_r" forward="17.458784" side="21.787064" twist="-8.559497" />
+    <Bone id="upper_chest" bend="-10.953762" rotationZ="0.031427" turn="0.035304" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.267s">
+    <Bone id="chest" bend="-11.016673" rotationZ="0.029011" turn="0.010004" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="71.951134" rotationZ="-0.088575" twist="2.57429" />
+    <Bone id="forearm_r" bend="64.956665" rotationZ="0.836926" twist="-23.018675" />
+    <Bone id="hand_l" rotationX="34.810669" rotationZ="22.541315" twist="46.378311" />
+    <Bone id="hand_r" rotationX="56.324772" rotationZ="-48.827675" twist="-40.1348" />
+    <Bone id="head" bend="0.409687" rotationZ="-0.388007" turn="10.997119" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.016708" rotationZ="-0.019708" turn="-0.033259" />
+    <Bone id="shoulder_l" rotationX="-2.423092" rotationY="-0.786979" rotationZ="-6.261802" />
+    <Bone id="shoulder_r" rotationX="-2.509113" rotationY="0.504589" rotationZ="-5.668345" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.280209" side="11.059235" twist="2.035213" />
+    <Bone id="upper_arm_r" forward="17.541786" side="21.875984" twist="-8.601514" />
+    <Bone id="upper_chest" bend="-11.016696" rotationZ="0.031465" turn="0.035237" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.3s">
+    <Bone id="chest" bend="-11.080873" rotationZ="0.029039" turn="0.009969" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.014404" rotationZ="-0.092164" twist="2.678588" />
+    <Bone id="forearm_r" bend="65.000542" rotationZ="0.837701" twist="-23.037659" />
+    <Bone id="hand_l" rotationX="34.75391" rotationZ="22.627983" twist="46.22831" />
+    <Bone id="hand_r" rotationX="56.261486" rotationZ="-48.882923" twist="-40.056915" />
+    <Bone id="head" bend="0.660947" rotationZ="-0.43612" turn="10.995295" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.080937" rotationZ="-0.019727" turn="-0.033248" />
+    <Bone id="shoulder_l" rotationX="-2.423098" rotationY="-0.786991" rotationZ="-6.261786" />
+    <Bone id="shoulder_r" rotationX="-2.50911" rotationY="0.504594" rotationZ="-5.668355" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.330806" side="11.191254" twist="2.071872" />
+    <Bone id="upper_arm_r" forward="17.626877" side="21.967644" twist="-8.644333" />
+    <Bone id="upper_chest" bend="-11.080914" rotationZ="0.031504" turn="0.035168" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.333s">
+    <Bone id="chest" bend="-11.147575" rotationZ="0.029067" turn="0.009934" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.080231" rotationZ="-0.095948" twist="2.788682" />
+    <Bone id="forearm_r" bend="65.046272" rotationZ="0.838555" twist="-23.057945" />
+    <Bone id="hand_l" rotationX="34.693584" rotationZ="22.719044" twist="46.070694" />
+    <Bone id="hand_r" rotationX="56.194725" rotationZ="-48.940449" twist="-39.975578" />
+    <Bone id="head" bend="0.917087" rotationZ="-0.485164" turn="10.993336" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.147604" rotationZ="-0.019747" turn="-0.033238" />
+    <Bone id="shoulder_l" rotationX="-2.423088" rotationY="-0.786978" rotationZ="-6.261796" />
+    <Bone id="shoulder_r" rotationX="-2.509116" rotationY="0.504602" rotationZ="-5.668326" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.383755" side="11.33036" twist="2.109997" />
+    <Bone id="upper_arm_r" forward="17.715614" side="22.063759" twist="-8.688707" />
+    <Bone id="upper_chest" bend="-11.147625" rotationZ="0.031544" turn="0.035097" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.367s">
+    <Bone id="chest" bend="-11.218328" rotationZ="0.029098" turn="0.009896" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.150101" rotationZ="-0.100042" twist="2.906734" />
+    <Bone id="forearm_r" bend="65.09478" rotationZ="0.839407" twist="-23.079893" />
+    <Bone id="hand_l" rotationX="34.628353" rotationZ="22.816504" twist="45.902111" />
+    <Bone id="hand_r" rotationX="56.123196" rotationZ="-49.001717" twist="-39.888973" />
+    <Bone id="head" bend="1.182966" rotationZ="-0.536068" turn="10.991196" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.218352" rotationZ="-0.019769" turn="-0.033227" />
+    <Bone id="shoulder_l" rotationX="-2.423091" rotationY="-0.786989" rotationZ="-6.261806" />
+    <Bone id="shoulder_r" rotationX="-2.509112" rotationY="0.5046" rotationZ="-5.668345" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.440353" side="11.479546" twist="2.150473" />
+    <Bone id="upper_arm_r" forward="17.810141" side="22.166428" twist="-8.735729" />
+    <Bone id="upper_chest" bend="-11.21836" rotationZ="0.031586" turn="0.035022" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.4s">
+    <Bone id="chest" bend="-11.288492" rotationZ="0.029129" turn="0.009859" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.219345" rotationZ="-0.104106" twist="3.024506" />
+    <Bone id="forearm_r" bend="65.143158" rotationZ="0.840295" twist="-23.101982" />
+    <Bone id="hand_l" rotationX="34.562798" rotationZ="22.913874" twist="45.734077" />
+    <Bone id="hand_r" rotationX="56.051651" rotationZ="-49.062695" twist="-39.803082" />
+    <Bone id="head" bend="1.440275" rotationZ="-0.585328" turn="10.989017" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.288519" rotationZ="-0.01979" turn="-0.033216" />
+    <Bone id="shoulder_l" rotationX="-2.423098" rotationY="-0.786991" rotationZ="-6.261796" />
+    <Bone id="shoulder_r" rotationX="-2.50913" rotationY="0.504609" rotationZ="-5.668346" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.496915" side="11.628738" twist="2.190743" />
+    <Bone id="upper_arm_r" forward="17.904028" side="22.268875" twist="-8.782148" />
+    <Bone id="upper_chest" bend="-11.288524" rotationZ="0.031629" turn="0.034948" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.433s">
+    <Bone id="chest" bend="-11.359679" rotationZ="0.02916" turn="0.009821" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.288383" rotationZ="-0.108197" twist="3.143739" />
+    <Bone id="forearm_r" bend="65.192322" rotationZ="0.841233" twist="-23.124485" />
+    <Bone id="hand_l" rotationX="34.496506" rotationZ="23.013847" twist="45.562939" />
+    <Bone id="hand_r" rotationX="55.978691" rotationZ="-49.124821" twist="-39.715927" />
+    <Bone id="head" bend="1.693928" rotationZ="-0.633883" turn="10.986763" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.359716" rotationZ="-0.019812" turn="-0.033205" />
+    <Bone id="shoulder_l" rotationX="-2.423095" rotationY="-0.786984" rotationZ="-6.261799" />
+    <Bone id="shoulder_r" rotationX="-2.509116" rotationY="0.504601" rotationZ="-5.668359" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.555379" side="11.780975" twist="2.232152" />
+    <Bone id="upper_arm_r" forward="17.999571" side="22.373337" twist="-8.829112" />
+    <Bone id="upper_chest" bend="-11.359712" rotationZ="0.031672" turn="0.034873" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.467s">
+    <Bone id="chest" bend="-11.433656" rotationZ="0.029192" turn="0.009781" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.360428" rotationZ="-0.112466" twist="3.267444" />
+    <Bone id="forearm_r" bend="65.243645" rotationZ="0.842196" twist="-23.14785" />
+    <Bone id="hand_l" rotationX="34.427059" rotationZ="23.117949" twist="45.385288" />
+    <Bone id="hand_r" rotationX="55.902702" rotationZ="-49.189564" twist="-39.62561" />
+    <Bone id="head" bend="1.948373" rotationZ="-0.682585" turn="10.984396" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.433674" rotationZ="-0.019834" turn="-0.033194" />
+    <Bone id="shoulder_l" rotationX="-2.423107" rotationY="-0.786983" rotationZ="-6.261799" />
+    <Bone id="shoulder_r" rotationX="-2.5091" rotationY="0.504593" rotationZ="-5.668345" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.616345" side="11.939697" twist="2.275101" />
+    <Bone id="upper_arm_r" forward="18.098843" side="22.4823" twist="-8.877597" />
+    <Bone id="upper_chest" bend="-11.433694" rotationZ="0.031717" turn="0.034794" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.5s">
+    <Bone id="chest" bend="-11.505575" rotationZ="0.029224" turn="0.009743" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.430534" rotationZ="-0.116587" twist="3.387023" />
+    <Bone id="forearm_r" bend="65.293655" rotationZ="0.84311" twist="-23.170326" />
+    <Bone id="hand_l" rotationX="34.35947" rotationZ="23.219475" twist="45.213036" />
+    <Bone id="hand_r" rotationX="55.828857" rotationZ="-49.2528" twist="-39.538025" />
+    <Bone id="head" bend="2.185236" rotationZ="-0.727917" turn="10.982089" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.505681" rotationZ="-0.019857" turn="-0.033183" />
+    <Bone id="shoulder_l" rotationX="-2.423099" rotationY="-0.786998" rotationZ="-6.261802" />
+    <Bone id="shoulder_r" rotationX="-2.509107" rotationY="0.504603" rotationZ="-5.668339" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.676048" side="12.094193" twist="2.316944" />
+    <Bone id="upper_arm_r" forward="18.195526" side="22.588524" twist="-8.924588" />
+    <Bone id="upper_chest" bend="-11.505796" rotationZ="0.031761" turn="0.034718" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.533s">
+    <Bone id="chest" bend="-11.577399" rotationZ="0.029255" turn="0.009705" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.500748" rotationZ="-0.12067" twist="3.505018" />
+    <Bone id="forearm_r" bend="65.343735" rotationZ="0.844009" twist="-23.192373" />
+    <Bone id="hand_l" rotationX="34.292294" rotationZ="23.320635" twist="45.042469" />
+    <Bone id="hand_r" rotationX="55.755566" rotationZ="-49.316074" twist="-39.451221" />
+    <Bone id="head" bend="2.407909" rotationZ="-0.770528" turn="10.979815" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.577529" rotationZ="-0.019879" turn="-0.033173" />
+    <Bone id="shoulder_l" rotationX="-2.423096" rotationY="-0.786993" rotationZ="-6.261799" />
+    <Bone id="shoulder_r" rotationX="-2.509123" rotationY="0.504604" rotationZ="-5.668342" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.735768" side="12.247887" twist="2.358575" />
+    <Bone id="upper_arm_r" forward="18.291843" side="22.69442" twist="-8.971133" />
+    <Bone id="upper_chest" bend="-11.577594" rotationZ="0.031804" turn="0.034643" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.567s">
+    <Bone id="chest" bend="-11.650799" rotationZ="0.029288" turn="0.009666" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.572319" rotationZ="-0.124763" twist="3.623548" />
+    <Bone id="forearm_r" bend="65.394958" rotationZ="0.844878" twist="-23.214287" />
+    <Bone id="hand_l" rotationX="34.224373" rotationZ="23.423758" twist="44.86998" />
+    <Bone id="hand_r" rotationX="55.681339" rotationZ="-49.380955" twist="-39.363228" />
+    <Bone id="head" bend="2.617666" rotationZ="-0.810661" turn="10.977571" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.650857" rotationZ="-0.019902" turn="-0.033163" />
+    <Bone id="shoulder_l" rotationX="-2.42311" rotationY="-0.787005" rotationZ="-6.261802" />
+    <Bone id="shoulder_r" rotationX="-2.509118" rotationY="0.504604" rotationZ="-5.668346" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.797081" side="12.40406" twist="2.401135" />
+    <Bone id="upper_arm_r" forward="18.390017" side="22.802483" twist="-9.018367" />
+    <Bone id="upper_chest" bend="-11.650888" rotationZ="0.031849" turn="0.034566" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.6s">
+    <Bone id="chest" bend="-11.720958" rotationZ="0.02932" turn="0.009628" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.640999" rotationZ="-0.128581" twist="3.734668" />
+    <Bone id="forearm_r" bend="65.444214" rotationZ="0.845716" twist="-23.234547" />
+    <Bone id="hand_l" rotationX="34.160305" rotationZ="23.521917" twist="44.707279" />
+    <Bone id="hand_r" rotationX="55.611103" rotationZ="-49.443165" twist="-39.279934" />
+    <Bone id="head" bend="2.795827" rotationZ="-0.844745" turn="10.975564" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.721015" rotationZ="-0.019924" turn="-0.033153" />
+    <Bone id="shoulder_l" rotationX="-2.42309" rotationY="-0.786992" rotationZ="-6.261796" />
+    <Bone id="shoulder_r" rotationX="-2.509113" rotationY="0.50461" rotationZ="-5.668355" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.855783" side="12.552116" twist="2.441689" />
+    <Bone id="upper_arm_r" forward="18.48365" side="22.905548" twist="-9.063183" />
+    <Bone id="upper_chest" bend="-11.72104" rotationZ="0.031892" turn="0.034492" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.633s">
+    <Bone id="chest" bend="-11.78958" rotationZ="0.02935" turn="0.009592" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.708214" rotationZ="-0.132231" twist="3.840543" />
+    <Bone id="forearm_r" bend="65.4925" rotationZ="0.84648" twist="-23.253481" />
+    <Bone id="hand_l" rotationX="34.098911" rotationZ="23.617359" twist="44.550686" />
+    <Bone id="hand_r" rotationX="55.543434" rotationZ="-49.50428" twist="-39.199265" />
+    <Bone id="head" bend="2.939707" rotationZ="-0.872265" turn="10.973845" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.789667" rotationZ="-0.019946" turn="-0.033144" />
+    <Bone id="shoulder_l" rotationX="-2.423107" rotationY="-0.786995" rotationZ="-6.261801" />
+    <Bone id="shoulder_r" rotationX="-2.509119" rotationY="0.504606" rotationZ="-5.668353" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.913367" side="12.695374" twist="2.481351" />
+    <Bone id="upper_arm_r" forward="18.574978" side="23.005951" twist="-9.10669" />
+    <Bone id="upper_chest" bend="-11.789761" rotationZ="0.031934" turn="0.03442" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.667s">
+    <Bone id="chest" bend="-11.858294" rotationZ="0.029381" turn="0.009555" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.775581" rotationZ="-0.13579" twist="3.943161" />
+    <Bone id="forearm_r" bend="65.540993" rotationZ="0.847209" twist="-23.271351" />
+    <Bone id="hand_l" rotationX="34.039089" rotationZ="23.711983" twist="44.397289" />
+    <Bone id="hand_r" rotationX="55.476952" rotationZ="-49.56551" twist="-39.119743" />
+    <Bone id="head" bend="3.038712" rotationZ="-0.891195" turn="10.972532" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.858433" rotationZ="-0.019968" turn="-0.033135" />
+    <Bone id="shoulder_l" rotationX="-2.423107" rotationY="-0.787" rotationZ="-6.261788" />
+    <Bone id="shoulder_r" rotationX="-2.509111" rotationY="0.50461" rotationZ="-5.668345" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.970943" side="12.836563" twist="2.520885" />
+    <Bone id="upper_arm_r" forward="18.665888" side="23.105766" twist="-9.149822" />
+    <Bone id="upper_chest" bend="-11.858493" rotationZ="0.031977" turn="0.034348" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.7s">
+    <Bone id="chest" bend="-11.922521" rotationZ="0.02941" turn="0.009521" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.838646" rotationZ="-0.138985" twist="4.035363" />
+    <Bone id="forearm_r" bend="65.586479" rotationZ="0.847813" twist="-23.286865" />
+    <Bone id="hand_l" rotationX="33.985027" rotationZ="23.799274" twist="44.257599" />
+    <Bone id="hand_r" rotationX="55.416302" rotationZ="-49.622826" twist="-39.04665" />
+    <Bone id="head" bend="3.047538" rotationZ="-0.89287" turn="10.972161" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.922613" rotationZ="-0.019988" turn="-0.033127" />
+    <Bone id="shoulder_l" rotationX="-2.423107" rotationY="-0.786986" rotationZ="-6.261806" />
+    <Bone id="shoulder_r" rotationX="-2.509114" rotationY="0.504598" rotationZ="-5.668346" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="8.024663" side="12.965919" twist="2.557644" />
+    <Bone id="upper_arm_r" forward="18.750273" side="23.198212" twist="-9.189727" />
+    <Bone id="upper_chest" bend="-11.922669" rotationZ="0.032016" turn="0.034281" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.733s">
+    <Bone id="chest" bend="-11.983622" rotationZ="0.029438" turn="0.009489" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.898628" rotationZ="-0.141888" twist="4.118915" />
+    <Bone id="forearm_r" bend="65.629829" rotationZ="0.848383" twist="-23.30031" />
+    <Bone id="hand_l" rotationX="33.935902" rotationZ="23.881115" twist="44.128735" />
+    <Bone id="hand_r" rotationX="55.360321" rotationZ="-49.677521" twist="-38.978397" />
+    <Bone id="head" bend="3.022498" rotationZ="-0.888067" turn="10.972176" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.9837" rotationZ="-0.020008" turn="-0.033119" />
+    <Bone id="shoulder_l" rotationX="-2.423093" rotationY="-0.787004" rotationZ="-6.261792" />
+    <Bone id="shoulder_r" rotationX="-2.50912" rotationY="0.504614" rotationZ="-5.668364" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="8.075634" side="13.086052" twist="2.592499" />
+    <Bone id="upper_arm_r" forward="18.82999" side="23.285233" twist="-9.227317" />
+    <Bone id="upper_chest" bend="-11.983773" rotationZ="0.032054" turn="0.034218" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.767s">
+    <Bone id="chest" bend="-12.042625" rotationZ="0.029465" turn="0.009457" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.956795" rotationZ="-0.144495" twist="4.195093" />
+    <Bone id="forearm_r" bend="65.671959" rotationZ="0.848845" twist="-23.311832" />
+    <Bone id="hand_l" rotationX="33.890839" rotationZ="23.958536" twist="44.008812" />
+    <Bone id="hand_r" rotationX="55.308121" rotationZ="-49.73035" twist="-38.914001" />
+    <Bone id="head" bend="2.98335" rotationZ="-0.880565" turn="10.972374" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="12.042729" rotationZ="-0.020027" turn="-0.033112" />
+    <Bone id="shoulder_l" rotationX="-2.423102" rotationY="-0.786993" rotationZ="-6.261805" />
+    <Bone id="shoulder_r" rotationX="-2.509127" rotationY="0.504611" rotationZ="-5.668339" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="8.124527" side="13.198708" twist="2.62589" />
+    <Bone id="upper_arm_r" forward="18.906206" side="23.368126" twist="-9.263157" />
+    <Bone id="upper_chest" bend="-12.042822" rotationZ="0.032091" turn="0.034156" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.8s">
+    <Bone id="chest" bend="-12.095314" rotationZ="0.029489" turn="0.009429" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="73.008804" rotationZ="-0.146686" twist="4.258226" />
+    <Bone id="forearm_r" bend="65.709518" rotationZ="0.849221" twist="-23.320511" />
+    <Bone id="hand_l" rotationX="33.853409" rotationZ="24.025974" twist="43.906685" />
+    <Bone id="hand_r" rotationX="55.26368" rotationZ="-49.777607" twist="-38.857986" />
+    <Bone id="head" bend="2.936004" rotationZ="-0.871498" turn="10.972704" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="12.095416" rotationZ="-0.020044" turn="-0.033105" />
+    <Bone id="shoulder_l" rotationX="-2.423097" rotationY="-0.786986" rotationZ="-6.261799" />
+    <Bone id="shoulder_r" rotationX="-2.509108" rotationY="0.504591" rotationZ="-5.668342" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="8.167826" side="13.295517" twist="2.655478" />
+    <Bone id="upper_arm_r" forward="18.973541" side="23.440819" twist="-9.294811" />
+    <Bone id="upper_chest" bend="-12.0955" rotationZ="0.032123" turn="0.034101" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.833s">
+    <Bone id="chest" bend="-12.142411" rotationZ="0.02951" turn="0.009404" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="73.05526" rotationZ="-0.148423" twist="4.309421" />
+    <Bone id="forearm_r" bend="65.743103" rotationZ="0.849442" twist="-23.326517" />
+    <Bone id="hand_l" rotationX="33.823055" rotationZ="24.084391" twist="43.820538" />
+    <Bone id="hand_r" rotationX="55.226242" rotationZ="-49.819786" twist="-38.809486" />
+    <Bone id="head" bend="2.880202" rotationZ="-0.860816" turn="10.973179" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="12.142502" rotationZ="-0.020059" turn="-0.0331" />
+    <Bone id="shoulder_l" rotationX="-2.423099" rotationY="-0.786998" rotationZ="-6.261792" />
+    <Bone id="shoulder_r" rotationX="-2.509113" rotationY="0.504611" rotationZ="-5.668349" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="8.206123" side="13.37793" twist="2.68172" />
+    <Bone id="upper_arm_r" forward="19.032867" side="23.504333" twist="-9.322701" />
+    <Bone id="upper_chest" bend="-12.142576" rotationZ="0.032153" turn="0.034053" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.867s">
+    <Bone id="chest" bend="-12.183872" rotationZ="0.029529" turn="0.009382" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="73.096306" rotationZ="-0.149792" twist="4.348734" />
+    <Bone id="forearm_r" bend="65.772949" rotationZ="0.849592" twist="-23.329988" />
+    <Bone id="hand_l" rotationX="33.799725" rotationZ="24.133621" twist="43.750557" />
+    <Bone id="hand_r" rotationX="55.195797" rotationZ="-49.856876" twist="-38.768696" />
+    <Bone id="head" bend="2.813705" rotationZ="-0.84809" turn="10.973815" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="12.183963" rotationZ="-0.020073" turn="-0.033095" />
+    <Bone id="shoulder_l" rotationX="-2.423098" rotationY="-0.786991" rotationZ="-6.261793" />
+    <Bone id="shoulder_r" rotationX="-2.509119" rotationY="0.504604" rotationZ="-5.668355" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="8.239289" side="13.445847" twist="2.704532" />
+    <Bone id="upper_arm_r" forward="19.084047" side="23.558578" twist="-9.346811" />
+    <Bone id="upper_chest" bend="-12.184009" rotationZ="0.032178" turn="0.03401" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.9s">
+    <Bone id="chest" bend="-12.215747" rotationZ="0.029544" turn="0.009365" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="73.12767" rotationZ="-0.15063" twist="4.372638" />
+    <Bone id="forearm_r" bend="65.795937" rotationZ="0.84961" twist="-23.33062" />
+    <Bone id="hand_l" rotationX="33.785748" rotationZ="24.169134" twist="43.703007" />
+    <Bone id="hand_r" rotationX="55.175179" rotationZ="-49.885254" twist="-38.739231" />
+    <Bone id="head" bend="2.739519" rotationZ="-0.833896" turn="10.974586" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="12.21578" rotationZ="-0.020083" turn="-0.033091" />
+    <Bone id="shoulder_l" rotationX="-2.423099" rotationY="-0.786989" rotationZ="-6.261795" />
+    <Bone id="shoulder_r" rotationX="-2.509113" rotationY="0.504612" rotationZ="-5.668335" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="8.2642" side="13.492905" twist="2.721832" />
+    <Bone id="upper_arm_r" forward="19.122272" side="23.598404" twist="-9.364872" />
+    <Bone id="upper_chest" bend="-12.215807" rotationZ="0.032198" turn="0.033977" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.933s">
+    <Bone id="chest" bend="-12.237075" rotationZ="0.029554" turn="0.009354" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="73.148834" rotationZ="-0.150919" twist="4.381221" />
+    <Bone id="forearm_r" bend="65.81134" rotationZ="0.849561" twist="-23.328588" />
+    <Bone id="hand_l" rotationX="33.780964" rotationZ="24.190004" twist="43.67865" />
+    <Bone id="hand_r" rotationX="55.164772" rotationZ="-49.904198" twist="-38.721722" />
+    <Bone id="head" bend="2.653923" rotationZ="-0.817521" turn="10.97553" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="12.237133" rotationZ="-0.02009" turn="-0.033089" />
+    <Bone id="shoulder_l" rotationX="-2.4231" rotationY="-0.786979" rotationZ="-6.261788" />
+    <Bone id="shoulder_r" rotationX="-2.509117" rotationY="0.504603" rotationZ="-5.668352" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="8.280093" side="13.518234" twist="2.733085" />
+    <Bone id="upper_arm_r" forward="19.146648" side="23.622795" twist="-9.376563" />
+    <Bone id="upper_chest" bend="-12.237157" rotationZ="0.032211" turn="0.033955" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="0.967s">
+    <Bone id="chest" bend="-12.245146" rotationZ="0.029558" turn="0.009349" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="73.156822" rotationZ="-0.150505" twist="4.368347" />
+    <Bone id="forearm_r" bend="65.817284" rotationZ="0.84927" twist="-23.322527" />
+    <Bone id="hand_l" rotationX="33.789215" rotationZ="24.191647" twist="43.685581" />
+    <Bone id="hand_r" rotationX="55.168095" rotationZ="-49.911049" twist="-38.719879" />
+    <Bone id="head" bend="2.551209" rotationZ="-0.797873" turn="10.976698" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="12.245233" rotationZ="-0.020093" turn="-0.033088" />
+    <Bone id="shoulder_l" rotationX="-2.423096" rotationY="-0.786994" rotationZ="-6.261805" />
+    <Bone id="shoulder_r" rotationX="-2.509109" rotationY="0.504601" rotationZ="-5.668343" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="8.284509" side="13.514389" twist="2.736718" />
+    <Bone id="upper_arm_r" forward="19.153118" side="23.627014" twist="-9.380082" />
+    <Bone id="upper_chest" bend="-12.245283" rotationZ="0.032217" turn="0.033946" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="1s">
+    <Bone id="chest" bend="-12.230907" rotationZ="0.029551" turn="0.009357" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="73.142738" rotationZ="-0.149216" twist="4.33141" />
+    <Bone id="forearm_r" bend="65.807091" rotationZ="0.848925" twist="-23.313683" />
+    <Bone id="hand_l" rotationX="33.811954" rotationZ="24.1656" twist="43.733116" />
+    <Bone id="hand_r" rotationX="55.189274" rotationZ="-49.897911" twist="-38.740829" />
+    <Bone id="head" bend="2.428888" rotationZ="-0.774476" turn="10.978123" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="12.230996" rotationZ="-0.020088" turn="-0.033089" />
+    <Bone id="shoulder_l" rotationX="-2.423109" rotationY="-0.78699" rotationZ="-6.261799" />
+    <Bone id="shoulder_r" rotationX="-2.509124" rotationY="0.504606" rotationZ="-5.668349" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="8.270695" side="13.47139" twist="2.727985" />
+    <Bone id="upper_arm_r" forward="19.131516" side="23.601059" twist="-9.370491" />
+    <Bone id="upper_chest" bend="-12.231066" rotationZ="0.032208" turn="0.033961" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="1.033s">
+    <Bone id="chest" bend="-12.193638" rotationZ="0.029534" turn="0.009377" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="73.105988" rotationZ="-0.147164" twist="4.272196" />
+    <Bone id="forearm_r" bend="65.780426" rotationZ="0.848494" twist="-23.302757" />
+    <Bone id="hand_l" rotationX="33.847752" rotationZ="24.111982" twist="43.819984" />
+    <Bone id="hand_r" rotationX="55.227489" rotationZ="-49.864109" twist="-38.784634" />
+    <Bone id="head" bend="2.283185" rotationZ="-0.746607" turn="10.979837" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="12.193766" rotationZ="-0.020076" turn="-0.033094" />
+    <Bone id="shoulder_l" rotationX="-2.423112" rotationY="-0.787014" rotationZ="-6.261801" />
+    <Bone id="shoulder_r" rotationX="-2.509126" rotationY="0.504621" rotationZ="-5.668336" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="8.238475" side="13.390358" twist="2.706596" />
+    <Bone id="upper_arm_r" forward="19.081392" side="23.544807" twist="-9.347507" />
+    <Bone id="upper_chest" bend="-12.193841" rotationZ="0.032185" turn="0.033999" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="1.067s">
+    <Bone id="chest" bend="-12.137752" rotationZ="0.029508" turn="0.009407" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="73.050926" rotationZ="-0.144331" twist="4.190856" />
+    <Bone id="forearm_r" bend="65.740471" rotationZ="0.84791" twist="-23.288858" />
+    <Bone id="hand_l" rotationX="33.896584" rotationZ="24.034615" twist="43.942818" />
+    <Bone id="hand_r" rotationX="55.281345" rotationZ="-49.813656" twist="-38.848137" />
+    <Bone id="head" bend="2.115511" rotationZ="-0.714533" turn="10.981765" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="12.137868" rotationZ="-0.020058" turn="-0.0331" />
+    <Bone id="shoulder_l" rotationX="-2.423095" rotationY="-0.786986" rotationZ="-6.261799" />
+    <Bone id="shoulder_r" rotationX="-2.509124" rotationY="0.504604" rotationZ="-5.668349" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="8.190981" side="13.275269" twist="2.674702" />
+    <Bone id="upper_arm_r" forward="19.007532" side="23.462959" twist="-9.313317" />
+    <Bone id="upper_chest" bend="-12.137949" rotationZ="0.03215" turn="0.034057" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="1.1s">
+    <Bone id="chest" bend="-12.070511" rotationZ="0.029477" turn="0.009442" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.98455" rotationZ="-0.141014" twist="4.094343" />
+    <Bone id="forearm_r" bend="65.692459" rotationZ="0.847267" twist="-23.272621" />
+    <Bone id="hand_l" rotationX="33.954231" rotationZ="23.942532" twist="44.089088" />
+    <Bone id="hand_r" rotationX="55.345341" rotationZ="-49.753185" twist="-38.924286" />
+    <Bone id="head" bend="1.939933" rotationZ="-0.680943" turn="10.983733" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="12.070623" rotationZ="-0.020036" turn="-0.033108" />
+    <Bone id="shoulder_l" rotationX="-2.4231" rotationY="-0.786983" rotationZ="-6.261802" />
+    <Bone id="shoulder_r" rotationX="-2.509122" rotationY="0.504607" rotationZ="-5.668349" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="8.134291" side="13.138489" twist="2.636451" />
+    <Bone id="upper_arm_r" forward="18.918949" side="23.365189" twist="-9.272099" />
+    <Bone id="upper_chest" bend="-12.070712" rotationZ="0.032108" turn="0.034127" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="1.133s">
+    <Bone id="chest" bend="-11.993308" rotationZ="0.029442" turn="0.009483" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.908531" rotationZ="-0.13712" twist="3.982698" />
+    <Bone id="forearm_r" bend="65.637505" rotationZ="0.846514" twist="-23.253693" />
+    <Bone id="hand_l" rotationX="34.020329" rotationZ="23.836811" twist="44.25779" />
+    <Bone id="hand_r" rotationX="55.418903" rotationZ="-49.683914" twist="-39.012077" />
+    <Bone id="head" bend="1.754797" rotationZ="-0.64552" turn="10.985735" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.993431" rotationZ="-0.020011" turn="-0.033118" />
+    <Bone id="shoulder_l" rotationX="-2.423117" rotationY="-0.786999" rotationZ="-6.261802" />
+    <Bone id="shoulder_r" rotationX="-2.509124" rotationY="0.504606" rotationZ="-5.668346" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="8.069415" side="12.981461" twist="2.592435" />
+    <Bone id="upper_arm_r" forward="18.817272" side="23.253159" twist="-9.224522" />
+    <Bone id="upper_chest" bend="-11.993524" rotationZ="0.03206" turn="0.034208" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="1.167s">
+    <Bone id="chest" bend="-11.905952" rotationZ="0.029403" turn="0.00953" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.822586" rotationZ="-0.1327" twist="3.854527" />
+    <Bone id="forearm_r" bend="65.575508" rotationZ="0.845587" twist="-23.231735" />
+    <Bone id="hand_l" rotationX="34.095688" rotationZ="23.717037" twist="44.450527" />
+    <Bone id="hand_r" rotationX="55.502735" rotationZ="-49.605747" twist="-39.11224" />
+    <Bone id="head" bend="1.55676" rotationZ="-0.607626" turn="10.987794" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.906027" rotationZ="-0.019983" turn="-0.033129" />
+    <Bone id="shoulder_l" rotationX="-2.42311" rotationY="-0.786997" rotationZ="-6.261797" />
+    <Bone id="shoulder_r" rotationX="-2.509128" rotationY="0.504612" rotationZ="-5.668353" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.996201" side="12.802971" twist="2.542493" />
+    <Bone id="upper_arm_r" forward="18.701948" side="23.126228" twist="-9.170217" />
+    <Bone id="upper_chest" bend="-11.906038" rotationZ="0.032006" turn="0.034299" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="1.2s">
+    <Bone id="chest" bend="-11.815242" rotationZ="0.029362" turn="0.009578" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.733589" rotationZ="-0.128056" twist="3.719633" />
+    <Bone id="forearm_r" bend="65.51133" rotationZ="0.844637" twist="-23.208338" />
+    <Bone id="hand_l" rotationX="34.174229" rotationZ="23.5926" twist="44.652275" />
+    <Bone id="hand_r" rotationX="55.590237" rotationZ="-49.524994" twist="-39.216915" />
+    <Bone id="head" bend="1.359535" rotationZ="-0.569882" turn="10.989746" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.815331" rotationZ="-0.019954" turn="-0.033141" />
+    <Bone id="shoulder_l" rotationX="-2.42309" rotationY="-0.786983" rotationZ="-6.261788" />
+    <Bone id="shoulder_r" rotationX="-2.509107" rotationY="0.504601" rotationZ="-5.668355" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.920561" side="12.617249" twist="2.490568" />
+    <Bone id="upper_arm_r" forward="18.582207" side="22.994598" twist="-9.113458" />
+    <Bone id="upper_chest" bend="-11.81538" rotationZ="0.03195" turn="0.034393" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="1.233s">
+    <Bone id="chest" bend="-11.720275" rotationZ="0.029319" turn="0.009629" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.640511" rotationZ="-0.123135" twist="3.576547" />
+    <Bone id="forearm_r" bend="65.44458" rotationZ="0.843628" twist="-23.183359" />
+    <Bone id="hand_l" rotationX="34.256836" rotationZ="23.462357" twist="44.865208" />
+    <Bone id="hand_r" rotationX="55.682182" rotationZ="-49.44072" twist="-39.327324" />
+    <Bone id="head" bend="1.159006" rotationZ="-0.531499" turn="10.991634" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.72037" rotationZ="-0.019924" turn="-0.033153" />
+    <Bone id="shoulder_l" rotationX="-2.423097" rotationY="-0.786993" rotationZ="-6.261813" />
+    <Bone id="shoulder_r" rotationX="-2.50911" rotationY="0.504598" rotationZ="-5.668349" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.841705" side="12.422348" twist="2.436103" />
+    <Bone id="upper_arm_r" forward="18.456638" side="22.856934" twist="-9.053496" />
+    <Bone id="upper_chest" bend="-11.720426" rotationZ="0.031892" turn="0.034493" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="1.267s">
+    <Bone id="chest" bend="-11.619438" rotationZ="0.029274" turn="0.009682" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.54187" rotationZ="-0.117853" twist="3.423288" />
+    <Bone id="forearm_r" bend="65.373863" rotationZ="0.842525" twist="-23.156427" />
+    <Bone id="hand_l" rotationX="34.344486" rotationZ="23.324316" twist="45.092495" />
+    <Bone id="hand_r" rotationX="55.780022" rotationZ="-49.351616" twist="-39.445194" />
+    <Bone id="head" bend="0.950663" rotationZ="-0.491617" turn="10.993495" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.619521" rotationZ="-0.019892" turn="-0.033167" />
+    <Bone id="shoulder_l" rotationX="-2.423103" rotationY="-0.786976" rotationZ="-6.261809" />
+    <Bone id="shoulder_r" rotationX="-2.509139" rotationY="0.5046" rotationZ="-5.668343" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.758453" side="12.215462" twist="2.378176" />
+    <Bone id="upper_arm_r" forward="18.323261" side="22.711105" twist="-8.989323" />
+    <Bone id="upper_chest" bend="-11.619572" rotationZ="0.03183" turn="0.034599" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="1.3s">
+    <Bone id="chest" bend="-11.519788" rotationZ="0.02923" turn="0.009735" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.444618" rotationZ="-0.112591" twist="3.271165" />
+    <Bone id="forearm_r" bend="65.304176" rotationZ="0.841436" twist="-23.129599" />
+    <Bone id="hand_l" rotationX="34.430462" rotationZ="23.188408" twist="45.317471" />
+    <Bone id="hand_r" rotationX="55.876602" rotationZ="-49.264065" twist="-39.562042" />
+    <Bone id="head" bend="0.748159" rotationZ="-0.452848" turn="10.995196" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.519926" rotationZ="-0.019861" turn="-0.033181" />
+    <Bone id="shoulder_l" rotationX="-2.423094" rotationY="-0.786989" rotationZ="-6.261796" />
+    <Bone id="shoulder_r" rotationX="-2.509119" rotationY="0.504602" rotationZ="-5.668362" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.676805" side="12.011795" twist="2.320974" />
+    <Bone id="upper_arm_r" forward="18.191734" side="22.567589" twist="-8.925574" />
+    <Bone id="upper_chest" bend="-11.520035" rotationZ="0.031769" turn="0.034703" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="1.333s">
+    <Bone id="chest" bend="-11.419717" rotationZ="0.029186" turn="0.009789" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.347008" rotationZ="-0.107339" twist="3.118224" />
+    <Bone id="forearm_r" bend="65.234573" rotationZ="0.84035" twist="-23.102705" />
+    <Bone id="hand_l" rotationX="34.516087" rotationZ="23.052563" twist="45.543594" />
+    <Bone id="hand_r" rotationX="55.973106" rotationZ="-49.176296" twist="-39.679882" />
+    <Bone id="head" bend="0.546829" rotationZ="-0.414298" turn="10.99678" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.419746" rotationZ="-0.01983" turn="-0.033196" />
+    <Bone id="shoulder_l" rotationX="-2.423088" rotationY="-0.786978" rotationZ="-6.261796" />
+    <Bone id="shoulder_r" rotationX="-2.509125" rotationY="0.504601" rotationZ="-5.668346" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.595263" side="11.808167" twist="2.263358" />
+    <Bone id="upper_arm_r" forward="18.059612" side="22.42408" twist="-8.860998" />
+    <Bone id="upper_chest" bend="-11.419765" rotationZ="0.031708" turn="0.034809" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="1.367s">
+    <Bone id="chest" bend="-11.317101" rotationZ="0.029141" turn="0.009843" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.247131" rotationZ="-0.10196" twist="2.962363" />
+    <Bone id="forearm_r" bend="65.163422" rotationZ="0.83924" twist="-23.075466" />
+    <Bone id="hand_l" rotationX="34.602314" rotationZ="22.914473" twist="45.774189" />
+    <Bone id="hand_r" rotationX="56.071266" rotationZ="-49.086914" twist="-39.800571" />
+    <Bone id="head" bend="0.342074" rotationZ="-0.37509" turn="10.998295" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.317147" rotationZ="-0.019799" turn="-0.033211" />
+    <Bone id="shoulder_l" rotationX="-2.423116" rotationY="-0.786999" rotationZ="-6.261812" />
+    <Bone id="shoulder_r" rotationX="-2.509125" rotationY="0.5046" rotationZ="-5.668352" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.512426" side="11.601517" twist="2.204392" />
+    <Bone id="upper_arm_r" forward="17.924633" side="22.278107" twist="-8.794499" />
+    <Bone id="upper_chest" bend="-11.317163" rotationZ="0.031646" turn="0.034918" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="1.4s">
+    <Bone id="chest" bend="-11.219222" rotationZ="0.029098" turn="0.009896" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.151062" rotationZ="-0.096886" twist="2.814894" />
+    <Bone id="forearm_r" bend="65.095894" rotationZ="0.838222" twist="-23.0501" />
+    <Bone id="hand_l" rotationX="34.683372" rotationZ="22.784494" twist="45.992241" />
+    <Bone id="hand_r" rotationX="56.163673" rotationZ="-49.001987" twist="-39.915501" />
+    <Bone id="head" bend="0.147481" rotationZ="-0.337822" turn="10.999622" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.219254" rotationZ="-0.019769" turn="-0.033226" />
+    <Bone id="shoulder_l" rotationX="-2.423093" rotationY="-0.786989" rotationZ="-6.261802" />
+    <Bone id="shoulder_r" rotationX="-2.509118" rotationY="0.504594" rotationZ="-5.668331" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.434575" side="11.406807" twist="2.14856" />
+    <Bone id="upper_arm_r" forward="17.796314" side="22.140083" twist="-8.730711" />
+    <Bone id="upper_chest" bend="-11.219261" rotationZ="0.031587" turn="0.035021" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="1.433s">
+    <Bone id="chest" bend="-11.124258" rotationZ="0.029057" turn="0.009946" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="72.057335" rotationZ="-0.092014" twist="2.673943" />
+    <Bone id="forearm_r" bend="65.030663" rotationZ="0.837267" twist="-23.026295" />
+    <Bone id="hand_l" rotationX="34.760139" rotationZ="22.660236" twist="46.201073" />
+    <Bone id="hand_r" rotationX="56.251827" rotationZ="-48.919983" twist="-40.02652" />
+    <Bone id="head" bend="-0.041293" rotationZ="-0.301668" turn="11.00083" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.124311" rotationZ="-0.01974" turn="-0.033241" />
+    <Bone id="shoulder_l" rotationX="-2.423094" rotationY="-0.786998" rotationZ="-6.261802" />
+    <Bone id="shoulder_r" rotationX="-2.509121" rotationY="0.504604" rotationZ="-5.668335" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.360139" side="11.220947" twist="2.094776" />
+    <Bone id="upper_arm_r" forward="17.672405" side="22.007637" twist="-8.668656" />
+    <Bone id="upper_chest" bend="-11.12431" rotationZ="0.03153" turn="0.035122" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="1.467s">
+    <Bone id="chest" bend="-11.030846" rotationZ="0.029017" turn="0.009996" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="71.965141" rotationZ="-0.087353" twist="2.538523" />
+    <Bone id="forearm_r" bend="64.966606" rotationZ="0.836322" twist="-23.003952" />
+    <Bone id="hand_l" rotationX="34.833057" rotationZ="22.539843" twist="46.403095" />
+    <Bone id="hand_r" rotationX="56.33675" rotationZ="-48.839657" twist="-40.134911" />
+    <Bone id="head" bend="-0.227683" rotationZ="-0.265966" turn="11.001929" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="11.030887" rotationZ="-0.019712" turn="-0.033256" />
+    <Bone id="shoulder_l" rotationX="-2.423109" rotationY="-0.786996" rotationZ="-6.261792" />
+    <Bone id="shoulder_r" rotationX="-2.509118" rotationY="0.504606" rotationZ="-5.66836" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.287637" side="11.04174" twist="2.041968" />
+    <Bone id="upper_arm_r" forward="17.551247" side="21.878914" twist="-8.607478" />
+    <Bone id="upper_chest" bend="-11.030889" rotationZ="0.031474" turn="0.035221" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="1.5s">
+    <Bone id="chest" bend="-10.945979" rotationZ="0.028981" turn="0.010041" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="71.881622" rotationZ="-0.083262" twist="2.419402" />
+    <Bone id="forearm_r" bend="64.908714" rotationZ="0.835554" twist="-22.984976" />
+    <Bone id="hand_l" rotationX="34.896317" rotationZ="22.43228" twist="46.582767" />
+    <Bone id="hand_r" rotationX="56.411846" rotationZ="-48.766979" twist="-40.232491" />
+    <Bone id="head" bend="-0.39846" rotationZ="-0.233253" turn="11.002872" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="10.946014" rotationZ="-0.019687" turn="-0.033271" />
+    <Bone id="shoulder_l" rotationX="-2.423094" rotationY="-0.786984" rotationZ="-6.261802" />
+    <Bone id="shoulder_r" rotationX="-2.50911" rotationY="0.504596" rotationZ="-5.668335" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.222355" side="10.882782" twist="1.993984" />
+    <Bone id="upper_arm_r" forward="17.441906" side="21.76371" twist="-8.551781" />
+    <Bone id="upper_chest" bend="-10.94602" rotationZ="0.031423" turn="0.035312" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="1.533s">
+    <Bone id="chest" bend="-10.868775" rotationZ="0.028948" turn="0.010083" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="71.805687" rotationZ="-0.079654" twist="2.315243" />
+    <Bone id="forearm_r" bend="64.85614" rotationZ="0.834911" twist="-22.969065" />
+    <Bone id="hand_l" rotationX="34.950825" rotationZ="22.336287" twist="46.741901" />
+    <Bone id="hand_r" rotationX="56.478062" rotationZ="-48.701092" twist="-40.320126" />
+    <Bone id="head" bend="-0.556049" rotationZ="-0.203064" turn="11.003676" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="10.86881" rotationZ="-0.019664" turn="-0.033283" />
+    <Bone id="shoulder_l" rotationX="-2.423093" rotationY="-0.787001" rotationZ="-6.261792" />
+    <Bone id="shoulder_r" rotationX="-2.509119" rotationY="0.504606" rotationZ="-5.668347" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.163565" side="10.742271" twist="1.950465" />
+    <Bone id="upper_arm_r" forward="17.343227" side="21.660599" twist="-8.501143" />
+    <Bone id="upper_chest" bend="-10.868839" rotationZ="0.031377" turn="0.035394" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="1.567s">
+    <Bone id="chest" bend="-10.799534" rotationZ="0.028919" turn="0.01012" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="71.737701" rotationZ="-0.076592" twist="2.226428" />
+    <Bone id="forearm_r" bend="64.809135" rotationZ="0.834392" twist="-22.956308" />
+    <Bone id="hand_l" rotationX="34.99667" rotationZ="22.252106" twist="46.880081" />
+    <Bone id="hand_r" rotationX="56.535229" rotationZ="-48.642174" twist="-40.397552" />
+    <Bone id="head" bend="-0.70067" rotationZ="-0.175358" turn="11.004367" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="10.799557" rotationZ="-0.019644" turn="-0.033295" />
+    <Bone id="shoulder_l" rotationX="-2.423099" rotationY="-0.786974" rotationZ="-6.261806" />
+    <Bone id="shoulder_r" rotationX="-2.50911" rotationY="0.5046" rotationZ="-5.668348" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.111298" side="10.620331" twist="1.911446" />
+    <Bone id="upper_arm_r" forward="17.255524" side="21.569824" twist="-8.455811" />
+    <Bone id="upper_chest" bend="-10.799572" rotationZ="0.031335" turn="0.035468" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="1.6s">
+    <Bone id="chest" bend="-10.74525" rotationZ="0.028896" turn="0.010149" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="71.684494" rotationZ="-0.074384" twist="2.161021" />
+    <Bone id="forearm_r" bend="64.772408" rotationZ="0.834043" twist="-22.94767" />
+    <Bone id="hand_l" rotationX="35.029808" rotationZ="22.187683" twist="46.984261" />
+    <Bone id="hand_r" rotationX="56.577991" rotationZ="-48.596043" twist="-40.457111" />
+    <Bone id="head" bend="-0.818152" rotationZ="-0.152853" turn="11.004904" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="10.745291" rotationZ="-0.019628" turn="-0.033305" />
+    <Bone id="shoulder_l" rotationX="-2.423101" rotationY="-0.786981" rotationZ="-6.261802" />
+    <Bone id="shoulder_r" rotationX="-2.509114" rotationY="0.5046" rotationZ="-5.66834" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.070683" side="10.528419" twist="1.880942" />
+    <Bone id="upper_arm_r" forward="17.18745" side="21.500099" twist="-8.420398" />
+    <Bone id="upper_chest" bend="-10.745296" rotationZ="0.031303" turn="0.035527" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="1.633s">
+    <Bone id="chest" bend="-10.708003" rotationZ="0.02888" turn="0.010169" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="71.648026" rotationZ="-0.072917" twist="2.119466" />
+    <Bone id="forearm_r" bend="64.747208" rotationZ="0.833856" twist="-22.942814" />
+    <Bone id="hand_l" rotationX="35.050537" rotationZ="22.14472" twist="47.052452" />
+    <Bone id="hand_r" rotationX="56.605885" rotationZ="-48.564491" twist="-40.497017" />
+    <Bone id="head" bend="-0.9035" rotationZ="-0.136501" turn="11.005277" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="10.708026" rotationZ="-0.019617" turn="-0.033311" />
+    <Bone id="shoulder_l" rotationX="-2.4231" rotationY="-0.786987" rotationZ="-6.261791" />
+    <Bone id="shoulder_r" rotationX="-2.509123" rotationY="0.504606" rotationZ="-5.668355" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.043016" side="10.468033" twist="1.860017" />
+    <Bone id="upper_arm_r" forward="17.141285" side="21.453369" twist="-8.396218" />
+    <Bone id="upper_chest" bend="-10.708054" rotationZ="0.031281" turn="0.035567" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Pose t="1.667s">
+    <Bone id="chest" bend="-10.693254" rotationZ="0.028874" turn="0.010176" />
+    <Bone id="foot_l" bend="-6.775145" rotationY="4.835265" rotationZ="8.971166" />
+    <Bone id="foot_r" bend="-6.063118" rotationY="9.221045" rotationZ="-4.686893" />
+    <Bone id="forearm_l" bend="71.633621" rotationZ="-0.07238" twist="2.104308" />
+    <Bone id="forearm_r" bend="64.73716" rotationZ="0.83381" twist="-22.941286" />
+    <Bone id="hand_l" rotationX="35.057888" rotationZ="22.128117" twist="47.078201" />
+    <Bone id="hand_r" rotationX="56.616352" rotationZ="-48.552017" twist="-40.512459" />
+    <Bone id="head" bend="-0.940449" rotationZ="-0.129422" turn="11.00544" />
+    <Bone id="hips" rotationX="0" rotationZ="0" turn="0" x="0.002807" y="-0.435615" z="-0.179672" />
+    <Bone id="lower_leg_l" bend="80.479324" rotationZ="0.807905" twist="-10.886035" />
+    <Bone id="lower_leg_r" bend="79.301491" rotationZ="0.426132" twist="-5.792259" />
+    <Bone id="neck" bend="10.693271" rotationZ="-0.019613" turn="-0.033314" />
+    <Bone id="shoulder_l" rotationX="-2.423109" rotationY="-0.786988" rotationZ="-6.261801" />
+    <Bone id="shoulder_r" rotationX="-2.509129" rotationY="0.504602" rotationZ="-5.668337" />
+    <Bone id="spine" bend="0" rotationZ="0" turn="0" />
+    <Bone id="toe_l" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="toe_r" rotationX="0" rotationY="0" rotationZ="0" />
+    <Bone id="upper_arm_l" forward="7.032158" side="10.445213" twist="1.851758" />
+    <Bone id="upper_arm_r" forward="17.123219" side="21.435219" twist="-8.386721" />
+    <Bone id="upper_chest" bend="-10.693293" rotationZ="0.031272" turn="0.035582" />
+    <Bone id="upper_leg_l" forward="85.127174" side="10.250546" twist="-9.417775" />
+    <Bone id="upper_leg_r" forward="85.540024" side="4.500957" twist="4.163868" />
+  </Pose>
+  <Contact id="pelvis_seat" effector="pelvis" target="seat" from="0" to="1" mode="surface" weight="1" />
+</Action>

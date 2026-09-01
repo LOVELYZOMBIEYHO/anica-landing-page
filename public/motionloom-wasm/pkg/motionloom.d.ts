@@ -2,6 +2,26 @@
 /* eslint-disable */
 
 /**
+ * CPU-only diagnostic handle; does not change any preview or renderer state.
+ */
+export class WasmPoseDiagnostics {
+    free(): void;
+    [Symbol.dispose](): void;
+    /**
+     * Evaluate the same World pose path into the stable, versioned rig report.
+     */
+    evaluate_json(request_json: string): string;
+    /**
+     * Accept an existing World DSL document and GLB bytes; never fetch assets.
+     */
+    constructor(world_dsl: string, glb: Uint8Array);
+    /**
+     * Return complete model-global joint matrices using the native evaluator.
+     */
+    sample_json(actor_id: string, frame: number, fps: number): string;
+}
+
+/**
  * WASM-facing wrapper around a parsed scene graph. Keeps the parsed script
  * alive across JS calls so that repeated frame renders avoid re-parsing.
  *
@@ -56,6 +76,22 @@ export class WasmSceneRenderer {
      */
     debug_uploaded_texture_to_canvas(canvas: HTMLCanvasElement, width: number, height: number): Promise<void>;
     /**
+     * Return true screen-space joints for the most recently rendered frame.
+     * Coordinates use the renderer's authored pixel size and include finger
+     * bones when the active ModelProfile maps them.
+     */
+    editor_rig_snapshot_json(): string;
+    /**
+     * Evaluate one actor through the exact browser Scene renderer and return
+     * the stable, versioned rig report as JSON.
+     */
+    evaluate_rig_frame_json(actor_id: string, frame: number): Promise<string>;
+    /**
+     * Evaluate a frame, time, or Action phase from a serialized
+     * `RigEvaluationRequest` and return the versioned report JSON.
+     */
+    evaluate_rig_json(request_json: string): Promise<string>;
+    /**
      * Parse `script` and prepare a renderer.
      */
     constructor(script: string, profile: string);
@@ -71,12 +107,31 @@ export class WasmSceneRenderer {
      */
     render_frame_to_canvas(frame: number, canvas: HTMLCanvasElement): Promise<void>;
     /**
+     * Update one authored Action channel without reconstructing the renderer.
+     *
+     * The source editor remains authoritative: hosts use this method while a
+     * pointer is moving, then commit the same value through the typed Action
+     * edit API when the gesture ends. GLB bytes and GPU mesh caches stay live.
+     */
+    set_action_pose_channel(action_id: string, pose_ms: number, bone_id: string, channel: string, value: string): boolean;
+    /**
+     * Update one Camera3D pose in the parsed graph without recreating GPU
+     * pipelines, GLB meshes, textures, or the scene renderer.
+     */
+    set_camera3d_pose(camera_id: string, position: string, target: string): boolean;
+    /**
      * Update a numeric `<Group id="...">` attribute without reparsing the DSL.
      *
      * This is intended for editor scrubbing (x/y/rotation/scale/opacity). It
      * keeps the persistent renderer and its vector/GPU caches alive.
      */
     set_group_attr(group_id: string, attr: string, value: string): boolean;
+    /**
+     * Render a sampled range and return a machine-readable shot validation
+     * report. Optional editor/physics observations use the same JSON shape as
+     * `motionloom_analyze_shot_observations_json`.
+     */
+    validate_shots_json(options_json: string, observations_json: string): Promise<string>;
     /**
      * Total number of frames for the graph's duration and fps.
      */
@@ -121,9 +176,25 @@ export function motionloom_analyze_script_for_target_json(script: string, target
 export function motionloom_analyze_script_json(script: string): string;
 
 /**
+ * Analyze host/backend observations without parsing or changing MotionLoom DSL.
+ * Empty options select the cinematic defaults.
+ */
+export function motionloom_analyze_shot_observations_json(options_json: string, observations_json: string): string;
+
+/**
  * Return the same AnimationTarget capability registry used by native editors.
  */
 export function motionloom_animation_property_schema_json(): string;
+
+/**
+ * Apply one JSON-encoded Action edit and return a validated DSL revision.
+ */
+export function motionloom_apply_action_edit(script: string, command_json: string): string;
+
+/**
+ * Compare two previously evaluated rig reports without loading or rendering assets.
+ */
+export function motionloom_compare_rigs_json(reference_json: string, candidate_json: string, options_json: string): string;
 
 /**
  * Inspect a script and return the document type as a string.
@@ -136,11 +207,22 @@ export function motionloom_document_type(script: string): string;
 export function motionloom_dsl_schema_json(): string;
 
 /**
+ * Return the typed Action authoring document used by browser editors.
+ */
+export function motionloom_editable_actions_json(script: string): string;
+
+/**
  * Return structured AnimationTarget binding diagnostics for one graph script.
  */
 export function motionloom_inspect_animation_targets(script: string): string;
 
 export function motionloom_inspect_glb_environment_json(asset_label: string, bytes: Uint8Array): string;
+
+/**
+ * Detect declared/known humanoid rigs and propose a compatible profile.
+ * This additive API preserves the legacy skeleton-inspection JSON contract.
+ */
+export function motionloom_inspect_glb_humanoid_profile_json(asset_label: string, bytes: Uint8Array): string;
 
 /**
  * Inspect GLB bytes and propose humanoid mapping, axes, rest pose, and confidence.
@@ -153,6 +235,11 @@ export function motionloom_inspect_glb_skeleton_json(asset_label: string, bytes:
  * Returns an error string if parsing fails.
  */
 export function motionloom_parse_summary(script: string): string;
+
+/**
+ * Produce read-only calibration suggestions from one comparison report.
+ */
+export function motionloom_propose_rig_calibration_json(comparison_json: string): string;
 
 /**
  * Render one frame of a process graph over an RGBA source buffer.
@@ -203,6 +290,11 @@ export function motionloom_render_scene_frame_with_profile(script: string, frame
 export function motionloom_render_world_frame(script: string, frame: number, asset_root: string): Uint8Array;
 
 /**
+ * Return the versioned JSON Schema envelope for rig diagnostics.
+ */
+export function motionloom_rig_diagnostics_schema_json(): string;
+
+/**
  * Return the machine-readable syntax slice demonstrated by one showcase script.
  */
 export function motionloom_showcase_schema_json(script: string): string;
@@ -226,15 +318,26 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
     readonly memory: WebAssembly.Memory;
+    readonly __wbg_wasmposediagnostics_free: (a: number, b: number) => void;
+    readonly wasmposediagnostics_new: (a: number, b: number, c: number, d: number) => [number, number, number];
+    readonly wasmposediagnostics_sample_json: (a: number, b: number, c: number, d: number, e: number) => [number, number, number, number];
+    readonly wasmposediagnostics_evaluate_json: (a: number, b: number, c: number) => [number, number, number, number];
+    readonly motionloom_compare_rigs_json: (a: number, b: number, c: number, d: number, e: number, f: number) => [number, number, number, number];
+    readonly motionloom_propose_rig_calibration_json: (a: number, b: number) => [number, number, number, number];
+    readonly motionloom_rig_diagnostics_schema_json: () => [number, number];
     readonly motionloom_parse_summary: (a: number, b: number) => [number, number, number, number];
     readonly motionloom_animation_property_schema_json: () => [number, number];
     readonly motionloom_dsl_schema_json: () => [number, number];
     readonly motionloom_analyze_script_json: (a: number, b: number) => [number, number];
     readonly motionloom_analyze_script_for_target_json: (a: number, b: number, c: number, d: number) => [number, number];
     readonly motionloom_showcase_schema_json: (a: number, b: number) => [number, number];
+    readonly motionloom_analyze_shot_observations_json: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly motionloom_inspect_glb_skeleton_json: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+    readonly motionloom_inspect_glb_humanoid_profile_json: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly motionloom_inspect_glb_environment_json: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly motionloom_inspect_animation_targets: (a: number, b: number) => [number, number, number, number];
+    readonly motionloom_editable_actions_json: (a: number, b: number) => [number, number, number, number];
+    readonly motionloom_apply_action_edit: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly motionloom_render_scene_frame: (a: number, b: number, c: number, d: number, e: number) => any;
     readonly motionloom_render_scene_frame_with_profile: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => any;
     readonly motionloom_render_scene_frame_to_canvas_gpu: (a: number, b: number, c: number, d: number, e: number, f: any) => any;
@@ -253,7 +356,13 @@ export interface InitOutput {
     readonly wasmscenerenderer_add_font: (a: number, b: number, c: number) => any;
     readonly wasmscenerenderer_clear_assets: (a: number) => void;
     readonly wasmscenerenderer_set_group_attr: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => [number, number, number];
+    readonly wasmscenerenderer_set_camera3d_pose: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => [number, number, number];
+    readonly wasmscenerenderer_set_action_pose_channel: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => [number, number, number];
+    readonly wasmscenerenderer_editor_rig_snapshot_json: (a: number) => [number, number, number, number];
+    readonly wasmscenerenderer_evaluate_rig_frame_json: (a: number, b: number, c: number, d: number) => any;
+    readonly wasmscenerenderer_evaluate_rig_json: (a: number, b: number, c: number) => any;
     readonly wasmscenerenderer_render_frame: (a: number, b: number) => any;
+    readonly wasmscenerenderer_validate_shots_json: (a: number, b: number, c: number, d: number, e: number) => any;
     readonly wasmscenerenderer_render_frame_to_canvas: (a: number, b: number, c: any) => any;
     readonly wasmscenerenderer_debug_solid_to_canvas: (a: number, b: any, c: number, d: number) => any;
     readonly wasmscenerenderer_debug_uploaded_texture_to_canvas: (a: number, b: any, c: number, d: number) => any;

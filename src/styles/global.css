@@ -38,6 +38,17 @@ body {
   text-rendering: geometricPrecision;
 }
 
+body.is-immersive-page {
+  height: 100vh;
+  overflow: hidden;
+  background: #0b0d10;
+}
+
+body.is-immersive-page .immersive-main {
+  height: calc(100vh - var(--anica-header-height, 78px));
+  min-height: 0;
+}
+
 ::selection {
   background: #d8ff3e;
   color: #11120d;

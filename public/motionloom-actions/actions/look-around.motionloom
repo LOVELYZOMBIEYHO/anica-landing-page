@@ -1,0 +1,66 @@
+<Action id="look_around_action" skeleton="humanoid_v1" duration="3.6s">
+  <Pose t="0s">
+    <Bone id="upper_arm_l" side="10" />
+    <Bone id="upper_arm_r" side="10" />
+    <Bone id="lower_leg_l" bend="17" />
+    <Bone id="lower_leg_r" bend="17" />
+  </Pose>
+  <Pose t="0.65s">
+    <Bone id="hips" x="-0.018" y="-0.014" turn="-3" />
+    <Bone id="chest" turn="-8" />
+    <Bone id="neck" turn="-16" />
+    <Bone id="head" turn="-34" bend="2" />
+    <Bone id="upper_arm_l" side="12" forward="-3" />
+    <Bone id="upper_arm_r" side="9" forward="4" />
+    <Bone id="upper_leg_l" forward="4" side="-2" />
+    <Bone id="lower_leg_l" bend="22" />
+    <Bone id="upper_leg_r" forward="7" side="3" />
+    <Bone id="lower_leg_r" bend="32" />
+  </Pose>
+  <Pose t="1.25s">
+    <Bone id="hips" x="-0.024" y="-0.018" turn="-4" />
+    <Bone id="chest" turn="-8" />
+    <Bone id="neck" turn="-16" />
+    <Bone id="head" turn="-34" bend="2" />
+    <Bone id="upper_leg_l" forward="4" side="-2" />
+    <Bone id="lower_leg_l" bend="24" />
+    <Bone id="upper_leg_r" forward="8" side="3" />
+    <Bone id="lower_leg_r" bend="36" />
+  </Pose>
+  <Pose t="1.8s">
+    <Bone id="hips" y="-0.012" />
+    <Bone id="chest" turn="0" />
+    <Bone id="neck" turn="0" />
+    <Bone id="head" turn="0" bend="-4" />
+    <Bone id="lower_leg_l" bend="19" />
+    <Bone id="lower_leg_r" bend="19" />
+  </Pose>
+  <Pose t="2.35s">
+    <Bone id="hips" x="0.018" y="-0.014" turn="3" />
+    <Bone id="chest" turn="8" />
+    <Bone id="neck" turn="16" />
+    <Bone id="head" turn="34" bend="2" />
+    <Bone id="upper_arm_l" side="9" forward="-4" />
+    <Bone id="upper_arm_r" side="12" forward="3" />
+    <Bone id="upper_leg_l" forward="7" side="-3" />
+    <Bone id="lower_leg_l" bend="32" />
+    <Bone id="upper_leg_r" forward="4" side="2" />
+    <Bone id="lower_leg_r" bend="22" />
+  </Pose>
+  <Pose t="2.95s">
+    <Bone id="hips" x="0.024" y="-0.018" turn="4" />
+    <Bone id="chest" turn="8" />
+    <Bone id="neck" turn="16" />
+    <Bone id="head" turn="34" bend="2" />
+    <Bone id="upper_leg_l" forward="8" side="-3" />
+    <Bone id="lower_leg_l" bend="36" />
+    <Bone id="upper_leg_r" forward="4" side="2" />
+    <Bone id="lower_leg_r" bend="24" />
+  </Pose>
+  <Pose t="3.6s">
+    <Bone id="upper_arm_l" side="10" />
+    <Bone id="upper_arm_r" side="10" />
+    <Bone id="lower_leg_l" bend="17" />
+    <Bone id="lower_leg_r" bend="17" />
+  </Pose>
+</Action>

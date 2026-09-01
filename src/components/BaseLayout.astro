@@ -9,9 +9,10 @@ interface Props {
   title?: string;
   description?: string;
   ogImage?: string;
+  immersive?: boolean;
 }
 
-const { title = site.title, description = site.description, ogImage } = Astro.props;
+const { title = site.title, description = site.description, ogImage, immersive = false } = Astro.props;
 const canonicalOrigin = import.meta.env.DEV
   ? 'http://localhost:4321'
   : 'https://lovelyzombieyho.github.io';
@@ -42,11 +43,11 @@ const ogImageUrl = ogImage
     {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
     <title>{title}</title>
   </head>
-  <body>
+  <body class:list={{ 'is-immersive-page': immersive }}>
     <Header />
-    <main>
+    <main class:list={{ 'immersive-main': immersive }}>
       <slot />
     </main>
-    <Footer />
+    {!immersive && <Footer />}
   </body>
 </html>

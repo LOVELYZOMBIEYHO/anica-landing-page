@@ -1,6 +1,93 @@
 /* @ts-self-types="./motionloom.d.ts" */
 
 /**
+ * CPU-only diagnostic handle; does not change any preview or renderer state.
+ */
+export class WasmPoseDiagnostics {
+    __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        WasmPoseDiagnosticsFinalization.unregister(this);
+        return ptr;
+    }
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_wasmposediagnostics_free(ptr, 0);
+    }
+    /**
+     * Evaluate the same World pose path into the stable, versioned rig report.
+     * @param {string} request_json
+     * @returns {string}
+     */
+    evaluate_json(request_json) {
+        let deferred3_0;
+        let deferred3_1;
+        try {
+            const ptr0 = passStringToWasm0(request_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            const ret = wasm.wasmposediagnostics_evaluate_json(this.__wbg_ptr, ptr0, len0);
+            var ptr2 = ret[0];
+            var len2 = ret[1];
+            if (ret[3]) {
+                ptr2 = 0; len2 = 0;
+                throw takeFromExternrefTable0(ret[2]);
+            }
+            deferred3_0 = ptr2;
+            deferred3_1 = len2;
+            return getStringFromWasm0(ptr2, len2);
+        } finally {
+            wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+        }
+    }
+    /**
+     * Accept an existing World DSL document and GLB bytes; never fetch assets.
+     * @param {string} world_dsl
+     * @param {Uint8Array} glb
+     */
+    constructor(world_dsl, glb) {
+        const ptr0 = passStringToWasm0(world_dsl, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passArray8ToWasm0(glb, wasm.__wbindgen_malloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.wasmposediagnostics_new(ptr0, len0, ptr1, len1);
+        if (ret[2]) {
+            throw takeFromExternrefTable0(ret[1]);
+        }
+        this.__wbg_ptr = ret[0];
+        WasmPoseDiagnosticsFinalization.register(this, this.__wbg_ptr, this);
+        return this;
+    }
+    /**
+     * Return complete model-global joint matrices using the native evaluator.
+     * @param {string} actor_id
+     * @param {number} frame
+     * @param {number} fps
+     * @returns {string}
+     */
+    sample_json(actor_id, frame, fps) {
+        let deferred3_0;
+        let deferred3_1;
+        try {
+            const ptr0 = passStringToWasm0(actor_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            const ret = wasm.wasmposediagnostics_sample_json(this.__wbg_ptr, ptr0, len0, frame, fps);
+            var ptr2 = ret[0];
+            var len2 = ret[1];
+            if (ret[3]) {
+                ptr2 = 0; len2 = 0;
+                throw takeFromExternrefTable0(ret[2]);
+            }
+            deferred3_0 = ptr2;
+            deferred3_1 = len2;
+            return getStringFromWasm0(ptr2, len2);
+        } finally {
+            wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+        }
+    }
+}
+if (Symbol.dispose) WasmPoseDiagnostics.prototype[Symbol.dispose] = WasmPoseDiagnostics.prototype.free;
+
+/**
  * WASM-facing wrapper around a parsed scene graph. Keeps the parsed script
  * alive across JS calls so that repeated frame renders avoid re-parsing.
  *
@@ -125,6 +212,55 @@ export class WasmSceneRenderer {
         return ret;
     }
     /**
+     * Return true screen-space joints for the most recently rendered frame.
+     * Coordinates use the renderer's authored pixel size and include finger
+     * bones when the active ModelProfile maps them.
+     * @returns {string}
+     */
+    editor_rig_snapshot_json() {
+        let deferred2_0;
+        let deferred2_1;
+        try {
+            const ret = wasm.wasmscenerenderer_editor_rig_snapshot_json(this.__wbg_ptr);
+            var ptr1 = ret[0];
+            var len1 = ret[1];
+            if (ret[3]) {
+                ptr1 = 0; len1 = 0;
+                throw takeFromExternrefTable0(ret[2]);
+            }
+            deferred2_0 = ptr1;
+            deferred2_1 = len1;
+            return getStringFromWasm0(ptr1, len1);
+        } finally {
+            wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+        }
+    }
+    /**
+     * Evaluate one actor through the exact browser Scene renderer and return
+     * the stable, versioned rig report as JSON.
+     * @param {string} actor_id
+     * @param {number} frame
+     * @returns {Promise<string>}
+     */
+    evaluate_rig_frame_json(actor_id, frame) {
+        const ptr0 = passStringToWasm0(actor_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.wasmscenerenderer_evaluate_rig_frame_json(this.__wbg_ptr, ptr0, len0, frame);
+        return ret;
+    }
+    /**
+     * Evaluate a frame, time, or Action phase from a serialized
+     * `RigEvaluationRequest` and return the versioned report JSON.
+     * @param {string} request_json
+     * @returns {Promise<string>}
+     */
+    evaluate_rig_json(request_json) {
+        const ptr0 = passStringToWasm0(request_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.wasmscenerenderer_evaluate_rig_json(this.__wbg_ptr, ptr0, len0);
+        return ret;
+    }
+    /**
      * Parse `script` and prepare a renderer.
      * @param {string} script
      * @param {string} profile
@@ -165,6 +301,55 @@ export class WasmSceneRenderer {
         return ret;
     }
     /**
+     * Update one authored Action channel without reconstructing the renderer.
+     *
+     * The source editor remains authoritative: hosts use this method while a
+     * pointer is moving, then commit the same value through the typed Action
+     * edit API when the gesture ends. GLB bytes and GPU mesh caches stay live.
+     * @param {string} action_id
+     * @param {number} pose_ms
+     * @param {string} bone_id
+     * @param {string} channel
+     * @param {string} value
+     * @returns {boolean}
+     */
+    set_action_pose_channel(action_id, pose_ms, bone_id, channel, value) {
+        const ptr0 = passStringToWasm0(action_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(bone_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(channel, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ptr3 = passStringToWasm0(value, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len3 = WASM_VECTOR_LEN;
+        const ret = wasm.wasmscenerenderer_set_action_pose_channel(this.__wbg_ptr, ptr0, len0, pose_ms, ptr1, len1, ptr2, len2, ptr3, len3);
+        if (ret[2]) {
+            throw takeFromExternrefTable0(ret[1]);
+        }
+        return ret[0] !== 0;
+    }
+    /**
+     * Update one Camera3D pose in the parsed graph without recreating GPU
+     * pipelines, GLB meshes, textures, or the scene renderer.
+     * @param {string} camera_id
+     * @param {string} position
+     * @param {string} target
+     * @returns {boolean}
+     */
+    set_camera3d_pose(camera_id, position, target) {
+        const ptr0 = passStringToWasm0(camera_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(position, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(target, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ret = wasm.wasmscenerenderer_set_camera3d_pose(this.__wbg_ptr, ptr0, len0, ptr1, len1, ptr2, len2);
+        if (ret[2]) {
+            throw takeFromExternrefTable0(ret[1]);
+        }
+        return ret[0] !== 0;
+    }
+    /**
      * Update a numeric `<Group id="...">` attribute without reparsing the DSL.
      *
      * This is intended for editor scrubbing (x/y/rotation/scale/opacity). It
@@ -194,6 +379,22 @@ export class WasmSceneRenderer {
     get total_frames() {
         const ret = wasm.wasmscenerenderer_total_frames(this.__wbg_ptr);
         return ret >>> 0;
+    }
+    /**
+     * Render a sampled range and return a machine-readable shot validation
+     * report. Optional editor/physics observations use the same JSON shape as
+     * `motionloom_analyze_shot_observations_json`.
+     * @param {string} options_json
+     * @param {string} observations_json
+     * @returns {Promise<string>}
+     */
+    validate_shots_json(options_json, observations_json) {
+        const ptr0 = passStringToWasm0(options_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(observations_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.wasmscenerenderer_validate_shots_json(this.__wbg_ptr, ptr0, len0, ptr1, len1);
+        return ret;
     }
 }
 if (Symbol.dispose) WasmSceneRenderer.prototype[Symbol.dispose] = WasmSceneRenderer.prototype.free;
@@ -312,6 +513,36 @@ export function motionloom_analyze_script_json(script) {
 }
 
 /**
+ * Analyze host/backend observations without parsing or changing MotionLoom DSL.
+ * Empty options select the cinematic defaults.
+ * @param {string} options_json
+ * @param {string} observations_json
+ * @returns {string}
+ */
+export function motionloom_analyze_shot_observations_json(options_json, observations_json) {
+    let deferred4_0;
+    let deferred4_1;
+    try {
+        const ptr0 = passStringToWasm0(options_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(observations_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.motionloom_analyze_shot_observations_json(ptr0, len0, ptr1, len1);
+        var ptr3 = ret[0];
+        var len3 = ret[1];
+        if (ret[3]) {
+            ptr3 = 0; len3 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred4_0 = ptr3;
+        deferred4_1 = len3;
+        return getStringFromWasm0(ptr3, len3);
+    } finally {
+        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
+    }
+}
+
+/**
  * Return the same AnimationTarget capability registry used by native editors.
  * @returns {string}
  */
@@ -325,6 +556,67 @@ export function motionloom_animation_property_schema_json() {
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
         wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
+ * Apply one JSON-encoded Action edit and return a validated DSL revision.
+ * @param {string} script
+ * @param {string} command_json
+ * @returns {string}
+ */
+export function motionloom_apply_action_edit(script, command_json) {
+    let deferred4_0;
+    let deferred4_1;
+    try {
+        const ptr0 = passStringToWasm0(script, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(command_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.motionloom_apply_action_edit(ptr0, len0, ptr1, len1);
+        var ptr3 = ret[0];
+        var len3 = ret[1];
+        if (ret[3]) {
+            ptr3 = 0; len3 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred4_0 = ptr3;
+        deferred4_1 = len3;
+        return getStringFromWasm0(ptr3, len3);
+    } finally {
+        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
+    }
+}
+
+/**
+ * Compare two previously evaluated rig reports without loading or rendering assets.
+ * @param {string} reference_json
+ * @param {string} candidate_json
+ * @param {string} options_json
+ * @returns {string}
+ */
+export function motionloom_compare_rigs_json(reference_json, candidate_json, options_json) {
+    let deferred5_0;
+    let deferred5_1;
+    try {
+        const ptr0 = passStringToWasm0(reference_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(candidate_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(options_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ret = wasm.motionloom_compare_rigs_json(ptr0, len0, ptr1, len1, ptr2, len2);
+        var ptr4 = ret[0];
+        var len4 = ret[1];
+        if (ret[3]) {
+            ptr4 = 0; len4 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred5_0 = ptr4;
+        deferred5_1 = len4;
+        return getStringFromWasm0(ptr4, len4);
+    } finally {
+        wasm.__wbindgen_free(deferred5_0, deferred5_1, 1);
     }
 }
 
@@ -362,6 +654,32 @@ export function motionloom_dsl_schema_json() {
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
         wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
+ * Return the typed Action authoring document used by browser editors.
+ * @param {string} script
+ * @returns {string}
+ */
+export function motionloom_editable_actions_json(script) {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passStringToWasm0(script, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.motionloom_editable_actions_json(ptr0, len0);
+        var ptr2 = ret[0];
+        var len2 = ret[1];
+        if (ret[3]) {
+            ptr2 = 0; len2 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred3_0 = ptr2;
+        deferred3_1 = len2;
+        return getStringFromWasm0(ptr2, len2);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
     }
 }
 
@@ -420,6 +738,36 @@ export function motionloom_inspect_glb_environment_json(asset_label, bytes) {
 }
 
 /**
+ * Detect declared/known humanoid rigs and propose a compatible profile.
+ * This additive API preserves the legacy skeleton-inspection JSON contract.
+ * @param {string} asset_label
+ * @param {Uint8Array} bytes
+ * @returns {string}
+ */
+export function motionloom_inspect_glb_humanoid_profile_json(asset_label, bytes) {
+    let deferred4_0;
+    let deferred4_1;
+    try {
+        const ptr0 = passStringToWasm0(asset_label, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.motionloom_inspect_glb_humanoid_profile_json(ptr0, len0, ptr1, len1);
+        var ptr3 = ret[0];
+        var len3 = ret[1];
+        if (ret[3]) {
+            ptr3 = 0; len3 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred4_0 = ptr3;
+        deferred4_1 = len3;
+        return getStringFromWasm0(ptr3, len3);
+    } finally {
+        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
+    }
+}
+
+/**
  * Inspect GLB bytes and propose humanoid mapping, axes, rest pose, and confidence.
  * @param {string} asset_label
  * @param {Uint8Array} bytes
@@ -462,6 +810,32 @@ export function motionloom_parse_summary(script) {
         const ptr0 = passStringToWasm0(script, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
         const ret = wasm.motionloom_parse_summary(ptr0, len0);
+        var ptr2 = ret[0];
+        var len2 = ret[1];
+        if (ret[3]) {
+            ptr2 = 0; len2 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred3_0 = ptr2;
+        deferred3_1 = len2;
+        return getStringFromWasm0(ptr2, len2);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
+}
+
+/**
+ * Produce read-only calibration suggestions from one comparison report.
+ * @param {string} comparison_json
+ * @returns {string}
+ */
+export function motionloom_propose_rig_calibration_json(comparison_json) {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passStringToWasm0(comparison_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.motionloom_propose_rig_calibration_json(ptr0, len0);
         var ptr2 = ret[0];
         var len2 = ret[1];
         if (ret[3]) {
@@ -604,6 +978,23 @@ export function motionloom_render_world_frame(script, frame, asset_root) {
     var v3 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
     wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
     return v3;
+}
+
+/**
+ * Return the versioned JSON Schema envelope for rig diagnostics.
+ * @returns {string}
+ */
+export function motionloom_rig_diagnostics_schema_json() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.motionloom_rig_diagnostics_schema_json();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
 }
 
 /**
@@ -1699,12 +2090,12 @@ function __wbg_get_imports() {
             arg0.writeTexture(arg1, arg2, arg3, arg4);
         }, arguments); },
         __wbindgen_cast_0000000000000001: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 1355, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 1494, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
             const ret = makeMutClosure(arg0, arg1, wasm_bindgen__convert__closures_____invoke__h200a21b777a48c32);
             return ret;
         },
         __wbindgen_cast_0000000000000002: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 1602, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 1745, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
             const ret = makeMutClosure(arg0, arg1, wasm_bindgen__convert__closures_____invoke__h4aa3e05baac20cce);
             return ret;
         },
@@ -1835,6 +2226,9 @@ const __wbindgen_enum_GpuVertexFormat = ["uint8", "uint8x2", "uint8x4", "sint8",
 
 
 const __wbindgen_enum_GpuVertexStepMode = ["vertex", "instance"];
+const WasmPoseDiagnosticsFinalization = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(ptr => wasm.__wbg_wasmposediagnostics_free(ptr, 1));
 const WasmSceneRendererFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
     : new FinalizationRegistry(ptr => wasm.__wbg_wasmscenerenderer_free(ptr, 1));

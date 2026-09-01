@@ -1,15 +1,26 @@
 /* tslint:disable */
 /* eslint-disable */
 export const memory: WebAssembly.Memory;
+export const __wbg_wasmposediagnostics_free: (a: number, b: number) => void;
+export const wasmposediagnostics_new: (a: number, b: number, c: number, d: number) => [number, number, number];
+export const wasmposediagnostics_sample_json: (a: number, b: number, c: number, d: number, e: number) => [number, number, number, number];
+export const wasmposediagnostics_evaluate_json: (a: number, b: number, c: number) => [number, number, number, number];
+export const motionloom_compare_rigs_json: (a: number, b: number, c: number, d: number, e: number, f: number) => [number, number, number, number];
+export const motionloom_propose_rig_calibration_json: (a: number, b: number) => [number, number, number, number];
+export const motionloom_rig_diagnostics_schema_json: () => [number, number];
 export const motionloom_parse_summary: (a: number, b: number) => [number, number, number, number];
 export const motionloom_animation_property_schema_json: () => [number, number];
 export const motionloom_dsl_schema_json: () => [number, number];
 export const motionloom_analyze_script_json: (a: number, b: number) => [number, number];
 export const motionloom_analyze_script_for_target_json: (a: number, b: number, c: number, d: number) => [number, number];
 export const motionloom_showcase_schema_json: (a: number, b: number) => [number, number];
+export const motionloom_analyze_shot_observations_json: (a: number, b: number, c: number, d: number) => [number, number, number, number];
 export const motionloom_inspect_glb_skeleton_json: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+export const motionloom_inspect_glb_humanoid_profile_json: (a: number, b: number, c: number, d: number) => [number, number, number, number];
 export const motionloom_inspect_glb_environment_json: (a: number, b: number, c: number, d: number) => [number, number, number, number];
 export const motionloom_inspect_animation_targets: (a: number, b: number) => [number, number, number, number];
+export const motionloom_editable_actions_json: (a: number, b: number) => [number, number, number, number];
+export const motionloom_apply_action_edit: (a: number, b: number, c: number, d: number) => [number, number, number, number];
 export const motionloom_render_scene_frame: (a: number, b: number, c: number, d: number, e: number) => any;
 export const motionloom_render_scene_frame_with_profile: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => any;
 export const motionloom_render_scene_frame_to_canvas_gpu: (a: number, b: number, c: number, d: number, e: number, f: any) => any;
@@ -28,7 +39,13 @@ export const wasmscenerenderer_add_environment_bounds: (a: number, b: number, c:
 export const wasmscenerenderer_add_font: (a: number, b: number, c: number) => any;
 export const wasmscenerenderer_clear_assets: (a: number) => void;
 export const wasmscenerenderer_set_group_attr: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => [number, number, number];
+export const wasmscenerenderer_set_camera3d_pose: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => [number, number, number];
+export const wasmscenerenderer_set_action_pose_channel: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => [number, number, number];
+export const wasmscenerenderer_editor_rig_snapshot_json: (a: number) => [number, number, number, number];
+export const wasmscenerenderer_evaluate_rig_frame_json: (a: number, b: number, c: number, d: number) => any;
+export const wasmscenerenderer_evaluate_rig_json: (a: number, b: number, c: number) => any;
 export const wasmscenerenderer_render_frame: (a: number, b: number) => any;
+export const wasmscenerenderer_validate_shots_json: (a: number, b: number, c: number, d: number, e: number) => any;
 export const wasmscenerenderer_render_frame_to_canvas: (a: number, b: number, c: any) => any;
 export const wasmscenerenderer_debug_solid_to_canvas: (a: number, b: any, c: number, d: number) => any;
 export const wasmscenerenderer_debug_uploaded_texture_to_canvas: (a: number, b: any, c: number, d: number) => any;

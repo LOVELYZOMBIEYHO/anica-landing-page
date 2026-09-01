@@ -20,6 +20,7 @@ export const navItems = [
   { label: 'Showcase', href: '/showcase' },
   { label: 'MotionLoom', href: '/motionloom' },
   { label: 'Download', href: '/download' },
+  { label: 'Action Editor', href: '/action-editor' },
 ];
 
 export const featureGroups = [

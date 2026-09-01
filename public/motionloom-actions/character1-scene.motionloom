@@ -1,0 +1,150 @@
+<!-- Character1 Action Editor scene. Action DSL is injected at ACTION_LIBRARY. -->
+<Graph fps={30} duration="5s" size={[960,720]} renderSize={[960,720]}>
+  <Assets>
+    <ModelAsset id="character1_model"
+                src="https://raw.githubusercontent.com/LOVELYZOMBIEYHO/motionloom-example/refs/heads/main/assets/sample_assets/characters/character1/character1.glb" />
+    <MaterialAsset id="action_floor_mat" shading="pbr" baseColor="#142033"
+                   metallic="0.35" roughness="0.3" specular="0.82" />
+    <PrimitiveAsset id="action_floor" shape="cylinder" radius="2.3" height="0.14"
+                    segments="64" material="action_floor_mat" />
+  </Assets>
+
+  <ModelProfile id="character1_profile" kind="3d" model="character1_model" preset="humanoid_v1">
+    <Retarget preset="humanoid_v1">
+      <Map from="pelvis" to="hips" />
+      <Map from="spine_01" to="spine" />
+      <Map from="spine_02" to="chest" />
+      <Map from="spine_03" to="upper_chest" />
+      <Map from="neck_01" to="neck" />
+      <Map from="Head" to="head" />
+      <Map from="clavicle_l" to="shoulder_l" />
+      <Map from="upperarm_l" to="upper_arm_l" />
+      <Map from="lowerarm_l" to="forearm_l" />
+      <Map from="hand_l" to="hand_l" />
+      <Map from="clavicle_r" to="shoulder_r" />
+      <Map from="upperarm_r" to="upper_arm_r" />
+      <Map from="lowerarm_r" to="forearm_r" />
+      <Map from="hand_r" to="hand_r" />
+      <Map from="thigh_l" to="upper_leg_l" />
+      <Map from="calf_l" to="lower_leg_l" />
+      <Map from="foot_l" to="foot_l" />
+      <Map from="ball_l" to="toe_l" />
+      <Map from="thigh_r" to="upper_leg_r" />
+      <Map from="calf_r" to="lower_leg_r" />
+      <Map from="foot_r" to="foot_r" />
+      <Map from="ball_r" to="toe_r" />
+      <Map from="thumb_01_l" to="thumb_1_l" />
+      <Map from="thumb_02_l" to="thumb_2_l" />
+      <Map from="thumb_03_l" to="thumb_3_l" />
+      <Map from="index_01_l" to="index_1_l" />
+      <Map from="index_02_l" to="index_2_l" />
+      <Map from="index_03_l" to="index_3_l" />
+      <Map from="middle_01_l" to="middle_1_l" />
+      <Map from="middle_02_l" to="middle_2_l" />
+      <Map from="middle_03_l" to="middle_3_l" />
+      <Map from="ring_01_l" to="ring_1_l" />
+      <Map from="ring_02_l" to="ring_2_l" />
+      <Map from="ring_03_l" to="ring_3_l" />
+      <Map from="pinky_01_l" to="pinky_1_l" />
+      <Map from="pinky_02_l" to="pinky_2_l" />
+      <Map from="pinky_03_l" to="pinky_3_l" />
+      <Map from="thumb_01_r" to="thumb_1_r" />
+      <Map from="thumb_02_r" to="thumb_2_r" />
+      <Map from="thumb_03_r" to="thumb_3_r" />
+      <Map from="index_01_r" to="index_1_r" />
+      <Map from="index_02_r" to="index_2_r" />
+      <Map from="index_03_r" to="index_3_r" />
+      <Map from="middle_01_r" to="middle_1_r" />
+      <Map from="middle_02_r" to="middle_2_r" />
+      <Map from="middle_03_r" to="middle_3_r" />
+      <Map from="ring_01_r" to="ring_1_r" />
+      <Map from="ring_02_r" to="ring_2_r" />
+      <Map from="ring_03_r" to="ring_3_r" />
+      <Map from="pinky_01_r" to="pinky_1_r" />
+      <Map from="pinky_02_r" to="pinky_2_r" />
+      <Map from="pinky_03_r" to="pinky_3_r" />
+    </Retarget>
+    <BoneAxisMap>
+      <Axis bone="hips" turn="rotationY:1" />
+      <Axis bone="spine" bend="rotationX:-1" turn="rotationY:1" />
+      <Axis bone="chest" bend="rotationX:-1" turn="rotationY:1" />
+      <Axis bone="upper_chest" bend="rotationX:-1" turn="rotationY:1" />
+      <Axis bone="neck" bend="rotationX:-1" turn="rotationY:1" />
+      <Axis bone="head" bend="rotationX:-1" turn="rotationY:1" />
+      <Axis bone="upper_arm_l" forward="rotationX:1" side="rotationZ:1" twist="rotationY:1" restForward="-4.8" restSide="-89.8" />
+      <Axis bone="forearm_l" bend="rotationX:1" twist="rotationY:1" />
+      <Axis bone="hand_l" twist="rotationY:1" />
+      <Axis bone="upper_arm_r" forward="rotationX:1" side="rotationZ:-1" twist="rotationY:1" restForward="-4.8" restSide="-89.8" />
+      <Axis bone="forearm_r" bend="rotationX:1" twist="rotationY:1" />
+      <Axis bone="hand_r" twist="rotationY:1" />
+      <Axis bone="upper_leg_l" forward="rotationX:-1" side="rotationZ:-1" twist="rotationY:1" />
+      <Axis bone="lower_leg_l" bend="rotationX:1" twist="rotationY:1" />
+      <Axis bone="foot_l" bend="rotationX:-1" />
+      <Axis bone="upper_leg_r" forward="rotationX:-1" side="rotationZ:1" twist="rotationY:1" />
+      <Axis bone="lower_leg_r" bend="rotationX:1" twist="rotationY:1" />
+      <Axis bone="foot_r" bend="rotationX:-1" />
+      <Axis bone="thumb_1_l" bend="rotationX:1" side="rotationZ:1" />
+      <Axis bone="thumb_2_l" bend="rotationX:1" />
+      <Axis bone="thumb_3_l" bend="rotationX:1" />
+      <Axis bone="index_1_l" bend="rotationX:1" side="rotationZ:1" />
+      <Axis bone="index_2_l" bend="rotationX:1" />
+      <Axis bone="index_3_l" bend="rotationX:1" />
+      <Axis bone="middle_1_l" bend="rotationX:1" side="rotationZ:1" />
+      <Axis bone="middle_2_l" bend="rotationX:1" />
+      <Axis bone="middle_3_l" bend="rotationX:1" />
+      <Axis bone="ring_1_l" bend="rotationX:1" side="rotationZ:1" />
+      <Axis bone="ring_2_l" bend="rotationX:1" />
+      <Axis bone="ring_3_l" bend="rotationX:1" />
+      <Axis bone="pinky_1_l" bend="rotationX:1" side="rotationZ:1" />
+      <Axis bone="pinky_2_l" bend="rotationX:1" />
+      <Axis bone="pinky_3_l" bend="rotationX:1" />
+      <Axis bone="thumb_1_r" bend="rotationX:1" side="rotationZ:-1" />
+      <Axis bone="thumb_2_r" bend="rotationX:1" />
+      <Axis bone="thumb_3_r" bend="rotationX:1" />
+      <Axis bone="index_1_r" bend="rotationX:1" side="rotationZ:-1" />
+      <Axis bone="index_2_r" bend="rotationX:1" />
+      <Axis bone="index_3_r" bend="rotationX:1" />
+      <Axis bone="middle_1_r" bend="rotationX:1" side="rotationZ:-1" />
+      <Axis bone="middle_2_r" bend="rotationX:1" />
+      <Axis bone="middle_3_r" bend="rotationX:1" />
+      <Axis bone="ring_1_r" bend="rotationX:1" side="rotationZ:-1" />
+      <Axis bone="ring_2_r" bend="rotationX:1" />
+      <Axis bone="ring_3_r" bend="rotationX:1" />
+      <Axis bone="pinky_1_r" bend="rotationX:1" side="rotationZ:-1" />
+      <Axis bone="pinky_2_r" bend="rotationX:1" />
+      <Axis bone="pinky_3_r" bend="rotationX:1" />
+    </BoneAxisMap>
+  </ModelProfile>
+
+  <!-- ACTION_LIBRARY -->
+
+  <Background color="#050914" />
+  <Scene id="Character1ActionEditor">
+    <Timeline>
+      <Track id="action_world" space="3d" compositeOrder="30">
+        <Sequence from="0s" duration="5s" out="hold">
+          <CompositeGroup id="action_stage" space="3d" depth="true" format="rgba16f">
+            <Physics gravity={[0,-9.81,0]} fixedStep="1/240s" iterations="10" />
+            <DirectionalLight id="action_key" direction={[-0.45,-1,-0.35]} color="#FFD4B0" intensity="2.8" castShadow="true" />
+            <RectAreaLight id="action_fill" position={[3.2,3.4,2.6]} direction={[-0.7,-0.6,-0.35]} width="3" height="2" color="#60DDFF" intensity="5" />
+            <PointLight id="action_rim" position={[-2.8,2.4,-2.5]} color="#A77BFF" intensity="18" range="8" />
+            <AmbientOcclusion id="action_ao" radius="0.6" intensity="0.75" />
+            <ContactShadow id="action_contact" distance="0.16" softness="0.34" intensity="0.9" />
+            <ColorManagement id="action_grade" toneMapping="aces" exposure="1.05" contrast="1.05" />
+            <Camera3D id="action_camera" position={[0,1.12,4.25]} target={[0,1.02,0]} fov="28" />
+            <Surface id="action_ground" kind="ground" collider="box" center={[0,-0.08,0]} size={[8,0.16,8]} color="#142033" />
+            <Model id="action_floor_model" asset="action_floor" position={[0,-0.15,0]} castShadow="true" receiveShadow="true" />
+            <Model id="character1_actor" asset="character1_model" profile="character1_profile"
+                   position={[0,0,0]} rotationY="0" scaleMode="normalize_height" scale="1.82"
+                   collision="kinematic" gravity="scene" ground="action_ground"
+                   castShadow="true" receiveShadow="true" exposure="1.08" />
+          </CompositeGroup>
+        </Sequence>
+      </Track>
+    </Timeline>
+  </Scene>
+
+  <ApplyAction target="character1_actor" action="look_around_action" at="0s" duration="3.6s"
+               loop="true" speed="1" rootMotion="none" ground="action_ground" />
+  <Present from="Character1ActionEditor" />
+</Graph>

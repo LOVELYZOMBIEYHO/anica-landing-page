@@ -1,0 +1,294 @@
+---
+import BaseLayout from '@components/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Action Editor · Anica MotionLoom"
+  description="Import humanoid GLB characters and test frame-accurate actions with MotionLoom WASM, a 3D pose viewport, Dope Sheet, and Graph Editor."
+  immersive={true}
+>
+  <section id="action-workspace" class="action-workspace" aria-label="MotionLoom Action Editor">
+    <header class="editor-menubar">
+      <div class="editor-menu-group" aria-label="Editor menus">
+        <button id="ae-file" type="button" title="Import a MotionLoom Action">File</button><button id="ae-import-character" type="button">Import Character GLB</button><button id="ae-edit-action" type="button">Edit</button>
+        <div class="pose-browser-wrap">
+          <button id="ae-pose-menu" type="button" aria-expanded="false" aria-controls="ae-action-browser">Pose⌄</button>
+          <div id="ae-action-browser" class="action-browser" hidden>
+            <header><strong>Action Library</strong><small>Select, then Edit keyframes</small></header>
+            <div id="ae-action-options" role="menu"></div>
+          </div>
+        </div>
+        <button id="ae-view-menu" type="button">View⌄</button>
+        <input id="ae-import-file" type="file" accept=".motionloom,.txt" hidden />
+        <input id="ae-import-character-file" type="file" accept=".glb,model/gltf-binary" hidden />
+      </div>
+      <div class="editor-document-title"><span class="status-dot"></span><strong id="ae-character-name">Character1</strong><span>/</span><span id="ae-action-name">untitled_action</span></div>
+      <div class="editor-menu-group editor-menu-end">
+        <button id="ae-view-dsl" type="button">View DSL</button>
+        <button id="ae-export" type="button" class="accent">Export Action</button>
+      </div>
+    </header>
+
+    <div class="editor-toolbar" role="toolbar" aria-label="3D tools">
+      <div class="tool-segment">
+        <button id="ae-tool-select" class="is-active" type="button" aria-pressed="true">Select <kbd>Q</kbd></button>
+        <button id="ae-tool-move" type="button" aria-pressed="false">Move <kbd>G</kbd></button>
+        <button id="ae-tool-rotate" type="button" aria-pressed="false">Rotate <kbd>R</kbd></button>
+      </div>
+      <div class="tool-segment">
+        <button id="ae-space" type="button">Local⌄</button>
+        <button id="ae-front" type="button" title="Front view (1)">Front</button>
+        <button id="ae-side" type="button" title="Side view (3)">Side</button>
+        <button id="ae-top" type="button" title="Top view (7)">Top</button>
+        <button id="ae-focus" type="button" title="Focus selected (F)">Focus</button>
+      </div>
+      <div class="tool-segment action-ops">
+        <button id="ae-new-action" type="button">New Action</button>
+        <button id="ae-duplicate-action" type="button">Duplicate Action</button>
+      </div>
+      <div class="toolbar-spacer"></div>
+      <button id="ae-toggle-joints" class="overlay-toggle is-on" type="button" aria-pressed="true" title="Show or hide selectable joints">● Joints</button>
+      <span id="ae-runtime-status" class="runtime-status">Preparing MotionLoom WASM…</span>
+      <button id="ae-undo" type="button" title="Undo">↶</button>
+      <button id="ae-redo" type="button" title="Redo">↷</button>
+    </div>
+
+    <div class="editor-main-grid">
+      <aside class="editor-panel outliner-panel" aria-label="Bone hierarchy">
+        <div class="panel-title"><strong>Skeleton</strong><button id="ae-collapse-left" type="button" aria-label="Collapse skeleton panel">‹</button></div>
+        <label class="panel-search"><span>Search</span><input id="ae-bone-search" type="search" placeholder="Bone name" /></label>
+        <div id="ae-bone-tree" class="bone-tree" role="tree" aria-label="Humanoid character bones"></div>
+      </aside>
+
+      <main class="viewport-column">
+        <div id="ae-viewport" class="action-viewport" tabindex="0" aria-label="Humanoid 3D pose viewport">
+          <canvas id="ae-canvas" aria-label="MotionLoom WebGPU humanoid preview"></canvas>
+          <svg id="ae-joint-overlay" viewBox="0 0 960 720" preserveAspectRatio="xMidYMid meet" aria-label="Selectable humanoid joints"></svg>
+          <div id="ae-axis-widget" class="axis-widget" aria-hidden="true"><b>Z</b><i>Y</i><span>X</span></div>
+          <div class="viewport-hud"><span id="ae-view-label">User Perspective</span><span id="ae-selection-label">No bone selected</span></div>
+          <div class="viewport-help">LMB/MMB Orbit · Wheel Zoom · R Rotate · G Move</div>
+        </div>
+      </main>
+
+      <aside class="editor-panel inspector-panel" aria-label="Bone properties">
+        <div class="panel-title"><strong>Transform</strong><button id="ae-collapse-right" type="button" aria-label="Collapse transform panel">›</button></div>
+        <div class="selection-card">
+          <span>Active Bone</span><strong id="ae-active-bone">None</strong><small id="ae-bone-path">Select a joint in the viewport</small>
+          <div class="bone-evaluation"><span id="ae-value-state">Not evaluated</span><button id="ae-select-animated-child" type="button" hidden></button></div>
+        </div>
+        <section class="property-section">
+          <header><strong>Location</strong><button type="button" data-reset-group="location">Reset</button></header>
+          <div id="ae-location-fields" class="axis-fields"></div>
+        </section>
+        <section class="property-section">
+          <header><strong>Rotation</strong><button type="button" data-reset-group="rotation">Reset</button></header>
+          <div id="ae-rotation-fields" class="axis-fields"></div>
+        </section>
+        <section class="property-section hand-section">
+          <header><strong>Hand Pose</strong><button id="ae-mirror-hand" type="button">Mirror</button></header>
+          <div class="preset-grid"><button data-hand-preset="relaxed">Relaxed</button><button data-hand-preset="open">Open</button><button data-hand-preset="fist">Fist</button><button data-hand-preset="point">Point</button></div>
+          <label><span>Curl</span><input id="ae-hand-curl" type="range" min="0" max="90" value="0" /></label>
+          <label><span>Spread</span><input id="ae-hand-spread" type="range" min="-25" max="25" value="0" /></label>
+        </section>
+        <section class="property-section">
+          <header><strong>Interpolation</strong></header>
+          <select id="ae-interpolation" aria-label="Interpolation"><option>Bezier</option><option>Linear</option><option>Ease</option><option>Hold</option></select>
+          <div class="tangent-fields"><label>In <input id="ae-in-tangent" type="number" step="0.05" value="0" /></label><label>Out <input id="ae-out-tangent" type="number" step="0.05" value="0" /></label></div>
+        </section>
+        <section class="property-section" id="ae-constraints">
+          <header><strong>IK &amp; Foot Contact</strong></header>
+          <div class="preset-grid"><button type="button" data-foot-lock="foot_l">Lock Left</button><button type="button" data-foot-lock="foot_r">Lock Right</button></div>
+          <label class="compact-field"><span>Target X</span><input id="ae-ik-x" type="number" step="0.01" value="0" /></label>
+          <label class="compact-field"><span>Target Y</span><input id="ae-ik-y" type="number" step="0.01" value="0" /></label>
+          <label class="compact-field"><span>Target Z</span><input id="ae-ik-z" type="number" step="0.01" value="0" /></label>
+          <label class="compact-field"><span>Weight</span><input id="ae-ik-weight" type="range" min="0" max="1" step="0.05" value="1" /></label>
+          <button id="ae-clear-contact" type="button" class="wide-button">Clear Contacts</button>
+          <output id="ae-diagnostics" class="diagnostics">No active constraints</output>
+        </section>
+      </aside>
+    </div>
+
+    <section class="timeline-panel" aria-label="Animation timeline">
+      <div class="timeline-toolbar">
+        <div class="playback-controls"><button id="ae-first" type="button">|◀</button><button id="ae-prev" type="button">◀</button><button id="ae-play" type="button">▶</button><button id="ae-next" type="button">▶</button><button id="ae-last" type="button">▶|</button></div>
+        <label>Frame <input id="ae-current-frame" type="number" min="0" value="0" /></label>
+        <label>End <input id="ae-end-frame" type="number" min="1" value="150" /></label>
+        <label class="auto-key-label"><input id="ae-auto-key" type="checkbox" checked /><span></span>Auto Key</label>
+        <button id="ae-add-pose" type="button">Add Pose</button>
+        <button id="ae-duplicate-pose" type="button">Duplicate Pose</button>
+        <button id="ae-delete-pose" type="button">Delete Pose</button>
+        <button id="ae-copy-keys" type="button">Copy</button>
+        <button id="ae-paste-keys" type="button">Paste</button>
+        <button id="ae-scale-keys" type="button">Scale Keys</button>
+        <button id="ae-delete-key" type="button" disabled title="Delete selected keyframe (Delete/Backspace)">Delete Key</button>
+        <output id="ae-key-context" class="key-context">No keyed channel selected</output>
+        <div class="toolbar-spacer"></div>
+        <div class="view-tabs"><button id="ae-dopesheet-tab" class="is-active" type="button">Dope Sheet</button><button id="ae-graph-tab" type="button">Graph Editor</button></div>
+      </div>
+      <div class="timeline-body">
+        <div id="ae-channel-list" class="channel-list"></div>
+        <div id="ae-timeline-view" class="timeline-view"><div id="ae-playhead" class="playhead"></div></div>
+      </div>
+    </section>
+
+    <dialog id="ae-dsl-dialog" class="dsl-dialog">
+      <form method="dialog"><header><strong>MotionLoom Action DSL</strong><button value="close" aria-label="Close DSL">×</button></header><textarea id="ae-dsl-source" spellcheck="false"></textarea><footer><button id="ae-copy-dsl" type="button">Copy DSL</button><button value="close" class="accent">Done</button></footer></form>
+    </dialog>
+    <dialog id="ae-action-dialog" class="dsl-dialog compact-dialog">
+      <form method="dialog"><header><strong id="ae-action-dialog-title">New Action</strong><button value="cancel">×</button></header><div class="dialog-fields"><label>Action ID<input id="ae-action-id" value="new_action" /></label><label>Duration (frames)<input id="ae-action-duration" type="number" min="1" value="60" /></label></div><footer><button value="cancel">Cancel</button><button id="ae-confirm-action" type="button" class="accent">Create</button></footer></form>
+    </dialog>
+  </section>
+
+  <script>
+    import { installActionEditor } from '../scripts/action-editor';
+    installActionEditor();
+  </script>
+</BaseLayout>
+
+<style>
+  :global(body.is-immersive-page header.sticky) { --anica-header-height: 78px; }
+  :global(body.is-immersive-page header.sticky .page-shell) { width: min(1560px, calc(100% - 24px)); padding-block: .7rem; }
+  :global(body.is-immersive-page header.sticky img) { height: 2.25rem; }
+  /* Action Editor uses a dark studio chrome: keep the brand and preview
+     readable, while the other four destinations use the same lime accent as
+     the editor controls. The light active pill makes the current page obvious. */
+  :global(body.is-immersive-page header.sticky) { background:#0b0d10 !important; border-color:#303640 !important; color:#fff; }
+  :global(body.is-immersive-page header.sticky .group > span > span:first-child) { color:#fff !important; }
+  :global(body.is-immersive-page header.sticky .group > span > span:last-child) { color:#fff !important; }
+  :global(body.is-immersive-page header.sticky nav[aria-label="Primary navigation"]) { border-color:#303640 !important; background:#111418 !important; }
+  :global(body.is-immersive-page header.sticky nav[aria-label="Primary navigation"] a:not([aria-current="page"])) { color:#d8ff3e !important; }
+  :global(body.is-immersive-page header.sticky nav[aria-label="Primary navigation"] a:not([aria-current="page"]):hover) { background:#252d1a !important; color:#efffb0 !important; }
+  :global(body.is-immersive-page header.sticky nav[aria-label="Primary navigation"] a[aria-current="page"]) { background:#fff !important; color:#11120d !important; box-shadow:0 0 0 1px #fff; }
+  :global(body.is-immersive-page header.sticky nav[aria-label="Mobile navigation"] a:not([aria-current="page"])) { color:#d8ff3e !important; background:#111418 !important; border-color:#303640 !important; }
+  :global(body.is-immersive-page header.sticky nav[aria-label="Mobile navigation"] a[aria-current="page"]) { color:#11120d !important; background:#fff !important; border-color:#fff !important; }
+  :global(body.is-immersive-page header.sticky > .page-shell > .flex:last-child a) { background:#fff !important; color:#11120d !important; border-color:#fff !important; }
+  :global(body.is-immersive-page .action-workspace), :global(body.is-immersive-page .action-workspace .viewport-hud), :global(body.is-immersive-page .action-workspace .viewport-help) { color:#fff; }
+  .action-workspace { --panel:#171a1e; --panel-2:#20242a; --line:#343a42; --muted:#929ba6; --text:#e7ebef; --lime:#d8ff3e; display:grid; grid-template-rows:36px 44px minmax(0,1fr) 248px; height:100%; min-height:0; overflow:hidden; background:#0b0d10; color:var(--text); font:500 12px/1.3 var(--font-sans); }
+  button,input,select,textarea { font:inherit; }
+  button { color:inherit; }
+  .editor-menubar,.editor-toolbar,.timeline-toolbar { display:flex; align-items:center; min-width:0; border-bottom:1px solid var(--line); background:#111418; }
+  .editor-menubar { justify-content:space-between; padding:0 10px; }
+  .editor-menu-group,.tool-segment,.playback-controls,.view-tabs { display:flex; align-items:center; gap:2px; }
+  .editor-menubar button,.editor-toolbar button,.timeline-toolbar button { min-height:27px; border:1px solid transparent; border-radius:4px; background:transparent; padding:4px 9px; }
+  .editor-menubar button:hover,.editor-toolbar button:hover,.timeline-toolbar button:hover,.editor-toolbar button.is-active,.view-tabs button.is-active { border-color:#48515b; background:#2a3037; }
+  .editor-menubar .accent,.dsl-dialog .accent { background:var(--lime); color:#11120d; font-weight:800; }
+  .pose-browser-wrap { position:relative; }
+  .action-browser { position:absolute; z-index:30; top:32px; left:0; width:280px; max-height:min(72vh,620px); overflow-y:auto; border:1px solid #4a525c; border-radius:7px; background:#171b20; padding:6px; box-shadow:0 18px 50px #000b; }
+  .action-browser header { display:grid; gap:2px; border-bottom:1px solid #343a42; padding:7px 8px 9px; }
+  .action-browser header small { color:var(--muted); font:500 9px var(--font-mono); }
+  :global(.action-option) { display:grid; grid-template-columns:30px 1fr auto; align-items:center; gap:8px; width:100%; border:0; border-radius:5px; background:transparent; padding:8px; text-align:left; }
+  :global(.action-option:hover),:global(.action-option.is-selected) { background:#2a3037; }
+  :global(.action-option.is-selected) { color:var(--lime); }
+  :global(.action-option .action-icon) { display:grid; place-items:center; width:27px; height:27px; border:1px solid #4b5661; border-radius:5px; background:#101419; }
+  :global(.action-option small) { color:var(--muted); font:500 9px var(--font-mono); }
+  .editor-document-title { display:flex; align-items:center; gap:7px; color:var(--muted); }
+  .editor-document-title strong { color:var(--text); }
+  .status-dot { width:7px; height:7px; border-radius:50%; background:var(--lime); box-shadow:0 0 8px var(--lime); }
+  .editor-toolbar { gap:10px; padding:5px 9px; }
+  .action-ops { margin-left:4px; border-left:1px solid var(--line); padding-left:8px; }
+  .editor-toolbar kbd { margin-left:5px; color:var(--muted); font:600 9px var(--font-mono); }
+  .toolbar-spacer { flex:1; }
+  .runtime-status { overflow:hidden; max-width:32ch; color:var(--muted); font:600 10px var(--font-mono); text-overflow:ellipsis; white-space:nowrap; }
+  .runtime-status.is-error { color:#ff7a70; }
+  .overlay-toggle { min-height:27px; border:1px solid #4a5662; border-radius:4px; background:#252c34; padding:4px 9px; color:#b9c7d4; font:700 10px var(--font-mono); }
+  .overlay-toggle.is-on { border-color:var(--lime); background:#253318; color:var(--lime); }
+  .overlay-toggle:not(.is-on) { color:#7d8792; }
+  #ae-joint-overlay.is-hidden { pointer-events:none; }
+  .editor-main-grid { display:grid; grid-template-columns:230px minmax(360px,1fr) 280px; min-height:0; overflow:hidden; }
+  .action-workspace.hide-left .editor-main-grid { grid-template-columns:minmax(360px,1fr) 280px; }
+  .action-workspace.hide-left .outliner-panel { display:none; }
+  .action-workspace.hide-right .editor-main-grid { grid-template-columns:230px minmax(360px,1fr); }
+  .action-workspace.hide-right .inspector-panel { display:none; }
+  .action-workspace.hide-left.hide-right .editor-main-grid { grid-template-columns:minmax(360px,1fr); }
+  .editor-panel { min-width:0; overflow:auto; background:var(--panel); }
+  .outliner-panel { border-right:1px solid var(--line); }
+  .inspector-panel { border-left:1px solid var(--line); }
+  .panel-title { position:sticky; z-index:2; top:0; display:flex; align-items:center; justify-content:space-between; height:34px; border-bottom:1px solid var(--line); background:#1b1f24; padding:0 9px; text-transform:uppercase; letter-spacing:.09em; }
+  .panel-title button { border:0; background:transparent; color:var(--muted); font-size:18px; }
+  .panel-search { display:grid; grid-template-columns:auto 1fr; align-items:center; gap:8px; border-bottom:1px solid var(--line); padding:8px; color:var(--muted); }
+  .panel-search input,.timeline-toolbar input,.property-section input,.property-section select { min-width:0; border:1px solid #3d444d; border-radius:4px; background:#0e1114; color:var(--text); padding:5px 7px; outline:none; }
+  .panel-search input:focus,.property-section input:focus,.property-section select:focus { border-color:var(--lime); }
+  .bone-tree { padding:6px 0 18px; }
+  :global(.bone-row) { display:flex; align-items:center; gap:6px; width:100%; min-height:25px; border:0; background:transparent; padding:2px 7px; text-align:left; }
+  :global(.bone-row:hover) { background:#252b31; }
+  :global(.bone-row.is-selected) { background:#40531d; color:#f5ffd7; }
+  :global(.bone-row .bone-dot) { flex:0 0 auto; width:7px; height:7px; border:1px solid #79a8ff; border-radius:50%; }
+  :global(.bone-row.is-finger .bone-dot) { border-color:var(--lime); }
+  .viewport-column { position:relative; min-width:0; min-height:0; overflow:hidden; background:#07090b; }
+  .action-viewport { position:absolute; inset:0; overflow:hidden; outline:none; background:radial-gradient(circle at 50% 43%,#171e29 0,#090c11 48%,#050608 100%); cursor:grab; touch-action:none; }
+  .action-viewport.is-orbiting { cursor:grabbing; }
+  .action-viewport canvas,.action-viewport svg { position:absolute; inset:0; width:100%; height:100%; }
+  .action-viewport canvas { object-fit:contain; }
+  #ae-joint-overlay { z-index:3; touch-action:none; }
+  #ae-joint-overlay :global(.joint) { pointer-events:auto; cursor:pointer; fill:#11161d; stroke:#79a8ff; stroke-width:2; vector-effect:non-scaling-stroke; }
+  #ae-joint-overlay :global(.joint.finger) { stroke:var(--lime); }
+  #ae-joint-overlay :global(.joint.selected) { fill:var(--lime); stroke:#fff; filter:drop-shadow(0 0 5px #d8ff3e); }
+  #ae-joint-overlay :global(.gizmo-ring) { pointer-events:auto; cursor:grab; fill:none; stroke-width:3; vector-effect:non-scaling-stroke; }
+  #ae-joint-overlay :global(.axis-x) { stroke:#ff6565; } #ae-joint-overlay :global(.axis-y) { stroke:#75dc7b; } #ae-joint-overlay :global(.axis-z) { stroke:#6a9fff; }
+  .viewport-hud,.viewport-help { position:absolute; z-index:4; color:#aab3bd; font:600 10px var(--font-mono); pointer-events:none; }
+  .viewport-hud { top:10px; left:12px; display:grid; gap:3px; }
+  .viewport-help { right:12px; bottom:10px; border:1px solid #343a42; border-radius:5px; background:#0c0f13cc; padding:5px 8px; }
+  .axis-widget { position:absolute; z-index:4; top:12px; right:12px; display:grid; place-items:center; width:54px; height:54px; border:1px solid #3b434d; border-radius:50%; background:#101419cc; font:800 10px var(--font-mono); }
+  .axis-widget b{color:#6a9fff}.axis-widget i{position:absolute;top:3px;color:#75dc7b}.axis-widget span{position:absolute;right:5px;color:#ff6565}
+  .selection-card { display:grid; gap:3px; margin:8px; border:1px solid #3a424c; border-radius:6px; background:#111519; padding:9px; }
+  .selection-card span,.selection-card small { color:var(--muted); }.selection-card strong{color:var(--lime);font:700 13px var(--font-mono)}
+  .bone-evaluation { display:flex; align-items:center; justify-content:space-between; gap:6px; margin-top:5px; border-top:1px solid #30363d; padding-top:6px; }
+  .bone-evaluation span { font:700 9px var(--font-mono); text-transform:uppercase; letter-spacing:.07em; }
+  .bone-evaluation span.is-keyed { color:var(--lime); }
+  .bone-evaluation span.is-interpolated { color:#79a8ff; }
+  .bone-evaluation span.is-unanimated { color:#ffb66a; }
+  .bone-evaluation button { border:1px solid #536170; border-radius:4px; background:#242a30; padding:3px 6px; color:#d9e1e9; font:600 9px var(--font-mono); }
+  .property-section { border-top:1px solid var(--line); padding:9px; }
+  .property-section header { display:flex; align-items:center; justify-content:space-between; margin-bottom:7px; }
+  .tangent-fields { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-top:6px; }
+  .tangent-fields label,.compact-field { display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:6px; margin-top:5px; color:var(--muted); font:600 9px var(--font-mono); }
+  .wide-button { width:100%; margin-top:7px; border:1px solid #46505a; border-radius:4px; background:#242a30; padding:5px; }
+  .diagnostics { display:block; margin-top:7px; color:#9ca7b3; font:600 9px/1.45 var(--font-mono); white-space:pre-wrap; }
+  .property-section header button,.preset-grid button { border:1px solid #3d444d; border-radius:4px; background:#252a30; padding:3px 7px; }
+  .axis-fields { display:grid; gap:5px; }
+  :global(.axis-field) { display:grid; grid-template-columns:18px minmax(0,1fr) 26px; align-items:center; gap:5px; }
+  :global(.axis-field input) { width:100%; min-width:0; border:1px solid #3d444d; border-radius:4px; background:#0e1114; color:var(--text); padding:5px 7px; }
+  :global(.axis-field input[data-value-state="interpolated"]) { border-color:#46658b; background:#111b27; color:#a9cbff; }
+  :global(.axis-field input[data-value-state="keyed"]) { border-color:#607327; background:#17200f; color:#e5ff8a; }
+  :global(.axis-field input[data-value-state="default"]) { color:#7f8994; }
+  :global(.axis-field b.x){color:#ff6565}:global(.axis-field b.y){color:#75dc7b}:global(.axis-field b.z){color:#6a9fff}
+  :global(.axis-field button) { border:0; background:transparent; color:var(--muted); }
+  .preset-grid { display:grid; grid-template-columns:1fr 1fr; gap:4px; margin-bottom:8px; }
+  .hand-section label { display:grid; grid-template-columns:48px 1fr; align-items:center; gap:6px; margin-top:6px; color:var(--muted); }
+  .timeline-panel { min-height:0; border-top:1px solid #48515b; background:#121519; }
+  .timeline-toolbar { height:38px; padding:4px 8px; }
+  .timeline-toolbar label { display:flex; align-items:center; gap:5px; margin-left:10px; color:var(--muted); }
+  .timeline-toolbar input[type=number] { width:62px; }
+  .timeline-toolbar button:disabled { opacity:.35; cursor:not-allowed; }
+  .key-context { overflow:hidden; max-width:52ch; margin-left:10px; color:#9ca7b3; font:600 9px var(--font-mono); text-overflow:ellipsis; white-space:nowrap; }
+  .auto-key-label input { display:none; }.auto-key-label span{width:10px;height:10px;border:1px solid #df6565;border-radius:50%}.auto-key-label input:checked+span{background:#ff5c5c;box-shadow:0 0 6px #ff5c5c}
+  .timeline-body { display:grid; grid-template-columns:230px minmax(0,1fr); height:calc(100% - 38px); min-height:0; }
+  .channel-list { overflow:auto; border-right:1px solid var(--line); background:#171a1e; }
+  :global(.channel-row) { display:flex; align-items:center; height:25px; border-bottom:1px solid #252a30; padding:0 9px; color:#b8c0c8; font:600 10px var(--font-mono); }
+  :global(.timeline-ruler-spacer) { display:flex; align-items:center; height:20px; border-bottom:1px solid #3a4149; padding:0 9px; color:#6f7984; font:600 8px var(--font-mono); text-transform:uppercase; letter-spacing:.08em; }
+  .timeline-view { position:relative; overflow:auto; background-color:#0e1114; background-image:linear-gradient(#252a30 1px,transparent 1px),linear-gradient(90deg,#252a30 1px,transparent 1px); background-size:100% 25px,48px 100%; }
+  :global(.timeline-key) { position:absolute; z-index:4; width:9px; height:9px; border:1px solid var(--lime); border-radius:1px; background:#172014; transform:translate(-50%,-50%) rotate(45deg); }
+  :global(.timeline-key.selected) { background:var(--lime);box-shadow:0 0 6px #d8ff3e}
+  :global(.timeline-key.multi-selected) { outline:2px solid #fff; outline-offset:2px; }
+  :global(.graph-key) { cursor:move; fill:#101419; stroke:var(--lime); stroke-width:2; }
+  :global(.graph-key.selected) { fill:var(--lime); }
+  :global(.tangent-line) { stroke:#7b8793; stroke-width:1; stroke-dasharray:3 2; }
+  :global(.tangent-handle) { cursor:ns-resize; fill:#79a8ff; stroke:#fff; stroke-width:1; }
+  :global(.marquee) { position:absolute; z-index:8; border:1px solid #79a8ff; background:#79a8ff22; pointer-events:none; }
+  :global(.graph-curves) { position:absolute; inset:0; width:100%; height:100%; }
+  :global(.timeline-ruler) { position:absolute; z-index:1; top:0; left:0; width:100%; height:20px; border-bottom:1px solid #3a4149; background:#12161aee; pointer-events:none; }
+  :global(.timeline-tick) { position:absolute; bottom:2px; transform:translateX(-50%); color:#7e8995; font:600 8px var(--font-mono); }
+  :global(.timeline-tick:before) { content:""; position:absolute; top:-4px; left:50%; height:4px; border-left:1px solid #59616a; }
+  :global(.playhead) { position:absolute; z-index:6; top:0; bottom:0; left:0; width:2px; background:#ff5e62; box-shadow:0 0 5px #ff5e6288; pointer-events:none; }
+  :global(.playhead:before){content:"";position:absolute;top:0;left:-5px;border:6px solid transparent;border-top-color:#ff5e62}
+  :global(.playhead-label) { position:absolute; top:3px; left:7px; border-radius:3px; background:#872f34; padding:1px 4px; color:#fff; font:700 8px var(--font-mono); white-space:nowrap; }
+  .dsl-dialog { width:min(900px,90vw); height:min(680px,82vh); border:1px solid #4b5560; border-radius:8px; background:#111418; color:var(--text); padding:0; }
+  .compact-dialog { width:min(420px,90vw); height:auto; }
+  .compact-dialog form { min-height:230px; }
+  .dialog-fields { display:grid; align-content:center; gap:12px; padding:20px; }
+  .dialog-fields label { display:grid; gap:5px; color:var(--muted); }
+  .dialog-fields input { border:1px solid #46505a; border-radius:4px; background:#090b0e; color:#fff; padding:8px; }
+  .dsl-dialog::backdrop{background:#000b;backdrop-filter:blur(4px)}.dsl-dialog form{display:grid;grid-template-rows:44px 1fr 48px;height:100%}.dsl-dialog header,.dsl-dialog footer{display:flex;align-items:center;justify-content:space-between;padding:8px;border-bottom:1px solid var(--line)}.dsl-dialog footer{justify-content:flex-end;gap:7px;border-top:1px solid var(--line);border-bottom:0}.dsl-dialog button{border:1px solid #46505a;border-radius:4px;background:#242a30;color:inherit;padding:6px 10px}.dsl-dialog textarea{resize:none;border:0;background:#090b0e;color:#d9e4ef;padding:12px;font:500 11px/1.5 var(--font-mono);outline:none}
+  @media(max-width:900px){.action-workspace{grid-template-rows:36px 44px minmax(0,1fr) 210px}.editor-main-grid{grid-template-columns:180px minmax(300px,1fr)}.inspector-panel{display:none}.timeline-body{grid-template-columns:180px minmax(0,1fr)}.editor-document-title{display:none}}
+  @media(max-width:680px){.editor-main-grid{grid-template-columns:1fr}.outliner-panel{display:none}.action-workspace{grid-template-rows:36px 44px minmax(0,1fr) 180px}.timeline-body{grid-template-columns:1fr}.channel-list{display:none}.editor-menu-group button:nth-child(n+3),.viewport-help{display:none}}
+</style>
