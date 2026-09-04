@@ -12,6 +12,7 @@ export const motionloom_parse_summary: (a: number, b: number) => [number, number
 export const motionloom_animation_property_schema_json: () => [number, number];
 export const motionloom_dsl_schema_json: () => [number, number];
 export const motionloom_analyze_script_json: (a: number, b: number) => [number, number];
+export const motionloom_render_style_json: (a: number, b: number, c: number, d: number) => [number, number, number, number];
 export const motionloom_analyze_script_for_target_json: (a: number, b: number, c: number, d: number) => [number, number];
 export const motionloom_showcase_schema_json: (a: number, b: number) => [number, number];
 export const motionloom_analyze_shot_observations_json: (a: number, b: number, c: number, d: number) => [number, number, number, number];
@@ -47,6 +48,7 @@ export const wasmscenerenderer_evaluate_rig_json: (a: number, b: number, c: numb
 export const wasmscenerenderer_render_frame: (a: number, b: number) => any;
 export const wasmscenerenderer_validate_shots_json: (a: number, b: number, c: number, d: number, e: number) => any;
 export const wasmscenerenderer_render_frame_to_canvas: (a: number, b: number, c: any) => any;
+export const wasmscenerenderer_last_3d_frame_profile_json: (a: number) => [number, number, number, number];
 export const wasmscenerenderer_debug_solid_to_canvas: (a: number, b: any, c: number, d: number) => any;
 export const wasmscenerenderer_debug_uploaded_texture_to_canvas: (a: number, b: any, c: number, d: number) => any;
 export const wasmscenerenderer_debug_empty_scene_texture_to_canvas: (a: number, b: any, c: number, d: number) => any;

@@ -40,7 +40,7 @@
     { "id": "sad_idle_loop", "file": "actions/sad-idle.motionloom", "label": "Sad Idle", "icon": "⌁", "description": "Subdued standing idle" },
     { "id": "listening_idle_loop", "file": "actions/listening-idle.motionloom", "label": "Listening Idle", "icon": "◖", "description": "Character1 neutral standing idle" },
     { "id": "talking_idle_loop", "file": "actions/talking-idle.motionloom", "label": "Talking Idle", "icon": "◗", "description": "Extended conversational gesture loop" },
-    { "id": "kick_action", "file": "actions/kick.motionloom", "label": "Front Kick", "icon": "⚡", "description": "Guarded right-leg kick" },
-    { "id": "stand_to_roll", "file": "actions/stand_to_roll.motionloom", "label": "Stand To Roll", "icon": "↻", "description": "Certified 334-pose Character1 target action" }
+    { "id": "front_kick_action", "file": "actions/front-kick.motionloom", "label": "Front Kick", "icon": "⚡", "description": "Guarded right-leg kick with planted left-foot contact" },
+    { "id": "stand_to_roll", "file": "actions/stand_to_roll.motionloom", "label": "Stand To Roll", "icon": "↻", "description": "60 FPS source, 485-pose Character1 target action", "rootMotion": "clip", "loop": false }
   ]
 }

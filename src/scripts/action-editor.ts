@@ -55,6 +55,8 @@ interface ActionLibraryEntry {
   description: string;
   defaultAction?: string;
   members?: string[];
+  rootMotion?: 'none' | 'clip' | 'in_place' | 'match_target';
+  loop?: boolean;
 }
 
 interface ActionLibraryManifest {
@@ -119,6 +121,11 @@ const state = {
   timelineMode: 'dopesheet' as TimelineMode,
   autoKey: true,
   playing: false,
+  playbackOriginMs: 0,
+  playbackOriginFrame: 0,
+  playbackFramePending: false,
+  playbackQueuedFrame: null as number | null,
+  playbackLastRequestedFrame: -1,
   renderPending: false,
   renderAgain: false,
   snapshot: null as RigSnapshot | null,
@@ -267,12 +274,39 @@ async function ensureActionLoaded(actionId: string): Promise<void> {
   parseDocument();
 }
 
-function replaceApplyAction(source: string, actionId: string, durationMs: number): string {
+function replaceApplyAction(
+  source: string,
+  actionId: string,
+  durationMs: number,
+  contacts?: EditableAction['contacts'],
+  playback?: Pick<ActionLibraryEntry, 'rootMotion' | 'loop'>,
+): string {
   return source.replace(/<ApplyAction\b[^>]*\btarget=["']character1_actor["'][^>]*\/>/, (tag) => {
-    const replace = (value: string, attribute: string) => value.match(new RegExp(`\\b${attribute}=["'][^"']*["']`))
-      ? value.replace(new RegExp(`\\b${attribute}=["'][^"']*["']`), `${attribute}="${attribute === 'action' ? actionId : attribute === 'duration' ? `${durationMs}ms` : 'true'}"`)
-      : value.replace('/>', ` ${attribute}="${attribute === 'action' ? actionId : attribute === 'duration' ? `${durationMs}ms` : 'true'}" />`);
-    return replace(replace(replace(tag, 'action'), 'duration'), 'loop');
+    const setAttribute = (value: string, attribute: string, next: string | null) => {
+      const pattern = new RegExp(`\\s+${attribute}=["'][^"']*["']`);
+      if (next === null) return value.replace(pattern, '');
+      return pattern.test(value)
+        ? value.replace(pattern, ` ${attribute}="${next}"`)
+        : value.replace('/>', ` ${attribute}="${next}" />`);
+    };
+    let next = setAttribute(tag, 'action', actionId);
+    next = setAttribute(next, 'duration', `${durationMs}ms`);
+    // Manifest playback metadata is optional, so removing it restores the
+    // editor's established in-place looping behavior without a migration.
+    next = setAttribute(next, 'loop', String(playback?.loop ?? true));
+    next = setAttribute(next, 'rootMotion', playback?.rootMotion ?? 'none');
+    if (contacts !== undefined) {
+      const hasGroundContact = contacts.some((contact) => contact.target === 'ground');
+      const hasGroundFootLock = contacts.some((contact) => (
+        contact.target === 'ground'
+        && (contact.effector === 'foot_l' || contact.effector === 'foot_r')
+        && contact.mode === 'lock'
+      ));
+      next = setAttribute(next, 'contactCorrection', hasGroundContact ? 'auto' : null);
+      next = setAttribute(next, 'footLock', hasGroundFootLock ? 'auto' : null);
+      if (hasGroundContact) next = setAttribute(next, 'ground', 'action_ground');
+    }
+    return next;
   });
 }
 
@@ -284,12 +318,20 @@ async function selectAction(actionId: string): Promise<void> {
   state.actionId = actionId;
   state.selectedKey = null;
   state.selectedKeys.clear();
-  state.dsl = replaceApplyAction(state.dsl, actionId, action.durationMs);
+  // Switch the action and its contact bindings as one valid DSL transaction.
+  state.dsl = replaceApplyAction(
+    state.dsl,
+    actionId,
+    action.durationMs,
+    action.contacts || [],
+    state.actionMeta[actionId],
+  );
   state.dirty = true;
   state.frame = 0;
   state.selectedBone = action.poses.flatMap((pose) => pose.bones).find((bone) => bone.id === 'hips')?.id
     || action.poses.flatMap((pose) => pose.bones)[0]?.id || 'hips';
-  parseDocument(); refreshUi();
+  parseDocument();
+  refreshUi();
   q<HTMLElement>('#ae-action-browser').hidden = true;
   q<HTMLButtonElement>('#ae-pose-menu').setAttribute('aria-expanded', 'false');
   await rebuildRenderer();
@@ -589,6 +631,17 @@ function renderTimeline(): void {
       });
     });
   }
+  updateTimelinePlayhead();
+}
+
+// Playback changes only the playhead; authored key DOM is rebuilt by edit paths.
+function updateTimelinePlayhead(): void {
+  const playhead = document.querySelector<HTMLElement>('#ae-playhead');
+  if (playhead) {
+    playhead.style.left = `${state.frame / Math.max(1, state.endFrame) * 100}%`;
+    const label = playhead.querySelector<HTMLElement>('.playhead-label');
+    if (label) label.textContent = `${state.frame}f · ${(state.frame / (state.document?.fps || 30)).toFixed(2)}s`;
+  }
   q<HTMLInputElement>('#ae-current-frame').value = String(state.frame);
   updateKeyContext();
 }
@@ -780,14 +833,37 @@ async function orbitCamera(dx: number, dy: number, zoom = 0): Promise<void> {
   await setCamera(position, target, 'User Perspective');
 }
 
-async function seek(frame: number): Promise<void> {
+function resetPlaybackClock(now = performance.now()): void {
+  state.playbackOriginMs = now;
+  state.playbackOriginFrame = state.frame;
+  state.playbackLastRequestedFrame = -1;
+}
+
+async function seek(frame: number, fromPlayback = false): Promise<void> {
   state.frame = Math.max(0, Math.min(state.endFrame, Math.round(frame)));
-  renderTimeline();
+  if (!fromPlayback && state.playing) resetPlaybackClock();
+  updateTimelinePlayhead();
   // The renderer has always evaluated in-between frames, but the inspector
   // must follow the playhead too. Otherwise it keeps showing the values from
   // the last selected/keyed frame while the Character is visibly moving.
   renderInspector();
   await renderFrame();
+}
+
+// Keep at most one playback seek in flight and coalesce lag to the newest frame.
+async function queuePlaybackFrame(frame: number): Promise<void> {
+  state.playbackQueuedFrame = frame;
+  if (state.playbackFramePending) return;
+  state.playbackFramePending = true;
+  try {
+    while (state.playing && state.playbackQueuedFrame !== null) {
+      const next = state.playbackQueuedFrame;
+      state.playbackQueuedFrame = null;
+      await seek(next, true);
+    }
+  } finally {
+    state.playbackFramePending = false;
+  }
 }
 
 function setTool(tool: Tool): void {
@@ -987,13 +1063,24 @@ function bindUi(): void {
     const next = Math.max(1, Number((event.target as HTMLInputElement).value));
     const durationMs = Math.round(next * 1000 / (state.document?.fps || 30));
     if (!applyEdit({ type: 'setActionMetadata', actionId: state.actionId, durationMs })) return;
-    state.dsl = replaceApplyAction(state.dsl, state.actionId, durationMs); state.endFrame = next;
+    state.dsl = replaceApplyAction(
+      state.dsl,
+      state.actionId,
+      durationMs,
+      undefined,
+      state.actionMeta[state.actionId],
+    ); state.endFrame = next;
     parseDocument(); refreshUi(); await rebuildRenderer();
   });
   q<HTMLInputElement>('#ae-auto-key').addEventListener('change', (event) => { state.autoKey = (event.target as HTMLInputElement).checked; });
   q('#ae-first').addEventListener('click', () => void seek(0)); q('#ae-last').addEventListener('click', () => void seek(state.endFrame));
   q('#ae-prev').addEventListener('click', () => void seek(state.frame - 1)); q('#ae-next').addEventListener('click', () => void seek(state.frame + 1));
-  q('#ae-play').addEventListener('click', () => { state.playing = !state.playing; q('#ae-play').textContent = state.playing ? '❚❚' : '▶'; });
+  q('#ae-play').addEventListener('click', () => {
+    state.playing = !state.playing;
+    if (state.playing) resetPlaybackClock();
+    else state.playbackQueuedFrame = null;
+    q('#ae-play').textContent = state.playing ? '❚❚' : '▶';
+  });
   let suppressTimelineClick = false;
   q('#ae-timeline-view').addEventListener('click', (event) => {
     if (suppressTimelineClick) { suppressTimelineClick = false; return; }
@@ -1181,8 +1268,19 @@ function bindUi(): void {
       state.selectedKey = [...state.selectedKeys.values()][0] || null; renderTimeline();
     }
   });
-  let last = performance.now();
-  const tick = (now: number) => { if (state.playing && now - last >= 1000 / (state.document?.fps || 30)) { last = now; void seek(state.frame >= state.endFrame ? 0 : state.frame + 1); } requestAnimationFrame(tick); };
+  const tick = (now: number) => {
+    if (state.playing) {
+      const fps = state.document?.fps || 30;
+      const frameCount = Math.max(1, state.endFrame + 1);
+      const elapsedFrames = Math.floor((now - state.playbackOriginMs) * fps / 1000);
+      const target = (state.playbackOriginFrame + elapsedFrames) % frameCount;
+      if (target !== state.playbackLastRequestedFrame) {
+        state.playbackLastRequestedFrame = target;
+        void queuePlaybackFrame(target);
+      }
+    }
+    requestAnimationFrame(tick);
+  };
   requestAnimationFrame(tick);
 }
 
@@ -1220,10 +1318,10 @@ async function boot(): Promise<void> {
     state.actionLibrary = manifest.actions;
     state.loadedActionFiles.clear();
     state.loadedActionFiles.add(firstEntry.file);
-    state.actionMeta = Object.fromEntries(manifest.actions.flatMap(({ id, label, icon, description, defaultAction, members }) => (
+    state.actionMeta = Object.fromEntries(manifest.actions.flatMap(({ id, label, icon, description, defaultAction, members, rootMotion, loop }) => (
       [id, defaultAction, ...(members || [])].filter((actionId): actionId is string => Boolean(actionId)).map((actionId) => [
         actionId,
-        { label, icon, description, defaultAction, members },
+        { label, icon, description, defaultAction, members, rootMotion, loop },
       ])
     )));
     state.dsl = template.replace(marker, firstAction);

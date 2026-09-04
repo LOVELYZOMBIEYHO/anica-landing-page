@@ -1,0 +1,1916 @@
+<!-- Front kick phases: neutral, anticipation, chamber, release, extension, strike, retract, recovery, neutral. -->
+<Action id="front_kick_action" skeleton="humanoid_v1" duration="2.4s">
+  <Pose t="0s">
+    <Bone id="upper_arm_l" side="10" />
+    <Bone id="upper_arm_r" forward="0" side="10" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-10" interpolation="bezier" outTangent="0" />
+    <Bone id="forearm_r" bend="8" />
+  </Pose>
+
+  <Pose t="0.0166667s">
+    <Bone id="upper_arm_l" side="10" />
+    <Bone id="upper_arm_r" forward="2.3333333" side="10.6666667" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-9.7638889" interpolation="bezier" inTangent="1.9411765" outTangent="0.7021277" />
+    <Bone id="forearm_r" bend="8.8333333" />
+  </Pose>
+
+  <Pose t="0.0333333s">
+    <Bone id="upper_arm_l" side="10" />
+    <Bone id="upper_arm_r" forward="4.6666667" side="11.3333333" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-9.1111111" interpolation="bezier" inTangent="1.2765957" outTangent="0.8450704" />
+    <Bone id="forearm_r" bend="9.6666667" />
+  </Pose>
+
+  <Pose t="0.05s">
+    <Bone id="upper_arm_l" side="10" />
+    <Bone id="upper_arm_r" forward="7" side="12" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-8.125" interpolation="bezier" inTangent="1.1408451" outTangent="0.9101124" />
+    <Bone id="forearm_r" bend="10.5" />
+  </Pose>
+
+  <Pose t="0.0666667s">
+    <Bone id="upper_arm_l" side="10" />
+    <Bone id="upper_arm_r" forward="9.3333333" side="12.6666667" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-6.8888889" interpolation="bezier" inTangent="1.0786517" outTangent="0.950495" />
+    <Bone id="forearm_r" bend="11.3333333" />
+  </Pose>
+
+  <Pose t="0.0833333s">
+    <Bone id="upper_arm_l" side="10" />
+    <Bone id="upper_arm_r" forward="11.6666667" side="13.3333333" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-5.4861111" interpolation="bezier" inTangent="1.039604" outTangent="0.9813084" />
+    <Bone id="forearm_r" bend="12.1666667" />
+  </Pose>
+
+  <Pose t="0.1s">
+    <Bone id="upper_arm_l" side="10" />
+    <Bone id="upper_arm_r" forward="14" side="14" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-4" interpolation="bezier" inTangent="1.0093458" outTangent="1.0093458" />
+    <Bone id="forearm_r" bend="13" />
+  </Pose>
+
+  <Pose t="0.1166667s">
+    <Bone id="upper_arm_l" side="10" />
+    <Bone id="upper_arm_r" forward="16.3333333" side="14.6666667" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-2.5138889" interpolation="bezier" inTangent="0.9813084" outTangent="1.039604" />
+    <Bone id="forearm_r" bend="13.8333333" />
+  </Pose>
+
+  <Pose t="0.1333333s">
+    <Bone id="upper_arm_l" side="10" />
+    <Bone id="upper_arm_r" forward="18.6666667" side="15.3333333" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-1.1111111" interpolation="bezier" inTangent="0.950495" outTangent="1.0786517" />
+    <Bone id="forearm_r" bend="14.6666667" />
+  </Pose>
+
+  <Pose t="0.15s">
+    <Bone id="upper_arm_l" side="10" />
+    <Bone id="upper_arm_r" forward="21" side="16" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="0.125" interpolation="bezier" inTangent="0.9101124" outTangent="1.1408451" />
+    <Bone id="forearm_r" bend="15.5" />
+  </Pose>
+
+  <Pose t="0.1666667s">
+    <Bone id="upper_arm_l" side="10" />
+    <Bone id="upper_arm_r" forward="23.3333333" side="16.6666667" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="1.1111111" interpolation="bezier" inTangent="0.8450704" outTangent="1.2765957" />
+    <Bone id="forearm_r" bend="16.3333333" />
+  </Pose>
+
+  <Pose t="0.1833333s">
+    <Bone id="upper_arm_l" side="10" />
+    <Bone id="upper_arm_r" forward="25.6666667" side="17.3333333" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="1.7638889" interpolation="bezier" inTangent="0.7021277" outTangent="1.9411765" />
+    <Bone id="forearm_r" bend="17.1666667" />
+  </Pose>
+
+  <Pose t="0.2s">
+    <Bone id="upper_arm_l" side="10" />
+    <Bone id="upper_arm_r" forward="28" side="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="2" interpolation="bezier" inTangent="0" outTangent="0" />
+    <Bone id="forearm_r" bend="18" />
+  </Pose>
+
+  <Pose t="0.2166667s">
+    <Bone id="upper_arm_l" forward="-3.5087719" side="13.0075188" />
+    <Bone id="upper_arm_r" forward="25.7443609" side="19.0025063" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-0.5012541" />
+    <Bone id="lower_leg_r" bend="7.1809475" interpolation="bezier" inTangent="1.9088423" outTangent="0.7243168" />
+    <Bone id="forearm_r" bend="19.5037594" />
+    <Bone id="hips" x="-0.0050125" turn="-1.0025063" />
+    <Bone id="chest" turn="1.2531328" />
+    <Bone id="forearm_l" bend="7.2681704" />
+    <Bone id="upper_leg_l" side="-0.5012531" />
+    <Bone id="upper_leg_r" forward="6.5162907" side="0.6265664" />
+    <Bone id="foot_r" bend="-2.0050125" />
+  </Pose>
+
+  <Pose t="0.2333333s">
+    <Bone id="upper_arm_l" forward="-7.0175439" side="16.0150376" />
+    <Bone id="upper_arm_r" forward="23.4887218" side="20.0050125" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-1.0025053" />
+    <Bone id="lower_leg_r" bend="20.8346571" interpolation="bezier" inTangent="1.241093" outTangent="0.8783354" />
+    <Bone id="forearm_r" bend="21.0075188" />
+    <Bone id="hips" x="-0.0100251" turn="-2.0050125" />
+    <Bone id="chest" turn="2.5062657" />
+    <Bone id="forearm_l" bend="14.5363409" />
+    <Bone id="upper_leg_l" side="-1.0025063" />
+    <Bone id="upper_leg_r" forward="13.0325815" side="1.2531328" />
+    <Bone id="foot_r" bend="-4.0100251" />
+  </Pose>
+
+  <Pose t="0.25s">
+    <Bone id="upper_arm_l" forward="-10.5263158" side="19.0225564" />
+    <Bone id="upper_arm_r" forward="21.2330827" side="21.0075188" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-1.5037594" />
+    <Bone id="lower_leg_r" bend="40.1274289" interpolation="bezier" inTangent="1.0971848" outTangent="0.957897" />
+    <Bone id="forearm_r" bend="22.5112782" />
+    <Bone id="hips" x="-0.0150376" turn="-3.0075188" />
+    <Bone id="chest" turn="3.7593985" />
+    <Bone id="forearm_l" bend="21.8045113" />
+    <Bone id="upper_leg_l" side="-1.5037594" />
+    <Bone id="upper_leg_r" forward="19.5488722" side="1.8796992" />
+    <Bone id="foot_r" bend="-6.0150376" />
+  </Pose>
+
+  <Pose t="0.2666667s">
+    <Bone id="upper_arm_l" forward="-14.0350877" side="22.0300752" />
+    <Bone id="upper_arm_r" forward="18.9774436" side="22.0100251" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-2.0050135" />
+    <Bone id="lower_leg_r" bend="62.2255634" interpolation="bezier" inTangent="1.0207309" outTangent="1.0220415" />
+    <Bone id="forearm_r" bend="24.0150376" />
+    <Bone id="hips" x="-0.0200501" turn="-4.0100251" />
+    <Bone id="chest" turn="5.0125313" />
+    <Bone id="forearm_l" bend="29.0726817" />
+    <Bone id="upper_leg_l" side="-2.0050125" />
+    <Bone id="upper_leg_r" forward="26.0651629" side="2.5062657" />
+    <Bone id="foot_r" bend="-8.0200501" />
+  </Pose>
+
+  <Pose t="0.2833333s">
+    <Bone id="upper_arm_l" forward="-17.5438596" side="25.037594" />
+    <Bone id="upper_arm_r" forward="16.7218045" side="23.0125313" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-2.5062647" />
+    <Bone id="lower_leg_r" bend="84.295361" interpolation="bezier" inTangent="0.956559" outTangent="1.0990902" />
+    <Bone id="forearm_r" bend="25.518797" />
+    <Bone id="hips" x="-0.0250627" turn="-5.0125313" />
+    <Bone id="chest" turn="6.2656642" />
+    <Bone id="forearm_l" bend="36.3408521" />
+    <Bone id="upper_leg_l" side="-2.5062657" />
+    <Bone id="upper_leg_r" forward="32.5814536" side="3.1328321" />
+    <Bone id="foot_r" bend="-10.0250627" />
+  </Pose>
+
+  <Pose t="0.3s">
+    <Bone id="upper_arm_l" forward="-21.0526316" side="28.0451128" />
+    <Bone id="upper_arm_r" forward="14.4661654" side="24.0150376" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-3.0075188" />
+    <Bone id="lower_leg_r" bend="103.5031218" interpolation="bezier" inTangent="0.8763216" outTangent="1.2457183" />
+    <Bone id="forearm_r" bend="27.0225564" />
+    <Bone id="hips" x="-0.0300752" turn="-6.0150376" />
+    <Bone id="chest" turn="7.518797" />
+    <Bone id="forearm_l" bend="43.6090226" />
+    <Bone id="upper_leg_l" side="-3.0075188" />
+    <Bone id="upper_leg_r" forward="39.0977444" side="3.7593985" />
+    <Bone id="foot_r" bend="-12.0300752" />
+  </Pose>
+
+  <Pose t="0.3166667s">
+    <Bone id="upper_arm_l" forward="-24.5614035" side="31.0526316" />
+    <Bone id="upper_arm_r" forward="12.2105263" side="25.0175439" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-3.5087729" />
+    <Bone id="lower_leg_r" bend="117.0151464" interpolation="bezier" inTangent="0.7193289" outTangent="1.910828" />
+    <Bone id="forearm_r" bend="28.5263158" />
+    <Bone id="hips" x="-0.0350877" turn="-7.0175439" />
+    <Bone id="chest" turn="8.7719298" />
+    <Bone id="forearm_l" bend="50.877193" />
+    <Bone id="upper_leg_l" side="-3.5087719" />
+    <Bone id="upper_leg_r" forward="45.6140351" side="4.3859649" />
+    <Bone id="foot_r" bend="-14.0350877" />
+  </Pose>
+
+  <Pose t="0.333s">
+    <Bone id="hips" x="-0.04" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="10" side="26" />
+    <Bone id="forearm_r" bend="30" />
+    <Bone id="upper_leg_l" side="-4" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4" />
+    <Bone id="upper_leg_r" forward="52" side="5" />
+    <Bone id="lower_leg_r" bend="122" interpolation="bezier" inTangent="0" outTangent="0" />
+    <Bone id="foot_r" bend="-16" />
+  </Pose>
+
+  <Pose t="0.35s">
+    <Bone id="hips" x="-0.04" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="7.2089552" side="25.7462687" />
+    <Bone id="forearm_r" bend="29.238806" />
+    <Bone id="upper_leg_l" side="-4" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4" />
+    <Bone id="upper_leg_r" forward="52" side="5" />
+    <Bone id="lower_leg_r" bend="118.9943377" interpolation="bezier" inTangent="1.9076087" outTangent="0.7286406" />
+    <Bone id="foot_r" bend="-16" />
+  </Pose>
+
+  <Pose t="0.3666667s">
+    <Bone id="hips" x="-0.04" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="4.4726368" side="25.4975124" />
+    <Bone id="forearm_r" bend="28.4925373" />
+    <Bone id="upper_leg_l" side="-4" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4" />
+    <Bone id="upper_leg_r" forward="52" side="5" />
+    <Bone id="lower_leg_r" bend="111.2796932" interpolation="bezier" inTangent="1.2374395" outTangent="0.8794635" />
+    <Bone id="foot_r" bend="-16" />
+  </Pose>
+
+  <Pose t="0.3833333s">
+    <Bone id="hips" x="-0.04" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="1.7363184" side="25.2487562" />
+    <Bone id="forearm_r" bend="27.7462687" />
+    <Bone id="upper_leg_l" side="-4" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4" />
+    <Bone id="upper_leg_r" forward="52" side="5" />
+    <Bone id="lower_leg_r" bend="100.424887" interpolation="bezier" inTangent="1.0964292" outTangent="0.9578781" />
+    <Bone id="foot_r" bend="-16" />
+  </Pose>
+
+  <Pose t="0.4s">
+    <Bone id="hips" x="-0.04" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-1" side="25" />
+    <Bone id="forearm_r" bend="27" />
+    <Bone id="upper_leg_l" side="-4" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4" />
+    <Bone id="upper_leg_r" forward="52" side="5" />
+    <Bone id="lower_leg_r" bend="88" interpolation="bezier" inTangent="1.021061" outTangent="1.021061" />
+    <Bone id="foot_r" bend="-16" />
+  </Pose>
+
+  <Pose t="0.4166667s">
+    <Bone id="hips" x="-0.04" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-3.7363184" side="24.7512438" />
+    <Bone id="forearm_r" bend="26.2537313" />
+    <Bone id="upper_leg_l" side="-4" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4" />
+    <Bone id="upper_leg_r" forward="52" side="5" />
+    <Bone id="lower_leg_r" bend="75.575113" interpolation="bezier" inTangent="0.9578781" outTangent="1.0964292" />
+    <Bone id="foot_r" bend="-16" />
+  </Pose>
+
+  <Pose t="0.4333333s">
+    <Bone id="hips" x="-0.04" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-6.4726368" side="24.5024876" />
+    <Bone id="forearm_r" bend="25.5074627" />
+    <Bone id="upper_leg_l" side="-4" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4" />
+    <Bone id="upper_leg_r" forward="52" side="5" />
+    <Bone id="lower_leg_r" bend="64.7203068" interpolation="bezier" inTangent="0.8794635" outTangent="1.2374395" />
+    <Bone id="foot_r" bend="-16" />
+  </Pose>
+
+  <Pose t="0.45s">
+    <Bone id="hips" x="-0.04" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-9.2089552" side="24.2537313" />
+    <Bone id="forearm_r" bend="24.761194" />
+    <Bone id="upper_leg_l" side="-4" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4" />
+    <Bone id="upper_leg_r" forward="52" side="5" />
+    <Bone id="lower_leg_r" bend="57.0056623" interpolation="bezier" inTangent="0.7286406" outTangent="1.9076087" />
+    <Bone id="foot_r" bend="-16" />
+  </Pose>
+
+  <Pose t="0.467s">
+    <Bone id="hips" x="-0.04" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-12" side="24" />
+    <Bone id="forearm_r" bend="24" />
+    <Bone id="upper_leg_l" side="-4" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4" />
+    <Bone id="upper_leg_r" forward="52" side="5" />
+    <Bone id="lower_leg_r" bend="54" interpolation="bezier" inTangent="0" outTangent="0" />
+    <Bone id="foot_r" bend="-16" />
+  </Pose>
+
+  <Pose t="0.4833333s">
+    <Bone id="hips" x="-0.04" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-13.7710843" side="23.6064257" />
+    <Bone id="forearm_r" bend="23.2128514" />
+    <Bone id="upper_leg_l" side="-4" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4" />
+    <Bone id="upper_leg_r" forward="53.1807229" side="5" />
+    <Bone id="lower_leg_r" bend="52.3716761" interpolation="bezier" inTangent="1.9297994" outTangent="0.7058918" />
+    <Bone id="foot_r" bend="-16.1967871" />
+  </Pose>
+
+  <Pose t="0.5s">
+    <Bone id="hips" x="-0.04" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-15.5783133" side="23.2048193" />
+    <Bone id="forearm_r" bend="22.4096386" />
+    <Bone id="upper_leg_l" side="-4" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4" />
+    <Bone id="upper_leg_r" forward="54.3855422" side="5" />
+    <Bone id="lower_leg_r" bend="47.8292406" interpolation="bezier" inTangent="1.2673711" outTangent="0.8555988" />
+    <Bone id="foot_r" bend="-16.3975904" />
+  </Pose>
+
+  <Pose t="0.5166667s">
+    <Bone id="hips" x="-0.04" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-17.3855422" side="22.8032129" />
+    <Bone id="forearm_r" bend="21.6064257" />
+    <Bone id="upper_leg_l" side="-4" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4" />
+    <Bone id="upper_leg_r" forward="55.5903614" side="5" />
+    <Bone id="lower_leg_r" bend="41.1006764" interpolation="bezier" inTangent="1.1263511" outTangent="0.9258173" />
+    <Bone id="foot_r" bend="-16.5983936" />
+  </Pose>
+
+  <Pose t="0.5333333s">
+    <Bone id="hips" x="-0.04" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-19.1927711" side="22.4016064" />
+    <Bone id="forearm_r" bend="20.8032129" />
+    <Bone id="upper_leg_l" side="-4" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4" />
+    <Bone id="upper_leg_r" forward="56.7951807" side="5" />
+    <Bone id="lower_leg_r" bend="32.914693" interpolation="bezier" inTangent="1.0593461" outTangent="0.9727525" />
+    <Bone id="foot_r" bend="-16.7991968" />
+  </Pose>
+
+  <Pose t="0.55s">
+    <Bone id="hips" x="-0.04" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-21" side="22" />
+    <Bone id="forearm_r" bend="20" />
+    <Bone id="upper_leg_l" side="-4" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4" />
+    <Bone id="upper_leg_r" forward="58" side="5" />
+    <Bone id="lower_leg_r" bend="24" interpolation="bezier" inTangent="1.0136238" outTangent="1.0136238" />
+    <Bone id="foot_r" bend="-17" />
+  </Pose>
+
+  <Pose t="0.5666667s">
+    <Bone id="hips" x="-0.04" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-22.8072289" side="21.5983936" />
+    <Bone id="forearm_r" bend="19.1967871" />
+    <Bone id="upper_leg_l" side="-4" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4" />
+    <Bone id="upper_leg_r" forward="59.2048193" side="5" />
+    <Bone id="lower_leg_r" bend="15.085307" interpolation="bezier" inTangent="0.9727525" outTangent="1.0593461" />
+    <Bone id="foot_r" bend="-17.2008032" />
+  </Pose>
+
+  <Pose t="0.5833333s">
+    <Bone id="hips" x="-0.04" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-24.6144578" side="21.1967871" />
+    <Bone id="forearm_r" bend="18.3935743" />
+    <Bone id="upper_leg_l" side="-4" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4" />
+    <Bone id="upper_leg_r" forward="60.4096386" side="5" />
+    <Bone id="lower_leg_r" bend="6.8993236" interpolation="bezier" inTangent="0.9258173" outTangent="1.1263511" />
+    <Bone id="foot_r" bend="-17.4016064" />
+  </Pose>
+
+  <Pose t="0.6s">
+    <Bone id="hips" x="-0.04" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-26.4216867" side="20.7951807" />
+    <Bone id="forearm_r" bend="17.5903614" />
+    <Bone id="upper_leg_l" side="-4" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4" />
+    <Bone id="upper_leg_r" forward="61.6144578" side="5" />
+    <Bone id="lower_leg_r" bend="0.1707594" interpolation="bezier" inTangent="0.8555988" outTangent="1.2673711" />
+    <Bone id="foot_r" bend="-17.6024096" />
+  </Pose>
+
+  <Pose t="0.6166667s">
+    <Bone id="hips" x="-0.04" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-28.2289157" side="20.3935743" />
+    <Bone id="forearm_r" bend="16.7871486" />
+    <Bone id="upper_leg_l" side="-4" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4" />
+    <Bone id="upper_leg_r" forward="62.8192771" side="5" />
+    <Bone id="lower_leg_r" bend="-4.3716761" interpolation="bezier" inTangent="0.7058918" outTangent="1.9297994" />
+    <Bone id="foot_r" bend="-17.8032129" />
+  </Pose>
+
+  <Pose t="0.633s">
+    <Bone id="hips" x="-0.04" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-30" side="20" />
+    <Bone id="forearm_r" bend="16" />
+    <Bone id="upper_leg_l" side="-4" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4" />
+    <Bone id="upper_leg_r" forward="64" side="5" />
+    <Bone id="lower_leg_r" bend="-6" interpolation="bezier" inTangent="0" outTangent="0" />
+    <Bone id="foot_r" bend="-18" />
+  </Pose>
+
+  <Pose t="0.65s">
+    <Bone id="hips" x="-0.0421795" turn="-8.2905983" />
+    <Bone id="chest" bend="-0.5811966" turn="10.2905983" />
+    <Bone id="upper_arm_l" forward="-28.4358974" side="34.5811966" />
+    <Bone id="forearm_l" bend="58.5811966" />
+    <Bone id="upper_arm_r" forward="-30.5811966" side="19.8547009" />
+    <Bone id="forearm_r" bend="15.7094017" />
+    <Bone id="upper_leg_l" side="-4.1452991" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4.1452991" />
+    <Bone id="upper_leg_r" forward="65.3076923" side="4.9273504" />
+    <Bone id="lower_leg_r" bend="-6" interpolation="bezier" inTangent="1.9491018" outTangent="0.7009212" />
+    <Bone id="foot_r" bend="-18.1452991" />
+    <Bone id="spine" bend="-0.3632479" />
+  </Pose>
+
+  <Pose t="0.6666667s">
+    <Bone id="hips" x="-0.0443162" turn="-8.5754986" />
+    <Bone id="chest" bend="-1.1509972" turn="10.5754986" />
+    <Bone id="upper_arm_l" forward="-28.8632479" side="35.1509972" />
+    <Bone id="forearm_l" bend="59.1509972" />
+    <Bone id="upper_arm_r" forward="-31.1509972" side="19.7122507" />
+    <Bone id="forearm_r" bend="15.4245014" />
+    <Bone id="upper_leg_l" side="-4.2877493" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4.2877496" />
+    <Bone id="upper_leg_r" forward="66.5897436" side="4.8561254" />
+    <Bone id="lower_leg_r" bend="-6" interpolation="bezier" inTangent="1.281486" outTangent="0.8387862" />
+    <Bone id="foot_r" bend="-18.2877493" />
+    <Bone id="spine" bend="-0.7193732" />
+  </Pose>
+
+  <Pose t="0.6833333s">
+    <Bone id="hips" x="-0.046453" turn="-8.8603989" />
+    <Bone id="chest" bend="-1.7207977" turn="10.8603989" />
+    <Bone id="upper_arm_l" forward="-29.2905983" side="35.7207977" />
+    <Bone id="forearm_l" bend="59.7207977" />
+    <Bone id="upper_arm_r" forward="-31.7207977" side="19.5698006" />
+    <Bone id="forearm_r" bend="15.1396011" />
+    <Bone id="upper_leg_l" side="-4.4301994" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4.4301991" />
+    <Bone id="upper_leg_r" forward="67.8717949" side="4.7849003" />
+    <Bone id="lower_leg_r" bend="-6" interpolation="bezier" inTangent="1.1496985" outTangent="0.9007589" />
+    <Bone id="foot_r" bend="-18.4301994" />
+    <Bone id="spine" bend="-1.0754986" />
+  </Pose>
+
+  <Pose t="0.7s">
+    <Bone id="hips" x="-0.0485897" turn="-9.1452991" />
+    <Bone id="chest" bend="-2.2905983" turn="11.1452991" />
+    <Bone id="upper_arm_l" forward="-29.7179487" side="36.2905983" />
+    <Bone id="forearm_l" bend="60.2905983" />
+    <Bone id="upper_arm_r" forward="-32.2905983" side="19.4273504" />
+    <Bone id="forearm_r" bend="14.8547009" />
+    <Bone id="upper_leg_l" side="-4.5726496" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4.5726496" />
+    <Bone id="upper_leg_r" forward="69.1538462" side="4.7136752" />
+    <Bone id="lower_leg_r" bend="-6" interpolation="bezier" inTangent="1.0902192" outTangent="0.9379081" />
+    <Bone id="foot_r" bend="-18.5726496" />
+    <Bone id="spine" bend="-1.4316239" />
+  </Pose>
+
+  <Pose t="0.7166667s">
+    <Bone id="hips" x="-0.0507265" turn="-9.4301994" />
+    <Bone id="chest" bend="-2.8603989" turn="11.4301994" />
+    <Bone id="upper_arm_l" forward="-30.1452991" side="36.8603989" />
+    <Bone id="forearm_l" bend="60.8603989" />
+    <Bone id="upper_arm_r" forward="-32.8603989" side="19.2849003" />
+    <Bone id="forearm_r" bend="14.5698006" />
+    <Bone id="upper_leg_l" side="-4.7150997" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4.7151" />
+    <Bone id="upper_leg_r" forward="70.4358974" side="4.6424501" />
+    <Bone id="lower_leg_r" bend="-6" interpolation="bezier" inTangent="1.0543304" outTangent="0.964499" />
+    <Bone id="foot_r" bend="-18.7150997" />
+    <Bone id="spine" bend="-1.7877493" />
+  </Pose>
+
+  <Pose t="0.7333333s">
+    <Bone id="hips" x="-0.0528632" turn="-9.7150997" />
+    <Bone id="chest" bend="-3.4301994" turn="11.7150997" />
+    <Bone id="upper_arm_l" forward="-30.5726496" side="37.4301994" />
+    <Bone id="forearm_l" bend="61.4301994" />
+    <Bone id="upper_arm_r" forward="-33.4301994" side="19.1424501" />
+    <Bone id="forearm_r" bend="14.2849003" />
+    <Bone id="upper_leg_l" side="-4.8575499" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4.8575496" />
+    <Bone id="upper_leg_r" forward="71.7179487" side="4.5712251" />
+    <Bone id="lower_leg_r" bend="-6" interpolation="bezier" inTangent="1.0284008" outTangent="0.9863798" />
+    <Bone id="foot_r" bend="-18.8575499" />
+    <Bone id="spine" bend="-2.1438746" />
+  </Pose>
+
+  <Pose t="0.75s">
+    <Bone id="hips" x="-0.055" turn="-10" />
+    <Bone id="chest" bend="-4" turn="12" />
+    <Bone id="upper_arm_l" forward="-31" side="38" />
+    <Bone id="forearm_l" bend="62" />
+    <Bone id="upper_arm_r" forward="-34" side="19" />
+    <Bone id="forearm_r" bend="14" />
+    <Bone id="upper_leg_l" side="-5" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-5" />
+    <Bone id="upper_leg_r" forward="73" side="4.5" />
+    <Bone id="lower_leg_r" bend="-6" interpolation="bezier" inTangent="1.0068101" outTangent="1.0068101" />
+    <Bone id="foot_r" bend="-19" />
+    <Bone id="spine" bend="-2.5" />
+  </Pose>
+
+  <Pose t="0.7666667s">
+    <Bone id="hips" x="-0.0571368" turn="-10.2849003" />
+    <Bone id="chest" bend="-4.5698006" turn="12.2849003" />
+    <Bone id="upper_arm_l" forward="-31.4273504" side="38.5698006" />
+    <Bone id="forearm_l" bend="62.5698006" />
+    <Bone id="upper_arm_r" forward="-34.5698006" side="18.8575499" />
+    <Bone id="forearm_r" bend="13.7150997" />
+    <Bone id="upper_leg_l" side="-5.1424501" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-5.1424504" />
+    <Bone id="upper_leg_r" forward="74.2820513" side="4.4287749" />
+    <Bone id="lower_leg_r" bend="-6" interpolation="bezier" inTangent="0.9863798" outTangent="1.0284008" />
+    <Bone id="foot_r" bend="-19.1424501" />
+    <Bone id="spine" bend="-2.8561254" />
+  </Pose>
+
+  <Pose t="0.7833333s">
+    <Bone id="hips" x="-0.0592735" turn="-10.5698006" />
+    <Bone id="chest" bend="-5.1396011" turn="12.5698006" />
+    <Bone id="upper_arm_l" forward="-31.8547009" side="39.1396011" />
+    <Bone id="forearm_l" bend="63.1396011" />
+    <Bone id="upper_arm_r" forward="-35.1396011" side="18.7150997" />
+    <Bone id="forearm_r" bend="13.4301994" />
+    <Bone id="upper_leg_l" side="-5.2849003" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-5.2849" />
+    <Bone id="upper_leg_r" forward="75.5641026" side="4.3575499" />
+    <Bone id="lower_leg_r" bend="-6" interpolation="bezier" inTangent="0.964499" outTangent="1.0543304" />
+    <Bone id="foot_r" bend="-19.2849003" />
+    <Bone id="spine" bend="-3.2122507" />
+  </Pose>
+
+  <Pose t="0.8s">
+    <Bone id="hips" x="-0.0614103" turn="-10.8547009" />
+    <Bone id="chest" bend="-5.7094017" turn="12.8547009" />
+    <Bone id="upper_arm_l" forward="-32.2820513" side="39.7094017" />
+    <Bone id="forearm_l" bend="63.7094017" />
+    <Bone id="upper_arm_r" forward="-35.7094017" side="18.5726496" />
+    <Bone id="forearm_r" bend="13.1452991" />
+    <Bone id="upper_leg_l" side="-5.4273504" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-5.4273504" />
+    <Bone id="upper_leg_r" forward="76.8461538" side="4.2863248" />
+    <Bone id="lower_leg_r" bend="-6" interpolation="bezier" inTangent="0.9379081" outTangent="1.0902192" />
+    <Bone id="foot_r" bend="-19.4273504" />
+    <Bone id="spine" bend="-3.5683761" />
+  </Pose>
+
+  <Pose t="0.8166667s">
+    <Bone id="hips" x="-0.063547" turn="-11.1396011" />
+    <Bone id="chest" bend="-6.2792023" turn="13.1396011" />
+    <Bone id="upper_arm_l" forward="-32.7094017" side="40.2792023" />
+    <Bone id="forearm_l" bend="64.2792023" />
+    <Bone id="upper_arm_r" forward="-36.2792023" side="18.4301994" />
+    <Bone id="forearm_r" bend="12.8603989" />
+    <Bone id="upper_leg_l" side="-5.5698006" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-5.5698009" />
+    <Bone id="upper_leg_r" forward="78.1282051" side="4.2150997" />
+    <Bone id="lower_leg_r" bend="-6" interpolation="bezier" inTangent="0.9007589" outTangent="1.1496985" />
+    <Bone id="foot_r" bend="-19.5698006" />
+    <Bone id="spine" bend="-3.9245014" />
+  </Pose>
+
+  <Pose t="0.8333333s">
+    <Bone id="hips" x="-0.0656838" turn="-11.4245014" />
+    <Bone id="chest" bend="-6.8490028" turn="13.4245014" />
+    <Bone id="upper_arm_l" forward="-33.1367521" side="40.8490028" />
+    <Bone id="forearm_l" bend="64.8490028" />
+    <Bone id="upper_arm_r" forward="-36.8490028" side="18.2877493" />
+    <Bone id="forearm_r" bend="12.5754986" />
+    <Bone id="upper_leg_l" side="-5.7122507" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-5.7122504" />
+    <Bone id="upper_leg_r" forward="79.4102564" side="4.1438746" />
+    <Bone id="lower_leg_r" bend="-6" interpolation="bezier" inTangent="0.8387862" outTangent="1.281486" />
+    <Bone id="foot_r" bend="-19.7122507" />
+    <Bone id="spine" bend="-4.2806268" />
+  </Pose>
+
+  <Pose t="0.85s">
+    <Bone id="hips" x="-0.0678205" turn="-11.7094017" />
+    <Bone id="chest" bend="-7.4188034" turn="13.7094017" />
+    <Bone id="upper_arm_l" forward="-33.5641026" side="41.4188034" />
+    <Bone id="forearm_l" bend="65.4188034" />
+    <Bone id="upper_arm_r" forward="-37.4188034" side="18.1452991" />
+    <Bone id="forearm_r" bend="12.2905983" />
+    <Bone id="upper_leg_l" side="-5.8547009" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-5.8547009" />
+    <Bone id="upper_leg_r" forward="80.6923077" side="4.0726496" />
+    <Bone id="lower_leg_r" bend="-6" interpolation="bezier" inTangent="0.7009212" outTangent="1.9491018" />
+    <Bone id="foot_r" bend="-19.8547009" />
+    <Bone id="spine" bend="-4.6367521" />
+  </Pose>
+
+  <Pose t="0.867s">
+    <Bone id="hips" x="-0.07" turn="-12" />
+    <Bone id="spine" bend="-5" />
+    <Bone id="chest" bend="-8" turn="14" />
+    <Bone id="upper_arm_l" forward="-34" side="42" />
+    <Bone id="forearm_l" bend="66" />
+    <Bone id="upper_arm_r" forward="-38" side="18" />
+    <Bone id="forearm_r" bend="12" />
+    <Bone id="upper_leg_l" side="-6" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-6" />
+    <Bone id="upper_leg_r" forward="82" side="4" />
+    <Bone id="lower_leg_r" bend="-6" interpolation="bezier" inTangent="0" outTangent="0" />
+    <Bone id="foot_r" bend="-20" />
+  </Pose>
+
+  <Pose t="0.8833333s">
+    <Bone id="hips" x="-0.0689111" turn="-11.7822222" />
+    <Bone id="spine" bend="-5" />
+    <Bone id="chest" bend="-8" turn="13.7822222" />
+    <Bone id="upper_arm_l" forward="-33.6733333" side="41.5644444" />
+    <Bone id="forearm_l" bend="65.5644444" />
+    <Bone id="upper_arm_r" forward="-36.9111111" side="18.2177778" />
+    <Bone id="forearm_r" bend="12.4355556" />
+    <Bone id="upper_leg_l" side="-6" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-6" />
+    <Bone id="upper_leg_r" forward="80.53" side="4" />
+    <Bone id="lower_leg_r" bend="-5.6914863" interpolation="bezier" inTangent="1.9623367" outTangent="0.6845365" />
+    <Bone id="foot_r" bend="-19.6733333" />
+  </Pose>
+
+  <Pose t="0.9s">
+    <Bone id="hips" x="-0.0678" turn="-11.56" />
+    <Bone id="spine" bend="-5" />
+    <Bone id="chest" bend="-8" turn="13.56" />
+    <Bone id="upper_arm_l" forward="-33.34" side="41.12" />
+    <Bone id="forearm_l" bend="65.12" />
+    <Bone id="upper_arm_r" forward="-35.8" side="18.44" />
+    <Bone id="forearm_r" bend="12.88" />
+    <Bone id="upper_leg_l" side="-6" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-6" />
+    <Bone id="upper_leg_r" forward="79.03" side="4" />
+    <Bone id="lower_leg_r" bend="-4.789032" interpolation="bezier" inTangent="1.3017833" outTangent="0.8258965" />
+    <Bone id="foot_r" bend="-19.34" />
+  </Pose>
+
+  <Pose t="0.9166667s">
+    <Bone id="hips" x="-0.0666889" turn="-11.3377778" />
+    <Bone id="spine" bend="-5" />
+    <Bone id="chest" bend="-8" turn="13.3377778" />
+    <Bone id="upper_arm_l" forward="-33.0066667" side="40.6755556" />
+    <Bone id="forearm_l" bend="64.6755556" />
+    <Bone id="upper_arm_r" forward="-34.6888889" side="18.6622222" />
+    <Bone id="forearm_r" bend="13.3244444" />
+    <Bone id="upper_leg_l" side="-6" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-6" />
+    <Bone id="upper_leg_r" forward="77.53" side="4" />
+    <Bone id="lower_leg_r" bend="-3.3665777" interpolation="bezier" inTangent="1.1654244" outTangent="0.8872728" />
+    <Bone id="foot_r" bend="-19.0066667" />
+  </Pose>
+
+  <Pose t="0.9333333s">
+    <Bone id="hips" x="-0.0655778" turn="-11.1155556" />
+    <Bone id="spine" bend="-5" />
+    <Bone id="chest" bend="-8" turn="13.1155556" />
+    <Bone id="upper_arm_l" forward="-32.6733333" side="40.2311111" />
+    <Bone id="forearm_l" bend="64.2311111" />
+    <Bone id="upper_arm_r" forward="-33.5777778" side="18.8844444" />
+    <Bone id="forearm_r" bend="13.7688889" />
+    <Bone id="upper_leg_l" side="-6" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-6" />
+    <Bone id="upper_leg_r" forward="76.03" side="4" />
+    <Bone id="lower_leg_r" bend="-1.4981974" interpolation="bezier" inTangent="1.1061195" outTangent="0.9225168" />
+    <Bone id="foot_r" bend="-18.6733333" />
+  </Pose>
+
+  <Pose t="0.95s">
+    <Bone id="hips" x="-0.0644667" turn="-10.8933333" />
+    <Bone id="spine" bend="-5" />
+    <Bone id="chest" bend="-8" turn="12.8933333" />
+    <Bone id="upper_arm_l" forward="-32.34" side="39.7866667" />
+    <Bone id="forearm_l" bend="63.7866667" />
+    <Bone id="upper_arm_r" forward="-32.4666667" side="19.1066667" />
+    <Bone id="forearm_r" bend="14.2133333" />
+    <Bone id="upper_leg_l" side="-6" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-6" />
+    <Bone id="upper_leg_r" forward="74.53" side="4" />
+    <Bone id="lower_leg_r" bend="0.7420347" interpolation="bezier" inTangent="1.0719723" outTangent="0.9462007" />
+    <Bone id="foot_r" bend="-18.34" />
+  </Pose>
+
+  <Pose t="0.9666667s">
+    <Bone id="hips" x="-0.0633556" turn="-10.6711111" />
+    <Bone id="spine" bend="-5" />
+    <Bone id="chest" bend="-8" turn="12.6711111" />
+    <Bone id="upper_arm_l" forward="-32.0066667" side="39.3422222" />
+    <Bone id="forearm_l" bend="63.3422222" />
+    <Bone id="upper_arm_r" forward="-31.3555556" side="19.3288889" />
+    <Bone id="forearm_r" bend="14.6577778" />
+    <Bone id="upper_leg_l" side="-6" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-6" />
+    <Bone id="upper_leg_r" forward="73.03" side="4" />
+    <Bone id="lower_leg_r" bend="3.2800445" interpolation="bezier" inTangent="1.048935" outTangent="0.9639694" />
+    <Bone id="foot_r" bend="-18.0066667" />
+  </Pose>
+
+  <Pose t="0.9833333s">
+    <Bone id="hips" x="-0.0622444" turn="-10.4488889" />
+    <Bone id="spine" bend="-5" />
+    <Bone id="chest" bend="-8" turn="12.4488889" />
+    <Bone id="upper_arm_l" forward="-31.6733333" side="38.8977778" />
+    <Bone id="forearm_l" bend="62.8977778" />
+    <Bone id="upper_arm_r" forward="-30.2444444" side="19.5511111" />
+    <Bone id="forearm_r" bend="15.1022222" />
+    <Bone id="upper_leg_l" side="-6" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-6" />
+    <Bone id="upper_leg_r" forward="71.53" side="4" />
+    <Bone id="lower_leg_r" bend="6.0417581" interpolation="bezier" inTangent="1.0315603" outTangent="0.9785428" />
+    <Bone id="foot_r" bend="-17.6733333" />
+  </Pose>
+
+  <Pose t="1s">
+    <Bone id="hips" x="-0.0611333" turn="-10.2266667" />
+    <Bone id="spine" bend="-5" />
+    <Bone id="chest" bend="-8" turn="12.2266667" />
+    <Bone id="upper_arm_l" forward="-31.34" side="38.4533333" />
+    <Bone id="forearm_l" bend="62.4533333" />
+    <Bone id="upper_arm_r" forward="-29.1333333" side="19.7733333" />
+    <Bone id="forearm_r" bend="15.5466667" />
+    <Bone id="upper_leg_l" side="-6" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-6" />
+    <Bone id="upper_leg_r" forward="70.03" side="4" />
+    <Bone id="lower_leg_r" bend="8.9531013" interpolation="bezier" inTangent="1.0172166" outTangent="0.9914855" />
+    <Bone id="foot_r" bend="-17.34" />
+  </Pose>
+
+  <Pose t="1.0166667s">
+    <Bone id="hips" x="-0.0600222" turn="-10.0044444" />
+    <Bone id="spine" bend="-5" />
+    <Bone id="chest" bend="-8" turn="12.0044444" />
+    <Bone id="upper_arm_l" forward="-31.0066667" side="38.0088889" />
+    <Bone id="forearm_l" bend="62.0088889" />
+    <Bone id="upper_arm_r" forward="-28.0222222" side="19.9955556" />
+    <Bone id="forearm_r" bend="15.9911111" />
+    <Bone id="upper_leg_l" side="-6" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-6" />
+    <Bone id="upper_leg_r" forward="68.53" side="4" />
+    <Bone id="lower_leg_r" bend="11.9400001" interpolation="bezier" inTangent="1.0043813" outTangent="1.0038834" />
+    <Bone id="foot_r" bend="-17.0066667" />
+  </Pose>
+
+  <Pose t="1.0333333s">
+    <Bone id="hips" x="-0.0589111" turn="-9.7822222" />
+    <Bone id="spine" bend="-5" />
+    <Bone id="chest" bend="-8" turn="11.7822222" />
+    <Bone id="upper_arm_l" forward="-30.6733333" side="37.5644444" />
+    <Bone id="forearm_l" bend="61.5644444" />
+    <Bone id="upper_arm_r" forward="-26.9111111" side="20.2177778" />
+    <Bone id="forearm_r" bend="16.4355556" />
+    <Bone id="upper_leg_l" side="-6" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-6" />
+    <Bone id="upper_leg_r" forward="67.03" side="4" />
+    <Bone id="lower_leg_r" bend="14.9283803" interpolation="bezier" inTangent="0.9919854" outTangent="1.0166823" />
+    <Bone id="foot_r" bend="-16.6733333" />
+  </Pose>
+
+  <Pose t="1.05s">
+    <Bone id="hips" x="-0.0578" turn="-9.56" />
+    <Bone id="spine" bend="-5" />
+    <Bone id="chest" bend="-8" turn="11.56" />
+    <Bone id="upper_arm_l" forward="-30.34" side="37.12" />
+    <Bone id="forearm_l" bend="61.12" />
+    <Bone id="upper_arm_r" forward="-25.8" side="20.44" />
+    <Bone id="forearm_r" bend="16.88" />
+    <Bone id="upper_leg_l" side="-6" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-6" />
+    <Bone id="upper_leg_r" forward="65.53" side="4" />
+    <Bone id="lower_leg_r" bend="17.844168" interpolation="bezier" inTangent="0.9790836" outTangent="1.0309409" />
+    <Bone id="foot_r" bend="-16.34" />
+  </Pose>
+
+  <Pose t="1.0666667s">
+    <Bone id="hips" x="-0.0566889" turn="-9.3377778" />
+    <Bone id="spine" bend="-5" />
+    <Bone id="chest" bend="-8" turn="11.3377778" />
+    <Bone id="upper_arm_l" forward="-30.0066667" side="36.6755556" />
+    <Bone id="forearm_l" bend="60.6755556" />
+    <Bone id="upper_arm_r" forward="-24.6888889" side="20.6622222" />
+    <Bone id="forearm_r" bend="17.3244444" />
+    <Bone id="upper_leg_l" side="-6" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-6" />
+    <Bone id="upper_leg_r" forward="64.03" side="4" />
+    <Bone id="lower_leg_r" bend="20.613289" interpolation="bezier" inTangent="0.9646008" outTangent="1.0481545" />
+    <Bone id="foot_r" bend="-16.0066667" />
+  </Pose>
+
+  <Pose t="1.0833333s">
+    <Bone id="hips" x="-0.0555778" turn="-9.1155556" />
+    <Bone id="spine" bend="-5" />
+    <Bone id="chest" bend="-8" turn="11.1155556" />
+    <Bone id="upper_arm_l" forward="-29.6733333" side="36.2311111" />
+    <Bone id="forearm_l" bend="60.2311111" />
+    <Bone id="upper_arm_r" forward="-23.5777778" side="20.8844444" />
+    <Bone id="forearm_r" bend="17.7688889" />
+    <Bone id="upper_leg_l" side="-6" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-6" />
+    <Bone id="upper_leg_r" forward="62.53" side="4" />
+    <Bone id="lower_leg_r" bend="23.1616692" interpolation="bezier" inTangent="0.947001" outTangent="1.070889" />
+    <Bone id="foot_r" bend="-15.6733333" />
+  </Pose>
+
+  <Pose t="1.1s">
+    <Bone id="hips" x="-0.0544667" turn="-8.8933333" />
+    <Bone id="spine" bend="-5" />
+    <Bone id="chest" bend="-8" turn="10.8933333" />
+    <Bone id="upper_arm_l" forward="-29.34" side="35.7866667" />
+    <Bone id="forearm_l" bend="59.7866667" />
+    <Bone id="upper_arm_r" forward="-22.4666667" side="21.1066667" />
+    <Bone id="forearm_r" bend="18.2133333" />
+    <Bone id="upper_leg_l" side="-6" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-6" />
+    <Bone id="upper_leg_r" forward="61.03" side="4" />
+    <Bone id="lower_leg_r" bend="25.4152347" interpolation="bezier" inTangent="0.9236327" outTangent="1.1044159" />
+    <Bone id="foot_r" bend="-15.34" />
+  </Pose>
+
+  <Pose t="1.1166667s">
+    <Bone id="hips" x="-0.0533556" turn="-8.6711111" />
+    <Bone id="spine" bend="-5" />
+    <Bone id="chest" bend="-8" turn="10.6711111" />
+    <Bone id="upper_arm_l" forward="-29.0066667" side="35.3422222" />
+    <Bone id="forearm_l" bend="59.3422222" />
+    <Bone id="upper_arm_r" forward="-21.3555556" side="21.3288889" />
+    <Bone id="forearm_r" bend="18.6577778" />
+    <Bone id="upper_leg_l" side="-6" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-6" />
+    <Bone id="upper_leg_r" forward="59.53" side="4" />
+    <Bone id="lower_leg_r" bend="27.2999112" interpolation="bezier" inTangent="0.8890336" outTangent="1.162187" />
+    <Bone id="foot_r" bend="-15.0066667" />
+  </Pose>
+
+  <Pose t="1.1333333s">
+    <Bone id="hips" x="-0.0522444" turn="-8.4488889" />
+    <Bone id="spine" bend="-5" />
+    <Bone id="chest" bend="-8" turn="10.4488889" />
+    <Bone id="upper_arm_l" forward="-28.6733333" side="34.8977778" />
+    <Bone id="forearm_l" bend="58.8977778" />
+    <Bone id="upper_arm_r" forward="-20.2444444" side="21.5511111" />
+    <Bone id="forearm_r" bend="19.1022222" />
+    <Bone id="upper_leg_l" side="-6" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-6" />
+    <Bone id="upper_leg_r" forward="58.03" side="4" />
+    <Bone id="lower_leg_r" bend="28.7416248" interpolation="bezier" inTangent="0.8292498" outTangent="1.2929286" />
+    <Bone id="foot_r" bend="-14.6733333" />
+  </Pose>
+
+  <Pose t="1.15s">
+    <Bone id="hips" x="-0.0511333" turn="-8.2266667" />
+    <Bone id="spine" bend="-5" />
+    <Bone id="chest" bend="-8" turn="10.2266667" />
+    <Bone id="upper_arm_l" forward="-28.34" side="34.4533333" />
+    <Bone id="forearm_l" bend="58.4533333" />
+    <Bone id="upper_arm_r" forward="-19.1333333" side="21.7733333" />
+    <Bone id="forearm_r" bend="19.5466667" />
+    <Bone id="upper_leg_l" side="-6" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-6" />
+    <Bone id="upper_leg_r" forward="56.53" side="4" />
+    <Bone id="lower_leg_r" bend="29.6663013" interpolation="bezier" inTangent="0.6937201" outTangent="1.960739" />
+    <Bone id="foot_r" bend="-14.34" />
+  </Pose>
+
+  <Pose t="1.167s">
+    <Bone id="hips" x="-0.05" turn="-8" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="34" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-18" side="22" />
+    <Bone id="forearm_r" bend="20" />
+    <Bone id="upper_leg_r" forward="55" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-6" />
+    <Bone id="lower_leg_r" bend="30" interpolation="bezier" inTangent="0" outTangent="0" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.1833333s">
+    <Bone id="hips" x="-0.0489855" turn="-7.8309179" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="33.5942029" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-17.1207729" side="21.8647343" />
+    <Bone id="forearm_r" bend="19.7971014" />
+    <Bone id="upper_leg_r" forward="53.7487923" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-5.7971019" />
+    <Bone id="lower_leg_r" bend="29.9128139" interpolation="bezier" inTangent="1.9769357" outTangent="0.6755847" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.2s">
+    <Bone id="hips" x="-0.0479503" turn="-7.6583851" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="33.1801242" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-16.2236025" side="21.7267081" />
+    <Bone id="forearm_r" bend="19.5900621" />
+    <Bone id="upper_leg_r" forward="52.4720497" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-5.5900621" />
+    <Bone id="lower_leg_r" bend="29.6524782" interpolation="bezier" inTangent="1.3162085" outTangent="0.8144838" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.2166667s">
+    <Bone id="hips" x="-0.0469151" turn="-7.4858523" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="32.7660455" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-15.326432" side="21.5886818" />
+    <Bone id="forearm_r" bend="19.3830228" />
+    <Bone id="upper_leg_r" forward="51.1953071" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-5.3830224" />
+    <Bone id="lower_leg_r" bend="29.2317749" interpolation="bezier" inTangent="1.1804378" outTangent="0.8739332" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.2333333s">
+    <Bone id="hips" x="-0.0458799" turn="-7.3133195" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="32.3519669" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-14.4292616" side="21.4506556" />
+    <Bone id="forearm_r" bend="19.1759834" />
+    <Bone id="upper_leg_r" forward="49.9185645" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-5.1759839" />
+    <Bone id="lower_leg_r" bend="28.663523" interpolation="bezier" inTangent="1.122307" outTangent="0.9072121" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.25s">
+    <Bone id="hips" x="-0.0448447" turn="-7.1407867" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="31.9378882" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-13.5320911" side="21.3126294" />
+    <Bone id="forearm_r" bend="18.9689441" />
+    <Bone id="upper_leg_r" forward="48.6418219" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4.9689441" />
+    <Bone id="lower_leg_r" bend="27.9605419" interpolation="bezier" inTangent="1.0897487" outTangent="0.9286954" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.2666667s">
+    <Bone id="hips" x="-0.0438095" turn="-6.968254" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="31.5238095" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-12.6349206" side="21.1746032" />
+    <Bone id="forearm_r" bend="18.7619048" />
+    <Bone id="upper_leg_r" forward="47.3650794" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4.7619043" />
+    <Bone id="lower_leg_r" bend="27.1356505" interpolation="bezier" inTangent="1.0687145" outTangent="0.9438865" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.2833333s">
+    <Bone id="hips" x="-0.0427743" turn="-6.7957212" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="31.1097308" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-11.7377502" side="21.0365769" />
+    <Bone id="forearm_r" bend="18.5548654" />
+    <Bone id="upper_leg_r" forward="46.0883368" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4.5548658" />
+    <Bone id="lower_leg_r" bend="26.2016681" interpolation="bezier" inTangent="1.0538259" outTangent="0.9553514" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.3s">
+    <Bone id="hips" x="-0.0417391" turn="-6.6231884" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="30.6956522" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-10.8405797" side="20.8985507" />
+    <Bone id="forearm_r" bend="18.3478261" />
+    <Bone id="upper_leg_r" forward="44.8115942" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4.3478261" />
+    <Bone id="lower_leg_r" bend="25.1714139" interpolation="bezier" inTangent="1.0425748" outTangent="0.9644522" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.3166667s">
+    <Bone id="hips" x="-0.0407039" turn="-6.4506556" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="30.2815735" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-9.9434092" side="20.7605245" />
+    <Bone id="forearm_r" bend="18.1407867" />
+    <Bone id="upper_leg_r" forward="43.5348516" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-4.1407863" />
+    <Bone id="lower_leg_r" bend="24.0577069" interpolation="bezier" inTangent="1.0336294" outTangent="0.9719842" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.3333333s">
+    <Bone id="hips" x="-0.0396687" turn="-6.2781228" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="29.8674948" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-9.0462388" side="20.6224983" />
+    <Bone id="forearm_r" bend="17.9337474" />
+    <Bone id="upper_leg_r" forward="42.258109" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-3.9337478" />
+    <Bone id="lower_leg_r" bend="22.8733664" interpolation="bezier" inTangent="1.0262118" outTangent="0.9784482" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.35s">
+    <Bone id="hips" x="-0.0386335" turn="-6.1055901" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="29.4534161" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-8.1490683" side="20.484472" />
+    <Bone id="forearm_r" bend="17.7267081" />
+    <Bone id="upper_leg_r" forward="40.9813665" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-3.7267081" />
+    <Bone id="lower_leg_r" bend="21.6312115" interpolation="bezier" inTangent="1.0198318" outTangent="0.9841813" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.3666667s">
+    <Bone id="hips" x="-0.0375983" turn="-5.9330573" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="29.0393375" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-7.2518979" side="20.3464458" />
+    <Bone id="forearm_r" bend="17.5196687" />
+    <Bone id="upper_leg_r" forward="39.7046239" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-3.5196683" />
+    <Bone id="lower_leg_r" bend="20.3440614" interpolation="bezier" inTangent="1.0141589" outTangent="0.9894253" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.3833333s">
+    <Bone id="hips" x="-0.0365631" turn="-5.7605245" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="28.6252588" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-6.3547274" side="20.2084196" />
+    <Bone id="forearm_r" bend="17.3126294" />
+    <Bone id="upper_leg_r" forward="38.4278813" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-3.3126298" />
+    <Bone id="lower_leg_r" bend="19.0247351" interpolation="bezier" inTangent="1.0089553" outTangent="0.9943662" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.4s">
+    <Bone id="hips" x="-0.035528" turn="-5.5879917" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="28.2111801" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-5.4575569" side="20.0703934" />
+    <Bone id="forearm_r" bend="17.1055901" />
+    <Bone id="upper_leg_r" forward="37.1511387" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-3.1055901" />
+    <Bone id="lower_leg_r" bend="17.686052" interpolation="bezier" inTangent="1.0040379" outTangent="0.9991582" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.4166667s">
+    <Bone id="hips" x="-0.0344928" turn="-5.4154589" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="27.7971014" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-4.5603865" side="19.9323671" />
+    <Bone id="forearm_r" bend="16.8985507" />
+    <Bone id="upper_leg_r" forward="35.8743961" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-2.8985503" />
+    <Bone id="lower_leg_r" bend="16.3408311" interpolation="bezier" inTangent="0.9992535" outTangent="1.0039413" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.4333333s">
+    <Bone id="hips" x="-0.0334576" turn="-5.2429262" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="27.3830228" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-3.663216" side="19.7943409" />
+    <Bone id="forearm_r" bend="16.6915114" />
+    <Bone id="upper_leg_r" forward="34.5976536" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-2.6915118" />
+    <Bone id="lower_leg_r" bend="15.0018915" interpolation="bezier" inTangent="0.994463" outTangent="1.0088547" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.45s">
+    <Bone id="hips" x="-0.0324224" turn="-5.0703934" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="26.9689441" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-2.7660455" side="19.6563147" />
+    <Bone id="forearm_r" bend="16.484472" />
+    <Bone id="upper_leg_r" forward="33.320911" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-2.484472" />
+    <Bone id="lower_leg_r" bend="13.6820525" interpolation="bezier" inTangent="0.9895265" outTangent="1.0140509" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.4666667s">
+    <Bone id="hips" x="-0.0313872" turn="-4.8978606" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="26.5548654" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-1.8688751" side="19.5182885" />
+    <Bone id="forearm_r" bend="16.2774327" />
+    <Bone id="upper_leg_r" forward="32.0441684" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-2.2774323" />
+    <Bone id="lower_leg_r" bend="12.3941333" interpolation="bezier" inTangent="0.9842902" outTangent="1.0197123" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.4833333s">
+    <Bone id="hips" x="-0.030352" turn="-4.7253278" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="26.1407867" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-0.9717046" side="19.3802622" />
+    <Bone id="forearm_r" bend="16.0703934" />
+    <Bone id="upper_leg_r" forward="30.7674258" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-2.0703938" />
+    <Bone id="lower_leg_r" bend="11.1509528" interpolation="bezier" inTangent="0.9785691" outTangent="1.0260754" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.5s">
+    <Bone id="hips" x="-0.0293168" turn="-4.552795" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="25.7267081" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="-0.0745342" side="19.242236" />
+    <Bone id="forearm_r" bend="15.863354" />
+    <Bone id="upper_leg_r" forward="29.4906832" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-1.863354" />
+    <Bone id="lower_leg_r" bend="9.9653304" interpolation="bezier" inTangent="0.9721226" outTangent="1.0334681" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.5166667s">
+    <Bone id="hips" x="-0.0282816" turn="-4.3802622" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="25.3126294" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="0.8226363" side="19.1042098" />
+    <Bone id="forearm_r" bend="15.6563147" />
+    <Bone id="upper_leg_r" forward="28.2139406" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-1.6563143" />
+    <Bone id="lower_leg_r" bend="8.8500851" interpolation="bezier" inTangent="0.9646162" outTangent="1.0423766" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.5333333s">
+    <Bone id="hips" x="-0.0272464" turn="-4.2077295" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="24.8985507" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="1.7198068" side="18.9661836" />
+    <Bone id="forearm_r" bend="15.4492754" />
+    <Bone id="upper_leg_r" forward="26.9371981" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-1.4492758" />
+    <Bone id="lower_leg_r" bend="7.8180362" interpolation="bezier" inTangent="0.9555533" outTangent="1.053571" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.55s">
+    <Bone id="hips" x="-0.0262112" turn="-4.0351967" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="24.484472" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="2.6169772" side="18.8281573" />
+    <Bone id="forearm_r" bend="15.242236" />
+    <Bone id="upper_leg_r" forward="25.6604555" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-1.242236" />
+    <Bone id="lower_leg_r" bend="6.8820028" interpolation="bezier" inTangent="0.9441464" outTangent="1.0683679" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.5666667s">
+    <Bone id="hips" x="-0.025176" turn="-3.8626639" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="24.0703934" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="3.5141477" side="18.6901311" />
+    <Bone id="forearm_r" bend="15.0351967" />
+    <Bone id="upper_leg_r" forward="24.3837129" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-1.0351963" />
+    <Bone id="lower_leg_r" bend="6.054804" interpolation="bezier" inTangent="0.9290493" outTangent="1.0892408" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.5833333s">
+    <Bone id="hips" x="-0.0241408" turn="-3.6901311" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="23.6563147" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="4.4113182" side="18.5521049" />
+    <Bone id="forearm_r" bend="14.8281573" />
+    <Bone id="upper_leg_r" forward="23.1069703" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-0.8281578" />
+    <Bone id="lower_leg_r" bend="5.349259" interpolation="bezier" inTangent="0.907731" outTangent="1.1214785" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.6s">
+    <Bone id="hips" x="-0.0231056" turn="-3.5175983" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="23.242236" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="5.3084886" side="18.4140787" />
+    <Bone id="forearm_r" bend="14.621118" />
+    <Bone id="upper_leg_r" forward="21.8302277" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-0.621118" />
+    <Bone id="lower_leg_r" bend="4.7781869" interpolation="bezier" inTangent="0.8747802" outTangent="1.1788253" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.6166667s">
+    <Bone id="hips" x="-0.0220704" turn="-3.3450656" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="22.8281573" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="6.2056591" side="18.2760524" />
+    <Bone id="forearm_r" bend="14.4140787" />
+    <Bone id="upper_leg_r" forward="20.5534852" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-0.4140783" />
+    <Bone id="lower_leg_r" bend="4.3544069" interpolation="bezier" inTangent="0.8161331" outTangent="1.3117251" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.6333333s">
+    <Bone id="hips" x="-0.0210352" turn="-3.1725328" />
+    <Bone id="chest" turn="10" />
+    <Bone id="upper_arm_l" forward="-28" side="22.4140787" />
+    <Bone id="forearm_l" bend="58" />
+    <Bone id="upper_arm_r" forward="7.1028295" side="18.1380262" />
+    <Bone id="forearm_r" bend="14.2070393" />
+    <Bone id="upper_leg_r" forward="19.2767426" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="-0.2070398" />
+    <Bone id="lower_leg_r" bend="4.0907383" interpolation="bezier" inTangent="0.6801718" outTangent="1.976454" />
+    <Bone id="foot_r" bend="-14" />
+  </Pose>
+
+  <Pose t="1.65s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="4" interpolation="bezier" inTangent="0" outTangent="0" />
+    <Bone id="upper_arm_l" side="22" />
+    <Bone id="upper_arm_r" forward="8" side="18" />
+    <Bone id="forearm_r" bend="14" />
+  </Pose>
+
+  <Pose t="1.6666667s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="3.9795665" interpolation="bezier" inTangent="1.9849624" outTangent="0.6751918" />
+    <Bone id="upper_arm_l" side="21.7333333" />
+    <Bone id="upper_arm_r" forward="7.8222222" side="17.8222222" />
+    <Bone id="forearm_r" bend="13.8666667" />
+  </Pose>
+
+  <Pose t="1.6833333s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="3.9194952" interpolation="bezier" inTangent="1.3196931" outTangent="0.8100471" />
+    <Bone id="upper_arm_l" side="21.4666667" />
+    <Bone id="upper_arm_r" forward="7.6444444" side="17.6444444" />
+    <Bone id="forearm_r" bend="13.7333333" />
+  </Pose>
+
+  <Pose t="1.7s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="3.8216296" interpolation="bezier" inTangent="1.1868132" outTangent="0.8679679" />
+    <Bone id="upper_arm_l" side="21.2" />
+    <Bone id="upper_arm_r" forward="7.4666667" side="17.4666667" />
+    <Bone id="forearm_r" bend="13.6" />
+  </Pose>
+
+  <Pose t="1.7166667s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="3.6878134" interpolation="bezier" inTangent="1.1297359" outTangent="0.9002745" />
+    <Bone id="upper_arm_l" side="20.9333333" />
+    <Bone id="upper_arm_r" forward="7.2888889" side="17.2888889" />
+    <Bone id="forearm_r" bend="13.4666667" />
+  </Pose>
+
+  <Pose t="1.7333333s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="3.5198903" interpolation="bezier" inTangent="1.0978957" outTangent="0.9209517" />
+    <Bone id="upper_arm_l" side="20.6666667" />
+    <Bone id="upper_arm_r" forward="7.1111111" side="17.1111111" />
+    <Bone id="forearm_r" bend="13.3333333" />
+  </Pose>
+
+  <Pose t="1.75s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="3.3197037" interpolation="bezier" inTangent="1.0775134" outTangent="0.9353764" />
+    <Bone id="upper_arm_l" side="20.4" />
+    <Bone id="upper_arm_r" forward="6.9333333" side="16.9333333" />
+    <Bone id="forearm_r" bend="13.2" />
+  </Pose>
+
+  <Pose t="1.7666667s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="3.0890974" interpolation="bezier" inTangent="1.0632911" outTangent="0.9460581" />
+    <Bone id="upper_arm_l" side="20.1333333" />
+    <Bone id="upper_arm_r" forward="6.7555556" side="16.7555556" />
+    <Bone id="forearm_r" bend="13.0666667" />
+  </Pose>
+
+  <Pose t="1.7833333s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="2.829915" interpolation="bezier" inTangent="1.0527564" outTangent="0.9543256" />
+    <Bone id="upper_arm_l" side="19.8666667" />
+    <Bone id="upper_arm_r" forward="6.5777778" side="16.5777778" />
+    <Bone id="forearm_r" bend="12.9333333" />
+  </Pose>
+
+  <Pose t="1.8s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="2.544" interpolation="bezier" inTangent="1.0445997" outTangent="0.9609491" />
+    <Bone id="upper_arm_l" side="19.6" />
+    <Bone id="upper_arm_r" forward="6.4" side="16.4" />
+    <Bone id="forearm_r" bend="12.8" />
+  </Pose>
+
+  <Pose t="1.8166667s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="2.2331962" interpolation="bezier" inTangent="1.0380623" outTangent="0.9664059" />
+    <Bone id="upper_arm_l" side="19.3333333" />
+    <Bone id="upper_arm_r" forward="6.2222222" side="16.2222222" />
+    <Bone id="forearm_r" bend="12.6666667" />
+  </Pose>
+
+  <Pose t="1.8333333s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="1.8993471" interpolation="bezier" inTangent="1.0326737" outTangent="0.9710082" />
+    <Bone id="upper_arm_l" side="19.0666667" />
+    <Bone id="upper_arm_r" forward="6.0444444" side="16.0444444" />
+    <Bone id="forearm_r" bend="12.5333333" />
+  </Pose>
+
+  <Pose t="1.85s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="1.5442963" interpolation="bezier" inTangent="1.0281264" outTangent="0.9749692" />
+    <Bone id="upper_arm_l" side="18.8" />
+    <Bone id="upper_arm_r" forward="5.8666667" side="15.8666667" />
+    <Bone id="forearm_r" bend="12.4" />
+  </Pose>
+
+  <Pose t="1.8666667s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="1.1698875" interpolation="bezier" inTangent="1.0242101" outTangent="0.9784398" />
+    <Bone id="upper_arm_l" side="18.5333333" />
+    <Bone id="upper_arm_r" forward="5.6888889" side="15.6888889" />
+    <Bone id="forearm_r" bend="12.2666667" />
+  </Pose>
+
+  <Pose t="1.8833333s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="0.7779643" interpolation="bezier" inTangent="1.0207762" outTangent="0.9815303" />
+    <Bone id="upper_arm_l" side="18.2666667" />
+    <Bone id="upper_arm_r" forward="5.5111111" side="15.5111111" />
+    <Bone id="forearm_r" bend="12.1333333" />
+  </Pose>
+
+  <Pose t="1.9s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="0.3703704" interpolation="bezier" inTangent="1.0177158" outTangent="0.9843237" />
+    <Bone id="upper_arm_l" side="18" />
+    <Bone id="upper_arm_r" forward="5.3333333" side="15.3333333" />
+    <Bone id="forearm_r" bend="12" />
+  </Pose>
+
+  <Pose t="1.9166667s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-0.0510508" interpolation="bezier" inTangent="1.0149471" outTangent="0.9868841" />
+    <Bone id="upper_arm_l" side="17.7333333" />
+    <Bone id="upper_arm_r" forward="5.1555556" side="15.1555556" />
+    <Bone id="forearm_r" bend="11.8666667" />
+  </Pose>
+
+  <Pose t="1.9333333s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-0.4844554" interpolation="bezier" inTangent="1.0124069" outTangent="0.9892622" />
+    <Bone id="upper_arm_l" side="17.4666667" />
+    <Bone id="upper_arm_r" forward="4.9777778" side="14.9777778" />
+    <Bone id="forearm_r" bend="11.7333333" />
+  </Pose>
+
+  <Pose t="1.95s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-0.928" interpolation="bezier" inTangent="1.010045" outTangent="0.9914995" />
+    <Bone id="upper_arm_l" side="17.2" />
+    <Bone id="upper_arm_r" forward="4.8" side="14.8" />
+    <Bone id="forearm_r" bend="11.6" />
+  </Pose>
+
+  <Pose t="1.9666667s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-1.3798409" interpolation="bezier" inTangent="1.0078205" outTangent="0.9936306" />
+    <Bone id="upper_arm_l" side="16.9333333" />
+    <Bone id="upper_arm_r" forward="4.6222222" side="14.6222222" />
+    <Bone id="forearm_r" bend="11.4666667" />
+  </Pose>
+
+  <Pose t="1.9833333s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-1.8381344" interpolation="bezier" inTangent="1.005699" outTangent="0.9956854" />
+    <Bone id="upper_arm_l" side="16.6666667" />
+    <Bone id="upper_arm_r" forward="4.4444444" side="14.4444444" />
+    <Bone id="forearm_r" bend="11.3333333" />
+  </Pose>
+
+  <Pose t="2s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-2.301037" interpolation="bezier" inTangent="1.0036508" outTangent="0.9976905" />
+    <Bone id="upper_arm_l" side="16.4" />
+    <Bone id="upper_arm_r" forward="4.2666667" side="14.2666667" />
+    <Bone id="forearm_r" bend="11.2" />
+  </Pose>
+
+  <Pose t="2.0166667s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-2.7667051" interpolation="bezier" inTangent="1.0016496" outTangent="0.9996707" />
+    <Bone id="upper_arm_l" side="16.1333333" />
+    <Bone id="upper_arm_r" forward="4.0888889" side="14.0888889" />
+    <Bone id="forearm_r" bend="11.0666667" />
+  </Pose>
+
+  <Pose t="2.0333333s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-3.2332949" interpolation="bezier" inTangent="0.9996707" outTangent="1.0016496" />
+    <Bone id="upper_arm_l" side="15.8666667" />
+    <Bone id="upper_arm_r" forward="3.9111111" side="13.9111111" />
+    <Bone id="forearm_r" bend="10.9333333" />
+  </Pose>
+
+  <Pose t="2.05s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-3.698963" interpolation="bezier" inTangent="0.9976905" outTangent="1.0036508" />
+    <Bone id="upper_arm_l" side="15.6" />
+    <Bone id="upper_arm_r" forward="3.7333333" side="13.7333333" />
+    <Bone id="forearm_r" bend="10.8" />
+  </Pose>
+
+  <Pose t="2.0666667s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-4.1618656" interpolation="bezier" inTangent="0.9956854" outTangent="1.005699" />
+    <Bone id="upper_arm_l" side="15.3333333" />
+    <Bone id="upper_arm_r" forward="3.5555556" side="13.5555556" />
+    <Bone id="forearm_r" bend="10.6666667" />
+  </Pose>
+
+  <Pose t="2.0833333s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-4.6201591" interpolation="bezier" inTangent="0.9936306" outTangent="1.0078205" />
+    <Bone id="upper_arm_l" side="15.0666667" />
+    <Bone id="upper_arm_r" forward="3.3777778" side="13.3777778" />
+    <Bone id="forearm_r" bend="10.5333333" />
+  </Pose>
+
+  <Pose t="2.1s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-5.072" interpolation="bezier" inTangent="0.9914995" outTangent="1.010045" />
+    <Bone id="upper_arm_l" side="14.8" />
+    <Bone id="upper_arm_r" forward="3.2" side="13.2" />
+    <Bone id="forearm_r" bend="10.4" />
+  </Pose>
+
+  <Pose t="2.1166667s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-5.5155446" interpolation="bezier" inTangent="0.9892622" outTangent="1.0124069" />
+    <Bone id="upper_arm_l" side="14.5333333" />
+    <Bone id="upper_arm_r" forward="3.0222222" side="13.0222222" />
+    <Bone id="forearm_r" bend="10.2666667" />
+  </Pose>
+
+  <Pose t="2.1333333s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-5.9489492" interpolation="bezier" inTangent="0.9868841" outTangent="1.0149471" />
+    <Bone id="upper_arm_l" side="14.2666667" />
+    <Bone id="upper_arm_r" forward="2.8444444" side="12.8444444" />
+    <Bone id="forearm_r" bend="10.1333333" />
+  </Pose>
+
+  <Pose t="2.15s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-6.3703704" interpolation="bezier" inTangent="0.9843237" outTangent="1.0177158" />
+    <Bone id="upper_arm_l" side="14" />
+    <Bone id="upper_arm_r" forward="2.6666667" side="12.6666667" />
+    <Bone id="forearm_r" bend="10" />
+  </Pose>
+
+  <Pose t="2.1666667s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-6.7779643" interpolation="bezier" inTangent="0.9815303" outTangent="1.0207762" />
+    <Bone id="upper_arm_l" side="13.7333333" />
+    <Bone id="upper_arm_r" forward="2.4888889" side="12.4888889" />
+    <Bone id="forearm_r" bend="9.8666667" />
+  </Pose>
+
+  <Pose t="2.1833333s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-7.1698875" interpolation="bezier" inTangent="0.9784398" outTangent="1.0242101" />
+    <Bone id="upper_arm_l" side="13.4666667" />
+    <Bone id="upper_arm_r" forward="2.3111111" side="12.3111111" />
+    <Bone id="forearm_r" bend="9.7333333" />
+  </Pose>
+
+  <Pose t="2.2s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-7.5442963" interpolation="bezier" inTangent="0.9749692" outTangent="1.0281264" />
+    <Bone id="upper_arm_l" side="13.2" />
+    <Bone id="upper_arm_r" forward="2.1333333" side="12.1333333" />
+    <Bone id="forearm_r" bend="9.6" />
+  </Pose>
+
+  <Pose t="2.2166667s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-7.8993471" interpolation="bezier" inTangent="0.9710082" outTangent="1.0326737" />
+    <Bone id="upper_arm_l" side="12.9333333" />
+    <Bone id="upper_arm_r" forward="1.9555556" side="11.9555556" />
+    <Bone id="forearm_r" bend="9.4666667" />
+  </Pose>
+
+  <Pose t="2.2333333s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-8.2331962" interpolation="bezier" inTangent="0.9664059" outTangent="1.0380623" />
+    <Bone id="upper_arm_l" side="12.6666667" />
+    <Bone id="upper_arm_r" forward="1.7777778" side="11.7777778" />
+    <Bone id="forearm_r" bend="9.3333333" />
+  </Pose>
+
+  <Pose t="2.25s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-8.544" interpolation="bezier" inTangent="0.9609491" outTangent="1.0445997" />
+    <Bone id="upper_arm_l" side="12.4" />
+    <Bone id="upper_arm_r" forward="1.6" side="11.6" />
+    <Bone id="forearm_r" bend="9.2" />
+  </Pose>
+
+  <Pose t="2.2666667s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-8.829915" interpolation="bezier" inTangent="0.9543256" outTangent="1.0527564" />
+    <Bone id="upper_arm_l" side="12.1333333" />
+    <Bone id="upper_arm_r" forward="1.4222222" side="11.4222222" />
+    <Bone id="forearm_r" bend="9.0666667" />
+  </Pose>
+
+  <Pose t="2.2833333s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-9.0890974" interpolation="bezier" inTangent="0.9460581" outTangent="1.0632911" />
+    <Bone id="upper_arm_l" side="11.8666667" />
+    <Bone id="upper_arm_r" forward="1.2444444" side="11.2444444" />
+    <Bone id="forearm_r" bend="8.9333333" />
+  </Pose>
+
+  <Pose t="2.3s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-9.3197037" interpolation="bezier" inTangent="0.9353764" outTangent="1.0775134" />
+    <Bone id="upper_arm_l" side="11.6" />
+    <Bone id="upper_arm_r" forward="1.0666667" side="11.0666667" />
+    <Bone id="forearm_r" bend="8.8" />
+  </Pose>
+
+  <Pose t="2.3166667s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-9.5198903" interpolation="bezier" inTangent="0.9209517" outTangent="1.0978957" />
+    <Bone id="upper_arm_l" side="11.3333333" />
+    <Bone id="upper_arm_r" forward="0.8888889" side="10.8888889" />
+    <Bone id="forearm_r" bend="8.6666667" />
+  </Pose>
+
+  <Pose t="2.3333333s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-9.6878134" interpolation="bezier" inTangent="0.9002745" outTangent="1.1297359" />
+    <Bone id="upper_arm_l" side="11.0666667" />
+    <Bone id="upper_arm_r" forward="0.7111111" side="10.7111111" />
+    <Bone id="forearm_r" bend="8.5333333" />
+  </Pose>
+
+  <Pose t="2.35s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-9.8216296" interpolation="bezier" inTangent="0.8679679" outTangent="1.1868132" />
+    <Bone id="upper_arm_l" side="10.8" />
+    <Bone id="upper_arm_r" forward="0.5333333" side="10.5333333" />
+    <Bone id="forearm_r" bend="8.4" />
+  </Pose>
+
+  <Pose t="2.3666667s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-9.9194952" interpolation="bezier" inTangent="0.8100471" outTangent="1.3196931" />
+    <Bone id="upper_arm_l" side="10.5333333" />
+    <Bone id="upper_arm_r" forward="0.3555556" side="10.3555556" />
+    <Bone id="forearm_r" bend="8.2666667" />
+  </Pose>
+
+  <Pose t="2.3833333s">
+    <Bone id="hips" x="-0.02" turn="-3" />
+    <Bone id="upper_leg_r" forward="18" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-9.9795665" interpolation="bezier" inTangent="0.6751918" outTangent="1.9849624" />
+    <Bone id="upper_arm_l" side="10.2666667" />
+    <Bone id="upper_arm_r" forward="0.1777778" side="10.1777778" />
+    <Bone id="forearm_r" bend="8.1333333" />
+  </Pose>
+
+  <Pose t="2.4s">
+    <Bone id="upper_arm_l" side="10" />
+    <Bone id="upper_arm_r" forward="0" side="10" />
+    <Bone id="lower_leg_l" bend="-2" />
+    <Bone id="foot_l" rotationZ="0" />
+    <Bone id="lower_leg_r" bend="-10" interpolation="ease" inTangent="0" />
+    <Bone id="forearm_r" bend="8" />
+  </Pose>
+  <Contact id="support_foot_l" effector="foot_l" target="ground" from="0" to="1" mode="lock" weight="1" />
+</Action>

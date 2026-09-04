@@ -3862,8 +3862,46 @@ ${track}
         }
       }
 
+      function readWasm3DProfile(renderer) {
+        if (!renderer || typeof renderer.last_3d_frame_profile_json !== 'function') return null;
+        try {
+          return JSON.parse(renderer.last_3d_frame_profile_json());
+        } catch (err) {
+          console.warn('Unable to read MotionLoom 3D resource profile.', err);
+          return null;
+        }
+      }
+
+      function createActualFpsMeter(targetFps) {
+        let windowStartedAt = performance.now();
+        let completedFrames = 0;
+        let actualFps = null;
+        let lastCompletedFrame = null;
+        return {
+          record(frame, nowMs = performance.now()) {
+            // A 30 fps graph may be presented by a 60 Hz browser callback.
+            // Count only newly completed authored frames, not duplicate draws.
+            if (frame === lastCompletedFrame) return;
+            lastCompletedFrame = frame;
+            completedFrames += 1;
+            const elapsedMs = Math.max(0, nowMs - windowStartedAt);
+            if (elapsedMs >= 1000) {
+              actualFps = completedFrames * 1000 / elapsedMs;
+              completedFrames = 0;
+              windowStartedAt = nowMs;
+            }
+          },
+          status(prefix) {
+            const actual = actualFps === null ? 'measuring' : `${actualFps.toFixed(1)} FPS`;
+            const target = Number.isInteger(targetFps) ? targetFps : targetFps.toFixed(1);
+            return `${prefix} · Actual ${actual} · Target ${target} FPS`;
+          },
+        };
+      }
+
       async function tryRenderSceneWithWasm(script, graph, playbackOptions = {}, expectedCompileToken) {
         let renderer = null;
+        let webgpuFailure = '';
         const isCurrentCompile = () => expectedCompileToken === undefined || expectedCompileToken === compileRunToken;
         try {
           webgpuStatus.textContent = 'Loading MotionLoom WASM...';
@@ -3908,17 +3946,34 @@ ${track}
                 }
               }
               await renderer.render_frame_to_canvas(initialFrame, gpuCanvas);
+              const profile = readWasm3DProfile(renderer);
+              window.__motionloomWasm3DProfile = profile;
+              if (/<CompositeGroup\b[^>]*\bspace=["']3d["']/i.test(script) && profile?.draw_calls === 0) {
+                throw new Error(
+                  `MotionLoom WebGPU produced zero 3D draw calls. ` +
+                  `resources: mesh_cache=${profile.mesh_cache_entries}, ` +
+                  `static_draw_plans=${profile.static_draw_plans}, ` +
+                  `gpu_resources=${profile.gpu_resource_entries}, ` +
+                  `textures=${profile.gpu_texture_resources}, ` +
+                  `geometry=${profile.gpu_geometry_resources}, ` +
+                  `render_targets=${profile.target_pool_size}`
+                );
+              }
               if (!isCurrentCompile()) return null;
               showWebGpuPreview(size[0], size[1]);
               startWasmSceneLoop(renderer, graph, size, 'webgpu', playbackOptions);
               renderer = null;
-              webgpuStatus.textContent = 'MotionLoom WASM WebGPU';
+              webgpuStatus.textContent = `MotionLoom WASM WebGPU · Actual measuring · Target ${graph.fps || 30} FPS`;
               return 'MotionLoom WASM WebGPU';
             } catch (err) {
               if (!isCurrentCompile()) return null;
+              const profile = readWasm3DProfile(renderer);
+              webgpuFailure = `${formatWasmError(err)}${profile ? ` | 3D profile ${JSON.stringify(profile)}` : ''}`;
+              window.__motionloomWasmGpuError = { error: formatWasmError(err), profile };
               freeWasmRenderer(renderer);
               renderer = null;
-              console.info('MotionLoom WASM WebGPU unavailable; trying WASM CPU.', err);
+              console.warn('MotionLoom WASM WebGPU unavailable; trying WASM CPU.', window.__motionloomWasmGpuError);
+              webgpuStatus.textContent = `WebGPU failed: ${webgpuFailure}`;
               showCanvas2dPreview();
             }
           }
@@ -3934,8 +3989,10 @@ ${track}
           drawRgbaBuffer(rgba, size[0], size[1]);
           startWasmSceneLoop(renderer, graph, size, 'cpu', playbackOptions);
           renderer = null;
-          webgpuStatus.textContent = 'MotionLoom WASM CPU';
-          return 'MotionLoom WASM CPU';
+          webgpuStatus.textContent = webgpuFailure
+            ? `MotionLoom WASM CPU fallback · WebGPU failed: ${webgpuFailure}`
+            : `MotionLoom WASM CPU · Actual measuring · Target ${graph.fps || 30} FPS`;
+          return webgpuStatus.textContent;
         } catch (err) {
           if (!isCurrentCompile()) return null;
           window.__motionloomWasmError = err;
@@ -4060,7 +4117,7 @@ ${track}
             await combinedRenderer.render_frame_to_canvas(initialFrame, gpuCanvas);
             if (!isCurrentCompile()) return null;
             startWasmSceneLoop(combinedRenderer, graph, size, 'webgpu', playbackOptions);
-            webgpuStatus.textContent = 'MotionLoom Scene → Process WebGPU';
+            webgpuStatus.textContent = `MotionLoom Scene → Process WebGPU · Actual measuring · Target ${graph.fps || 30} FPS`;
             return 'MotionLoom Scene → Process WebGPU';
           }
 
@@ -4068,7 +4125,7 @@ ${track}
           if (!isCurrentCompile()) return null;
           drawRgbaBuffer(rgba, size[0], size[1]);
           startWasmSceneLoop(combinedRenderer, graph, size, 'cpu', playbackOptions);
-          webgpuStatus.textContent = 'MotionLoom Scene → Process CPU';
+          webgpuStatus.textContent = `MotionLoom Scene → Process CPU · Actual measuring · Target ${graph.fps || 30} FPS`;
           return 'MotionLoom Scene → Process CPU';
         } catch (err) {
           if (!isCurrentCompile()) return null;
@@ -4799,6 +4856,7 @@ ${track}
         isScenePlaying = true;
         const token = ++sceneLoopToken;
         const fps = Math.max(1, graph.fps || 30);
+        const actualFps = createActualFpsMeter(fps);
         const totalFrames = Math.max(1, renderer.total_frames || Math.round((graph.duration || 1) * fps));
         configurePreviewTimeline(graph, totalFrames, playbackOptions);
         let renderInFlight = false;
@@ -4831,9 +4889,10 @@ ${track}
                 }
               }
               if (isScenePlaying && token === sceneLoopToken) {
-                webgpuStatus.textContent = mode === 'webgpu'
-                  ? 'MotionLoom WASM WebGPU'
-                  : 'MotionLoom WASM CPU';
+                actualFps.record(frame, performance.now());
+                webgpuStatus.textContent = actualFps.status(
+                  mode === 'webgpu' ? 'MotionLoom WASM WebGPU' : 'MotionLoom WASM CPU'
+                );
               }
             } catch (err) {
               window.__motionloomWasmError = err;
@@ -4863,6 +4922,7 @@ ${track}
         sceneLoopToken++;
         isScenePlaying = true;
         const fps = Math.max(1, graph.fps || 30);
+        const actualFps = createActualFpsMeter(fps);
         const totalFrames = Math.max(1, Math.round((graph.duration || 1) * fps));
         configurePreviewTimeline(graph, totalFrames, playbackOptions);
         function loop(nowMs) {
@@ -4875,6 +4935,8 @@ ${track}
           if (previewPlayback.needsRender) {
             previewPlayback.needsRender = false;
             executeScene(graph, frame / previewPlayback.fps);
+            actualFps.record(frame, performance.now());
+            webgpuStatus.textContent = actualFps.status('MotionLoom Canvas preview');
           }
           updatePreviewTimelineControls();
           sceneAnimationId = requestAnimationFrame(loop);

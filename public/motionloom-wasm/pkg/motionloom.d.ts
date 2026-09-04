@@ -92,6 +92,12 @@ export class WasmSceneRenderer {
      */
     evaluate_rig_json(request_json: string): Promise<string>;
     /**
+     * Return the retained 3D renderer's latest timing and resource counters.
+     * Browser hosts can include this non-breaking diagnostic in error reports
+     * without parsing console output or reading pixels back from the GPU.
+     */
+    last_3d_frame_profile_json(): string;
+    /**
      * Parse `script` and prepare a renderer.
      */
     constructor(script: string, profile: string);
@@ -280,6 +286,11 @@ export function motionloom_render_scene_frame_to_canvas_gpu(script: string, fram
 export function motionloom_render_scene_frame_with_profile(script: string, frame: number, width: number, height: number, profile: string): Promise<Uint8Array>;
 
 /**
+ * Inspect the Scene style request and compiler fallbacks without a GPU.
+ */
+export function motionloom_render_style_json(script: string, scene_id: string): string;
+
+/**
  * Render one frame through the legacy world compatibility path.
  *
  * New DSL must use `<Scene>`; `<World>` is no longer a valid authoring tag.
@@ -329,6 +340,7 @@ export interface InitOutput {
     readonly motionloom_animation_property_schema_json: () => [number, number];
     readonly motionloom_dsl_schema_json: () => [number, number];
     readonly motionloom_analyze_script_json: (a: number, b: number) => [number, number];
+    readonly motionloom_render_style_json: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly motionloom_analyze_script_for_target_json: (a: number, b: number, c: number, d: number) => [number, number];
     readonly motionloom_showcase_schema_json: (a: number, b: number) => [number, number];
     readonly motionloom_analyze_shot_observations_json: (a: number, b: number, c: number, d: number) => [number, number, number, number];
@@ -364,6 +376,7 @@ export interface InitOutput {
     readonly wasmscenerenderer_render_frame: (a: number, b: number) => any;
     readonly wasmscenerenderer_validate_shots_json: (a: number, b: number, c: number, d: number, e: number) => any;
     readonly wasmscenerenderer_render_frame_to_canvas: (a: number, b: number, c: any) => any;
+    readonly wasmscenerenderer_last_3d_frame_profile_json: (a: number) => [number, number, number, number];
     readonly wasmscenerenderer_debug_solid_to_canvas: (a: number, b: any, c: number, d: number) => any;
     readonly wasmscenerenderer_debug_uploaded_texture_to_canvas: (a: number, b: any, c: number, d: number) => any;
     readonly wasmscenerenderer_debug_empty_scene_texture_to_canvas: (a: number, b: any, c: number, d: number) => any;

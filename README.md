@@ -30,9 +30,9 @@ Default Action DSL is deliberately kept outside the Astro/TypeScript UI code:
 - `public/motionloom-actions/actions/*.motionloom` contains one editable `<Action>`
   per file. Adding a file and one manifest entry makes it available to the editor.
 
-`Stand To Roll (Test)` loads `actions/stand_to_roll.motionloom`, the 72-pose
-offline conversion supplied for local testing. It does not load the original
-FBX or launch Blender. Target-rig alignment and floor contact are not yet
+`Stand To Roll (Test)` loads `actions/stand_to_roll.motionloom`, the 485-pose
+Character1-targeted conversion sampled from the 60 FPS source FBX. It does not
+load the original FBX or launch Blender. Target-rig alignment and floor contact are not yet
 visually accepted; this preset is not a production-quality reference motion.
 The startup selection remains Neutral Stand.
 
