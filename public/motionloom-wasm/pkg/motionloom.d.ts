@@ -2,6 +2,18 @@
 /* eslint-disable */
 
 /**
+ * Shared PCM renderer; browser hosts own decoding, playback and container codecs.
+ */
+export class WasmAudioMixer {
+    free(): void;
+    [Symbol.dispose](): void;
+    add_asset(id: string, stereo_pcm: Float32Array): void;
+    constructor(script: string, sample_rate: number);
+    plan_json(): string;
+    render(start_sample: number, frames: number): Float32Array;
+}
+
+/**
  * CPU-only diagnostic handle; does not change any preview or renderer state.
  */
 export class WasmPoseDiagnostics {
@@ -171,6 +183,12 @@ export class WasmWorldRenderer {
     render_frame(frame: number, asset_root: string): Uint8Array;
 }
 
+export function applyHeadFitProposal(source: string, proposal: string): string;
+
+export function evaluateHeadReferenceFit(source: string, request: string): string;
+
+export function fitHeadAssetToReferences(source: string, request: string): string;
+
 /**
  * Analyze one DSL revision for a concrete renderer such as `wasm-webgpu`.
  */
@@ -222,6 +240,11 @@ export function motionloom_editable_actions_json(script: string): string;
  */
 export function motionloom_inspect_animation_targets(script: string): string;
 
+/**
+ * Inspect an explicit or generated control cage without rendering or filesystem access.
+ */
+export function motionloom_inspect_control_cage_json(script: string, asset_id: string): string;
+
 export function motionloom_inspect_glb_environment_json(asset_label: string, bytes: Uint8Array): string;
 
 /**
@@ -234,6 +257,11 @@ export function motionloom_inspect_glb_humanoid_profile_json(asset_label: string
  * Inspect GLB bytes and propose humanoid mapping, axes, rest pose, and confidence.
  */
 export function motionloom_inspect_glb_skeleton_json(asset_label: string, bytes: Uint8Array): string;
+
+/**
+ * Read a MeshAsset cage with preview-compatible projection; does not mutate the DSL.
+ */
+export function motionloom_mesh_edit_snapshot_json(script: string, model_id: string, frame: number): Promise<string>;
 
 /**
  * Parse a MotionLoom script and return a short diagnostic summary.
@@ -286,7 +314,7 @@ export function motionloom_render_scene_frame_to_canvas_gpu(script: string, fram
 export function motionloom_render_scene_frame_with_profile(script: string, frame: number, width: number, height: number, profile: string): Promise<Uint8Array>;
 
 /**
- * Inspect the Scene style request and compiler fallbacks without a GPU.
+ * Inspect the resolved Scene style without a GPU.
  */
 export function motionloom_render_style_json(script: string, scene_id: string): string;
 
@@ -325,6 +353,8 @@ export function motionloom_webgpu_debug_solid_to_canvas(canvas: HTMLCanvasElemen
  */
 export function motionloom_webgpu_debug_uploaded_texture_to_canvas(canvas: HTMLCanvasElement, width: number, height: number): Promise<void>;
 
+export function validateHeadReferenceSet(request: string): string;
+
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
@@ -343,6 +373,7 @@ export interface InitOutput {
     readonly motionloom_render_style_json: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly motionloom_analyze_script_for_target_json: (a: number, b: number, c: number, d: number) => [number, number];
     readonly motionloom_showcase_schema_json: (a: number, b: number) => [number, number];
+    readonly motionloom_inspect_control_cage_json: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly motionloom_analyze_shot_observations_json: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly motionloom_inspect_glb_skeleton_json: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly motionloom_inspect_glb_humanoid_profile_json: (a: number, b: number, c: number, d: number) => [number, number, number, number];
@@ -386,6 +417,16 @@ export interface InitOutput {
     readonly wasmworldrenderer_add_asset: (a: number, b: number, c: number, d: number, e: number) => void;
     readonly wasmworldrenderer_clear_assets: (a: number) => void;
     readonly wasmworldrenderer_render_frame: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+    readonly validateHeadReferenceSet: (a: number, b: number) => [number, number, number, number];
+    readonly evaluateHeadReferenceFit: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+    readonly fitHeadAssetToReferences: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+    readonly applyHeadFitProposal: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+    readonly __wbg_wasmaudiomixer_free: (a: number, b: number) => void;
+    readonly wasmaudiomixer_new: (a: number, b: number, c: number) => [number, number, number];
+    readonly wasmaudiomixer_plan_json: (a: number) => [number, number, number, number];
+    readonly wasmaudiomixer_add_asset: (a: number, b: number, c: number, d: number, e: number) => [number, number];
+    readonly wasmaudiomixer_render: (a: number, b: number, c: number) => [number, number, number, number];
+    readonly motionloom_mesh_edit_snapshot_json: (a: number, b: number, c: number, d: number, e: number) => any;
     readonly wasm_bindgen__convert__closures_____invoke__h4aa3e05baac20cce: (a: number, b: number, c: any) => [number, number];
     readonly wasm_bindgen__convert__closures_____invoke__h45c32c0111268609: (a: number, b: number, c: any, d: any) => void;
     readonly wasm_bindgen__convert__closures_____invoke__h200a21b777a48c32: (a: number, b: number, c: any) => void;

@@ -1,4 +1,10 @@
+// =========================================
+// =========================================
+// src/scripts/motionloom-web-export.ts
+
 import {
+  AudioBufferSource,
+  canEncodeAudio,
   BufferTarget,
   CanvasSource,
   Mp4OutputFormat,
@@ -8,6 +14,9 @@ import {
   WebMOutputFormat,
   canEncodeVideo,
 } from 'mediabunny';
+
+import { MotionLoomAudio } from './motionloom-audio';
+import type { AudioWasmModule } from './motionloom-audio';
 
 export type MotionLoomWebExportFormat =
   | 'webm-vp8'
@@ -19,10 +28,14 @@ export type MotionLoomWebExportFormat =
 
 type MotionLoomWebExportOptions = {
   format?: MotionLoomWebExportFormat;
+  audioScript?: string;
+  audioWasm?: AudioWasmModule;
+  audioBaseUrl?: string;
   duration?: number;
   fps?: number;
   filename?: string;
   onStatus?: (message: string) => void;
+  onOutput?: (buffer: ArrayBuffer, mimeType: string, filename: string) => Promise<void> | void;
   beforeFrame?: (frame: number, time: number) => Promise<void> | void;
 };
 
@@ -129,6 +142,7 @@ async function assertVideoEncoderSupport(
 }
 
 export function installMotionLoomWebExport() {
+  window.motionloomCreateAudio = MotionLoomAudio.create;
   window.motionloomExportVideoFromCanvas = async (canvas, options = {}) => {
     const format = options.format ?? 'webm-vp9';
     const meta = FORMAT_META[format];
@@ -170,25 +184,56 @@ export function installMotionLoomWebExport() {
     });
 
     output.addVideoTrack(videoSource);
-    await output.start();
-
-    const frameDuration = 1 / fps;
-    for (let frame = 0; frame < frameCount; frame += 1) {
-      options.onStatus?.(`Encoding ${frame + 1}/${frameCount} ${meta.extension.toUpperCase()} frames...`);
-      if (options.beforeFrame) {
-        await options.beforeFrame(frame, frame * frameDuration);
-      } else {
-        await nextAnimationFrame();
+    let audio: MotionLoomAudio | undefined;
+    let audioSource: AudioBufferSource | undefined;
+    try {
+      // Probe the container-compatible audio codec before encoding or downloading.
+      if (options.audioScript && /<AudioClip\b/.test(options.audioScript)) {
+        if (!options.audioWasm) throw new Error('Audio export requires the MotionLoom WASM module.');
+        const codec = format.startsWith('mp4-') ? 'aac' : 'opus';
+        if (!await canEncodeAudio(codec, { sampleRate: 48000, numberOfChannels: 2, bitrate: 192000 })) {
+          throw new Error('This browser cannot encode ' + codec + ' audio; choose another export format.');
+        }
+        audio = await MotionLoomAudio.create(options.audioWasm, options.audioScript, options.audioBaseUrl);
+        audioSource = new AudioBufferSource({ codec, bitrate: 192000 });
+        output.addAudioTrack(audioSource);
       }
-      await videoSource.add(frame * frameDuration, frameDuration);
-    }
+      await output.start();
 
-    await output.finalize();
-    if (!target.buffer) {
-      throw new Error('Mediabunny finished without an output buffer.');
-    }
+      const frameDuration = 1 / fps;
+      let audioSample = 0;
+      const totalAudioSamples = Math.round(frameCount / fps * 48000);
+      for (let frame = 0; frame < frameCount; frame += 1) {
+        options.onStatus?.(`Encoding ${frame + 1}/${frameCount} ${meta.extension.toUpperCase()} frames...`);
+        if (options.beforeFrame) {
+          await options.beforeFrame(frame, frame * frameDuration);
+        } else {
+          await nextAnimationFrame();
+        }
+        await videoSource.add(frame * frameDuration, frameDuration);
+        if (audio && audioSource) {
+          const end = Math.min(totalAudioSamples, Math.round((frame + 1) / fps * 48000));
+          while (audioSample < end) {
+            const count = Math.min(4096, end - audioSample);
+            await audioSource.add(audio.buffer(audioSample, count));
+            audioSample += count;
+          }
+        }
+      }
 
-    downloadBuffer(target.buffer, meta.mimeType, filename);
-    options.onStatus?.(`Saved ${filename}`);
+      await output.finalize();
+      if (!target.buffer) {
+        throw new Error('Mediabunny finished without an output buffer.');
+      }
+
+      if (options.onOutput) await options.onOutput(target.buffer, meta.mimeType, filename);
+      else downloadBuffer(target.buffer, meta.mimeType, filename);
+      options.onStatus?.(`Saved ${filename}`);
+    } catch (error) {
+      await output.cancel().catch(() => {});
+      throw error;
+    } finally {
+      audio?.dispose();
+    }
   };
 }
