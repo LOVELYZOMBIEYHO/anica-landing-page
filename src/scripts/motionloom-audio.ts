@@ -21,7 +21,11 @@ export class MotionLoomAudio {
   private playing = false;
   private disposed = false;
   readonly sampleRate = 48000;
-  private constructor(private mixer: AudioMixerHandle, private context: AudioContext) {}
+  private constructor(
+    private mixer: AudioMixerHandle,
+    private context: AudioContext,
+    private output: GainNode,
+  ) {}
 
   static async create(mod: AudioWasmModule, script: string, baseUrl = document.baseURI) {
     if (!mod.WasmAudioMixer) throw new Error('Rebuild MotionLoom WASM to enable audio.');
@@ -53,7 +57,10 @@ export class MotionLoomAudio {
         for (let i = 0; i < stereo.length; i++) { pcm[i * 2] = left[i]; pcm[i * 2 + 1] = right[i]; }
         mixer.add_asset(asset.id, pcm);
       }
-      return new MotionLoomAudio(mixer, context);
+      const output = context.createGain();
+      output.gain.value = 0;
+      output.connect(context.destination);
+      return new MotionLoomAudio(mixer, context, output);
     } catch (error) {
       mixer.free(); await context?.close(); throw error;
     }
@@ -90,7 +97,7 @@ export class MotionLoomAudio {
           const frames = Math.min(4096, total - start);
           const source = this.context.createBufferSource();
           source.buffer = this.buffer(start, frames);
-          source.connect(this.context.destination);
+          source.connect(this.output);
           this.sources.add(source);
           source.onended = () => { this.sources.delete(source); source.disconnect(); };
           source.start(this.startClock + this.scheduledSamples / this.sampleRate);
@@ -113,10 +120,13 @@ export class MotionLoomAudio {
     for (const source of this.sources) { source.stop(); source.disconnect(); }
     this.sources.clear();
   }
+  setMuted(muted: boolean) {
+    this.output.gain.setValueAtTime(muted ? 0 : 1, this.context.currentTime);
+  }
   dispose() {
     if (this.disposed) return;
     this.disposed = true;
-    this.pause(); this.mixer.free(); void this.context.close();
+    this.pause(); this.output.disconnect(); this.mixer.free(); void this.context.close();
   }
 }
 

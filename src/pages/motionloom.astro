@@ -289,6 +289,15 @@ const motionLoomWasmVersion = createHash('sha256')
               <button id="btn-preview-play" type="button" class="rounded-full border-2 border-anica-lime/40 px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-anica-lime transition hover:bg-anica-lime/10">
                 Pause
               </button>
+              <button id="btn-preview-mute" type="button" aria-label="Turn preview sound on" aria-pressed="true" title="Turn preview sound on" disabled class="grid size-9 shrink-0 place-items-center rounded-full border-2 border-anica-lime/40 text-anica-lime transition hover:bg-anica-lime/10 disabled:cursor-not-allowed disabled:opacity-40">
+                <svg viewBox="0 0 24 24" aria-hidden="true" class="size-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
+                  <path d="M11 5 6.5 9H3v6h3.5l4.5 4V5Z" />
+                  <g data-preview-sound-on class="hidden">
+                    <path d="M15 9.5a4 4 0 0 1 0 5M17.8 6.8a8 8 0 0 1 0 10.4" />
+                  </g>
+                  <path data-preview-sound-off d="m16 10 5 5m0-5-5 5" />
+                </svg>
+              </button>
               <input id="preview-timeline" aria-label="Preview frame" type="range" min="0" max="0" value="0" step="1" class="motionloom-timeline-range min-w-0 flex-1" />
               <div class="flex items-center justify-between gap-3 font-mono text-[0.65rem] text-anica-paper/60 sm:min-w-[190px]">
                 <span id="preview-time">00:00.00 / 00:00.00</span>
@@ -2469,6 +2478,9 @@ const motionLoomWasmVersion = createHash('sha256')
       const webgpuStatus = document.getElementById('webgpu-status');
       const previewTimelinePanel = document.getElementById('preview-timeline-panel');
       const previewPlayBtn = document.getElementById('btn-preview-play');
+      const previewMuteBtn = document.getElementById('btn-preview-mute');
+      const previewSoundOnIcon = previewMuteBtn?.querySelector('[data-preview-sound-on]');
+      const previewSoundOffIcon = previewMuteBtn?.querySelector('[data-preview-sound-off]');
       const previewTimeline = document.getElementById('preview-timeline');
       const previewTime = document.getElementById('preview-time');
       const previewFrame = document.getElementById('preview-frame');
@@ -2798,6 +2810,16 @@ const motionLoomWasmVersion = createHash('sha256')
 
       // Audio playback owns the clock whenever the current DSL contains a soundtrack.
       let previewAudio = null;
+      let previewAudioMuted = true;
+      function updatePreviewMuteControl() {
+        if (!previewMuteBtn) return;
+        previewMuteBtn.disabled = !previewAudio;
+        previewMuteBtn.setAttribute('aria-pressed', String(previewAudioMuted));
+        previewMuteBtn.setAttribute('aria-label', previewAudioMuted ? 'Turn preview sound on' : 'Mute preview sound');
+        previewMuteBtn.title = previewAudioMuted ? 'Turn preview sound on' : 'Mute preview sound';
+        previewSoundOnIcon?.classList.toggle('hidden', previewAudioMuted);
+        previewSoundOffIcon?.classList.toggle('hidden', !previewAudioMuted);
+      }
       function syncPreviewAudio() {
         if (!previewAudio) return;
         previewAudio.pause();
@@ -6069,6 +6091,7 @@ ${track}
           const rawScript = editor.value;
           previewAudio?.dispose();
           previewAudio = null;
+          updatePreviewMuteControl();
           if (/<AudioClip\b/.test(rawScript)) {
             if (!window.motionloomCreateAudio) throw new Error('Audio module is not loaded.');
             const mod = await loadMotionLoomWasm();
@@ -6076,7 +6099,9 @@ ${track}
             const audio = await window.motionloomCreateAudio(mod, rawScript, currentGraphAssetBaseUrl || document.baseURI);
             if (compileToken !== compileRunToken) { audio.dispose(); return; }
             previewAudio = audio;
+            previewAudio.setMuted(previewAudioMuted);
           }
+          updatePreviewMuteControl();
 
           if (graph.scenes.length > 0) {
             setEditorMode('scene');
@@ -6432,6 +6457,16 @@ ${track}
           previewPlayback.lastTickMs = performance.now();
           previewPlayback.needsRender = true;
           updatePreviewTimelineControls();
+        });
+      }
+
+      if (previewMuteBtn) {
+        updatePreviewMuteControl();
+        previewMuteBtn.addEventListener('click', () => {
+          if (!previewAudio) return;
+          previewAudioMuted = !previewAudioMuted;
+          previewAudio.setMuted(previewAudioMuted);
+          updatePreviewMuteControl();
         });
       }
 
