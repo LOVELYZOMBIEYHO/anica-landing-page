@@ -104,9 +104,13 @@ const motionLoomWasmVersion = createHash('sha256')
                 class="rounded-lg border border-anica-lime/25 bg-anica-ink/70 px-2 py-1 font-mono text-[0.65rem] font-bold uppercase tracking-[0.22em] text-anica-lime outline-none transition hover:bg-anica-lime/5 focus:border-anica-lime"
               >
                 <option value="scene-controls" class="bg-anica-ink text-anica-lime">Scene controls</option>
-                <option value="drawing-tools" class="bg-anica-ink text-anica-lime">Drawing tools</option>
-                <option value="puppet-warp" class="bg-anica-ink text-anica-lime">Puppet Warp</option>
-                <option value="model-editing" class="bg-anica-ink text-anica-lime">Model editing (MeshAsset only)</option>
+                <optgroup label="2D ─────────" class="bg-anica-ink text-anica-lime">
+                  <option value="drawing-tools" class="bg-anica-ink text-anica-lime">Drawing tools</option>
+                  <option value="puppet-warp" class="bg-anica-ink text-anica-lime">Puppet Warp</option>
+                </optgroup>
+                <optgroup label="3D ─────────" class="bg-anica-ink text-anica-lime">
+                  <option value="model-editing" class="bg-anica-ink text-anica-lime">Model editing (MeshAsset only)</option>
+                </optgroup>
               </select>
               <div id="scene-inspector-summary" class="motionloom-inspector-summary" aria-label="Scene selection quick controls">
                 <div class="motionloom-summary-selection-modes" role="group" aria-label="Scene selection mode">
@@ -283,6 +287,16 @@ const motionLoomWasmVersion = createHash('sha256')
             <div id="webgpu-status" class="absolute bottom-3 left-3 z-40 rounded-full border border-anica-lime/30 bg-anica-ink/80 px-3 py-1 font-mono text-xs text-anica-lime backdrop-blur-md">
               Canvas 2D pipeline
             </div>
+            <button id="btn-preview-fullscreen" type="button" aria-label="Enter preview fullscreen" aria-pressed="false" title="Enter fullscreen" class="absolute bottom-3 right-3 z-50 grid size-9 place-items-center rounded-lg border border-anica-paper/30 bg-anica-ink/80 p-0 text-anica-paper backdrop-blur-md transition hover:border-anica-lime hover:text-anica-lime">
+              <svg viewBox="0 0 24 24" aria-hidden="true" class="size-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
+                <g data-preview-fullscreen-enter>
+                  <path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5" />
+                </g>
+                <g data-preview-fullscreen-exit class="hidden">
+                  <path d="M3 8h5V3M21 8h-5V3M21 16h-5v5M3 16h5v5" />
+                </g>
+              </svg>
+            </button>
           </div>
           <div id="preview-timeline-panel" class="rounded-2xl border border-anica-paper/15 bg-anica-paper/5 p-3">
             <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -977,6 +991,9 @@ const motionLoomWasmVersion = createHash('sha256')
     #scene-tool-panel-select { width:auto; min-width:170px; flex:1 1 230px; font-size:.8rem; letter-spacing:0; font-family:inherit; font-weight:600; padding:10px; }
     #scene-inspector-toggle { flex:0 0 auto; font-size:.7rem; margin-left:0; }
     #motionloom-preview-stage { flex:none; height:clamp(320px,52vh,650px); min-height:300px; border:1px solid #ffffff12; border-radius:10px; background:#0b0e09; }
+    #motionloom-preview-stage:fullscreen,
+    #motionloom-preview-stage:-webkit-full-screen { width:100vw; height:100vh; min-height:100vh; border:0; border-radius:0; background:#000; }
+    #motionloom-playground-panel #btn-preview-fullscreen { width:36px; height:36px; padding:0; border-color:#ffffff40; background:#0b0e09cc; }
     #preview-timeline-panel { border:0; border-top:1px solid #ffffff12; padding:12px 0 0; background:transparent; border-radius:0; }
     #preview-timeline-panel > div:first-child { flex-wrap:wrap; }
     #preview-timeline-panel > div:first-child > div { min-width:0; font-size:.65rem; gap:10px; }
@@ -2425,6 +2442,10 @@ const motionLoomWasmVersion = createHash('sha256')
       });
       const canvas = document.getElementById('motionloom-canvas');
       const gpuCanvas = document.getElementById('motionloom-canvas-webgpu');
+      const previewStage = document.getElementById('motionloom-preview-stage');
+      const previewFullscreenBtn = document.getElementById('btn-preview-fullscreen');
+      const previewFullscreenEnterIcon = previewFullscreenBtn?.querySelector('[data-preview-fullscreen-enter]');
+      const previewFullscreenExitIcon = previewFullscreenBtn?.querySelector('[data-preview-fullscreen-exit]');
       const editor = document.getElementById('dsl-editor');
       const resetBtn = document.getElementById('btn-reset');
       const githubExampleBar = document.getElementById('github-example-bar');
@@ -6469,6 +6490,39 @@ ${track}
           updatePreviewMuteControl();
         });
       }
+
+      // Keep the custom fullscreen control in sync with browser and Escape-key exits.
+      function updatePreviewFullscreenControl() {
+        if (!previewFullscreenBtn || !previewStage) return;
+        const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
+        const isFullscreen = fullscreenElement === previewStage;
+        previewFullscreenBtn.setAttribute('aria-pressed', String(isFullscreen));
+        previewFullscreenBtn.setAttribute('aria-label', isFullscreen ? 'Exit preview fullscreen' : 'Enter preview fullscreen');
+        previewFullscreenBtn.title = isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen';
+        previewFullscreenEnterIcon?.classList.toggle('hidden', isFullscreen);
+        previewFullscreenExitIcon?.classList.toggle('hidden', !isFullscreen);
+      }
+
+      async function togglePreviewFullscreen() {
+        if (!previewStage) return;
+        try {
+          const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
+          if (fullscreenElement === previewStage) {
+            const exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen;
+            await exitFullscreen?.call(document);
+          } else {
+            const requestFullscreen = previewStage.requestFullscreen || previewStage.webkitRequestFullscreen;
+            await requestFullscreen?.call(previewStage);
+          }
+        } catch (error) {
+          compileStatus.textContent = `Fullscreen error: ${formatWasmError(error)}`;
+        }
+      }
+
+      previewFullscreenBtn?.addEventListener('click', togglePreviewFullscreen);
+      document.addEventListener('fullscreenchange', updatePreviewFullscreenControl);
+      document.addEventListener('webkitfullscreenchange', updatePreviewFullscreenControl);
+      updatePreviewFullscreenControl();
 
       if (previewTimeline) {
         previewTimeline.addEventListener('input', () => {
