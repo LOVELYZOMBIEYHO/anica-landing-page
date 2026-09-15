@@ -183,11 +183,25 @@ export class WasmWorldRenderer {
     render_frame(frame: number, asset_root: string): Uint8Array;
 }
 
+export function analyzeImageReference(image_bytes: Uint8Array, request: string): string;
+
 export function applyHeadFitProposal(source: string, proposal: string): string;
+
+export function applyMeshAssetProposal(source: string, proposal: string): string;
+
+export function applyMeshTopologyProposal(source: string, analyses: string, proposal: string, evaluation: string): string;
 
 export function evaluateHeadReferenceFit(source: string, request: string): string;
 
+export function evaluateMeshAssetReference(source: string, request: string): Promise<string>;
+
+export function executeGeometryRecipe(recipe: string): string;
+
 export function fitHeadAssetToReferences(source: string, request: string): string;
+
+export function meshAuthoringSchema(): string;
+
+export function meshReferenceSchema(): string;
 
 /**
  * Analyze one DSL revision for a concrete renderer such as `wasm-webgpu`.
@@ -421,6 +435,13 @@ export interface InitOutput {
     readonly evaluateHeadReferenceFit: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly fitHeadAssetToReferences: (a: number, b: number, c: number, d: number) => [number, number, number, number];
     readonly applyHeadFitProposal: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+    readonly analyzeImageReference: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+    readonly evaluateMeshAssetReference: (a: number, b: number, c: number, d: number) => any;
+    readonly applyMeshAssetProposal: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+    readonly meshReferenceSchema: () => [number, number];
+    readonly meshAuthoringSchema: () => [number, number];
+    readonly executeGeometryRecipe: (a: number, b: number) => [number, number, number, number];
+    readonly applyMeshTopologyProposal: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => [number, number, number, number];
     readonly __wbg_wasmaudiomixer_free: (a: number, b: number) => void;
     readonly wasmaudiomixer_new: (a: number, b: number, c: number) => [number, number, number];
     readonly wasmaudiomixer_plan_json: (a: number) => [number, number, number, number];
