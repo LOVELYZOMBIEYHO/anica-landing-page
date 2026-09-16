@@ -104,6 +104,14 @@ export class WasmSceneRenderer {
      */
     evaluate_rig_json(request_json: string): Promise<string>;
     /**
+     * Export selected active model ids as one static, world-space GLB.
+     */
+    export_scene_glb(scene_id: string, frame: number, selection_json: string): Promise<Uint8Array>;
+    /**
+     * List active 3D model ids that can be flattened into a static GLB.
+     */
+    exportable_geometry_json(scene_id: string, frame: number): Promise<string>;
+    /**
      * Return the retained 3D renderer's latest timing and resource counters.
      * Browser hosts can include this non-breaking diagnostic in error reports
      * without parsing console output or reading pixels back from the GPU.
@@ -410,6 +418,8 @@ export interface InitOutput {
     readonly wasmscenerenderer_create: (a: number, b: number, c: number, d: number) => any;
     readonly wasmscenerenderer_add_asset: (a: number, b: number, c: number, d: number, e: number) => void;
     readonly wasmscenerenderer_add_environment_bounds: (a: number, b: number, c: number, d: number, e: number) => void;
+    readonly wasmscenerenderer_exportable_geometry_json: (a: number, b: number, c: number, d: number) => any;
+    readonly wasmscenerenderer_export_scene_glb: (a: number, b: number, c: number, d: number, e: number, f: number) => any;
     readonly wasmscenerenderer_add_font: (a: number, b: number, c: number) => any;
     readonly wasmscenerenderer_clear_assets: (a: number) => void;
     readonly wasmscenerenderer_set_group_attr: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => [number, number, number];

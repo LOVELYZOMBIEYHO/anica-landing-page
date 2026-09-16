@@ -83,6 +83,31 @@ const motionLoomWasmVersion = createHash('sha256')
             <summary id="glb-inspection-summary" class="cursor-pointer font-mono text-xs font-bold uppercase tracking-wider text-anica-lime">GLB skeleton report</summary>
             <pre id="glb-inspection-report" class="mt-3 max-h-96 overflow-auto whitespace-pre-wrap break-words font-mono text-[0.68rem] leading-relaxed text-anica-paper/75"></pre>
           </details>
+          <dialog id="glb-export-modal" class="w-[min(42rem,calc(100vw-2rem))] rounded-2xl border border-anica-lime/35 bg-anica-ink p-0 text-anica-paper shadow-2xl backdrop:bg-black/70">
+            <form method="dialog" class="border-b border-anica-paper/15 px-5 py-4">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <p class="font-mono text-[0.65rem] font-bold uppercase tracking-[0.18em] text-anica-lime">Static geometry export</p>
+                  <h2 class="mt-1 text-xl font-semibold">Choose GLB geometry</h2>
+                  <p id="glb-export-summary" class="mt-1 text-sm text-anica-paper/65">Reading the current DSL...</p>
+                </div>
+                <button id="glb-export-close" value="cancel" type="submit" class="rounded-full border border-anica-paper/25 px-3 py-1 text-xs text-anica-paper/75 hover:border-anica-lime hover:text-anica-lime">Close</button>
+              </div>
+            </form>
+            <div class="space-y-3 px-5 py-4">
+              <div class="flex items-center justify-between gap-3 text-xs text-anica-paper/65">
+                <span>Models are sampled at the current frame and exported as static world-space geometry.</span>
+                <button id="glb-export-select-all" type="button" class="shrink-0 text-anica-lime hover:underline">Select all</button>
+              </div>
+              <div id="glb-export-items" class="max-h-64 space-y-2 overflow-auto rounded-xl border border-anica-paper/15 bg-anica-black/25 p-3"></div>
+              <p id="glb-export-status" class="min-h-5 text-xs text-anica-paper/65" role="status"></p>
+              <div class="flex flex-wrap justify-end gap-2 border-t border-anica-paper/15 pt-3">
+                <button id="glb-export-cancel" type="button" class="rounded-full border border-anica-paper/25 px-4 py-2 text-xs font-bold uppercase tracking-wider text-anica-paper/75 hover:border-anica-paper/50">Cancel</button>
+                <button id="glb-export-confirm" type="button" class="rounded-full bg-anica-lime px-4 py-2 text-xs font-bold uppercase tracking-wider text-anica-ink hover:bg-anica-lime/85">Export selected GLB</button>
+              </div>
+              <p class="text-[0.68rem] leading-relaxed text-anica-paper/45">Cameras, lights, backgrounds, post effects and animation are not embedded. Materials and available textures are embedded where supported.</p>
+            </div>
+          </dialog>
           <div id="process-github-example-bar" class="hidden w-full min-w-0 flex-wrap items-center gap-2 rounded-2xl border border-anica-paper/15 bg-anica-paper/5 px-3 py-2">
             <span class="shrink-0 font-mono text-[0.65rem] font-bold uppercase tracking-wider text-anica-paper/60">Process example</span>
             <select
@@ -268,6 +293,7 @@ const motionLoomWasmVersion = createHash('sha256')
               </div>
               <select id="export-format" aria-label="Export format" class="min-w-0 max-w-full rounded-full border-2 border-anica-lime/40 bg-anica-ink px-3 py-1 font-mono text-xs font-bold uppercase tracking-wider text-anica-lime">
                 <option value="png">PNG</option>
+                <option value="glb">GLB</option>
                 <option value="mp4-h264">MP4 H.264</option>
                 <option value="mp4-hevc-main">MP4 HEVC Main (8-bit)</option>
                 <option value="webm-vp8">WebM VP8</option>
@@ -2479,6 +2505,13 @@ const motionLoomWasmVersion = createHash('sha256')
       const glbInspectionPanel = document.getElementById('glb-inspection-panel');
       const glbInspectionSummary = document.getElementById('glb-inspection-summary');
       const glbInspectionReport = document.getElementById('glb-inspection-report');
+      const glbExportModal = document.getElementById('glb-export-modal');
+      const glbExportSummary = document.getElementById('glb-export-summary');
+      const glbExportItems = document.getElementById('glb-export-items');
+      const glbExportStatus = document.getElementById('glb-export-status');
+      const glbExportSelectAll = document.getElementById('glb-export-select-all');
+      const glbExportCancel = document.getElementById('glb-export-cancel');
+      const glbExportConfirm = document.getElementById('glb-export-confirm');
       const emptySceneTemplateBtn = document.getElementById('btn-empty-scene-template');
       const svgImportInput = document.getElementById('svg-import');
       const svgImportMode = document.getElementById('svg-import-mode');
@@ -4210,6 +4243,108 @@ ${track}
         if (typeof err === 'string') return err;
         return err.message || err.toString();
       }
+
+      function selectedGlbModelIds() {
+        return Array.from(glbExportItems?.querySelectorAll('input[data-glb-model-id]:checked') || [])
+          .map((input) => input.getAttribute('data-glb-model-id'))
+          .filter(Boolean);
+      }
+
+      function closeGlbExportModal() {
+        if (glbExportModal?.open) glbExportModal.close();
+      }
+
+      async function openGlbExportModal() {
+        if (!glbExportModal || !glbExportItems || !glbExportSummary || !glbExportStatus) return;
+        const graph = parseGraph(editor.value);
+        const scene = graph.scenes[0];
+        if (!scene) {
+          compileStatus.textContent = 'GLB export requires a Scene graph.';
+          compileStatus.classList.add('text-anica-signal');
+          return;
+        }
+        if (!wasmSceneRenderer || typeof wasmSceneRenderer.exportable_geometry_json !== 'function') {
+          compileStatus.textContent = 'GLB export is unavailable until the MotionLoom WASM scene renderer is ready.';
+          compileStatus.classList.add('text-anica-signal');
+          return;
+        }
+        glbExportItems.textContent = '';
+        glbExportStatus.textContent = 'Reading exportable geometry...';
+        glbExportSummary.textContent = `${scene.id} · frame ${Math.floor(previewPlayback.frameFloat)}`;
+        glbExportConfirm.disabled = true;
+        glbExportModal.showModal();
+        try {
+          const report = JSON.parse(await wasmSceneRenderer.exportable_geometry_json(scene.id, Math.floor(previewPlayback.frameFloat)));
+          const items = Array.isArray(report.items) ? report.items : [];
+          if (!items.length) {
+            glbExportItems.innerHTML = '<p class="p-3 text-sm text-anica-paper/60">No active exportable 3D model was found in the current DSL.</p>';
+            glbExportStatus.textContent = 'Nothing to export.';
+            return;
+          }
+          for (const item of items) {
+            const row = document.createElement('label');
+            row.className = 'flex cursor-pointer items-center gap-3 rounded-xl border border-anica-paper/10 bg-anica-paper/5 px-3 py-2 hover:border-anica-lime/40';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.dataset.glbModelId = String(item.modelId);
+            checkbox.className = 'h-4 w-4 accent-anica-lime';
+            checkbox.checked = true;
+            const details = document.createElement('span');
+            details.className = 'min-w-0 flex-1';
+            const label = document.createElement('strong');
+            label.className = 'block truncate font-mono text-xs text-anica-paper';
+            label.textContent = String(item.label || item.modelId);
+            const stats = document.createElement('small');
+            stats.className = 'text-anica-paper/50';
+            stats.textContent = `${Number(item.vertices || 0).toLocaleString()} vertices · ${Number(item.triangles || 0).toLocaleString()} triangles`;
+            details.append(label, stats);
+            row.append(checkbox, details);
+            glbExportItems.appendChild(row);
+          }
+          glbExportStatus.textContent = `${items.length} exportable model${items.length === 1 ? '' : 's'} found.`;
+          glbExportConfirm.disabled = false;
+        } catch (err) {
+          glbExportStatus.textContent = `GLB analysis failed: ${formatWasmError(err)}`;
+          glbExportStatus.classList.add('text-anica-signal');
+        }
+      }
+
+      async function exportSelectedGlb() {
+        const graph = parseGraph(editor.value);
+        const scene = graph.scenes[0];
+        const modelIds = selectedGlbModelIds();
+        if (!scene || !modelIds.length || !wasmSceneRenderer) {
+          glbExportStatus.textContent = 'Select at least one model before exporting.';
+          return;
+        }
+        glbExportConfirm.disabled = true;
+        glbExportCancel.disabled = true;
+        glbExportStatus.textContent = 'Building GLB...';
+        try {
+          const frame = Math.floor(previewPlayback.frameFloat);
+          const bytes = await wasmSceneRenderer.export_scene_glb(scene.id, frame, JSON.stringify({ modelIds }));
+          const blob = new Blob([bytes], { type: 'model/gltf-binary' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `motionloom-${scene.id}-${modelIds.length === 1 ? modelIds[0] : 'selection'}-frame-${String(frame).padStart(4, '0')}.glb`;
+          link.click();
+          URL.revokeObjectURL(url);
+          glbExportStatus.textContent = `Exported ${modelIds.length} model${modelIds.length === 1 ? '' : 's'} as one GLB.`;
+        } catch (err) {
+          glbExportStatus.textContent = `GLB export failed: ${formatWasmError(err)}`;
+          glbExportStatus.classList.add('text-anica-signal');
+        } finally {
+          glbExportConfirm.disabled = false;
+          glbExportCancel.disabled = false;
+        }
+      }
+
+      glbExportSelectAll?.addEventListener('click', () => {
+        for (const input of glbExportItems?.querySelectorAll('input[data-glb-model-id]') || []) input.checked = true;
+      });
+      glbExportCancel?.addEventListener('click', closeGlbExportModal);
+      glbExportConfirm?.addEventListener('click', exportSelectedGlb);
 
       function drawRgbaBuffer(rgba, width, height) {
         showCanvas2dPreview();
@@ -6542,6 +6677,10 @@ ${track}
           link.download = 'motionloom-preview.png';
           link.href = activePreviewCanvas.toDataURL('image/png');
           link.click();
+          return;
+        }
+        if (selectedFormat === 'glb') {
+          await openGlbExportModal();
           return;
         }
 

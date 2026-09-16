@@ -342,6 +342,33 @@ export class WasmSceneRenderer {
         return ret;
     }
     /**
+     * Export selected active model ids as one static, world-space GLB.
+     * @param {string} scene_id
+     * @param {number} frame
+     * @param {string} selection_json
+     * @returns {Promise<Uint8Array>}
+     */
+    export_scene_glb(scene_id, frame, selection_json) {
+        const ptr0 = passStringToWasm0(scene_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(selection_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.wasmscenerenderer_export_scene_glb(this.__wbg_ptr, ptr0, len0, frame, ptr1, len1);
+        return ret;
+    }
+    /**
+     * List active 3D model ids that can be flattened into a static GLB.
+     * @param {string} scene_id
+     * @param {number} frame
+     * @returns {Promise<string>}
+     */
+    exportable_geometry_json(scene_id, frame) {
+        const ptr0 = passStringToWasm0(scene_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.wasmscenerenderer_exportable_geometry_json(this.__wbg_ptr, ptr0, len0, frame);
+        return ret;
+    }
+    /**
      * Return the retained 3D renderer's latest timing and resource counters.
      * Browser hosts can include this non-breaking diagnostic in error reports
      * without parsing console output or reading pixels back from the GPU.
@@ -2548,12 +2575,12 @@ function __wbg_get_imports() {
             arg0.writeTexture(arg1, arg2, arg3, arg4);
         }, arguments); },
         __wbindgen_cast_0000000000000001: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 2013, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 2025, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
             const ret = makeMutClosure(arg0, arg1, wasm_bindgen__convert__closures_____invoke__h200a21b777a48c32);
             return ret;
         },
         __wbindgen_cast_0000000000000002: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 2041, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 2053, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
             const ret = makeMutClosure(arg0, arg1, wasm_bindgen__convert__closures_____invoke__h4aa3e05baac20cce);
             return ret;
         },
