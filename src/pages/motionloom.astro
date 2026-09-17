@@ -4016,14 +4016,16 @@ ${track}
 
       function collectGraphAssetReferences(script) {
         const references = new Map();
-        // Keep this list aligned with MotionLoom's GraphAssetKind. Animation
-        // assets still belong to scene/showcase playback and must be prefetched.
-        // ActionLibrary is intentionally included even though it is not a
-        // GraphAsset: browser/WASM hosts cannot read its URL themselves and
-        // require the authored `src` to be registered in the memory resolver.
-        const assetTag = /<(ModelAsset|ImageAsset|VideoAsset|AudioAsset|AnimationAsset|FontAsset|ActionLibrary)\b[^>]*\bsrc\s*=\s*"([^"]+)"/gi;
+        // In a browser every literal `src` is an external dependency because
+        // WASM has no filesystem. This includes both declarations such as
+        // <ImageAsset> and directly rendered nodes such as <Image>, <Svg>, and
+        // <Texture>. Resolve them against the loaded document URL, then keep
+        // registering the bytes under the unchanged authored `src` so the same
+        // DSL remains portable between native projects and remote playback.
+        const source = script.replace(/<!--[\s\S]*?-->/g, '');
+        const assetTag = /<([A-Za-z][A-Za-z0-9]*)\b[^>]*\bsrc\s*=\s*"([^"]+)"/g;
         let match;
-        while ((match = assetTag.exec(script)) !== null) {
+        while ((match = assetTag.exec(source)) !== null) {
           const kind = String(match[1] || '');
           const src = String(match[2] || '').trim();
           if (src && !src.startsWith('data:') && !references.has(src)) {
