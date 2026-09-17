@@ -18,3 +18,14 @@ remain compatible. `standard_walk_start` and `standard_walk_stop` are retained a
 legacy compatibility members and are not part of this replacement phase.
 `wave_greeting` and `stairs_up_loop` are also unchanged because Character1 has no
 directly equivalent source clip.
+
+## Additional converted clips
+
+| MotionLoom action | Source clip |
+| --- | --- |
+| `slow_run_standard_loop` | Mixamo "Slow Run" (user-supplied FBX), converted for Character1 |
+
+Converted with `motionloom-action-tool convert --target-model character1.glb
+--target-profile character1-scene.motionloom --target-profile-id character1_profile
+--target-height 1.82`. The source FBX is not redistributed here; only the
+MotionLoom Action is stored under `actions/`.
