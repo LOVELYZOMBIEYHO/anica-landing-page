@@ -4017,11 +4017,13 @@ ${track}
       function collectGraphAssetReferences(script) {
         const references = new Map();
         // In a browser every literal `src` is an external dependency because
-        // WASM has no filesystem. This includes both declarations such as
-        // <ImageAsset> and directly rendered nodes such as <Image>, <Svg>, and
-        // <Texture>. Resolve them against the loaded document URL, then keep
-        // registering the bytes under the unchanged authored `src` so the same
-        // DSL remains portable between native projects and remote playback.
+        // WASM has no filesystem. This includes asset declarations such as
+        // <ImageAsset> and directly rendered nodes such as <Svg> and <Texture>.
+        // Resolve them against the loaded document URL, then keep registering
+        // the bytes under the unchanged authored `src` so the same DSL remains
+        // portable between native projects and remote playback. <Image>
+        // references an ImageAsset id and is resolved to that `src` at render
+        // time, so no extra preload key is needed for it.
         const source = script.replace(/<!--[\s\S]*?-->/g, '');
         const assetTag = /<([A-Za-z][A-Za-z0-9]*)\b[^>]*\bsrc\s*=\s*"([^"]+)"/g;
         let match;

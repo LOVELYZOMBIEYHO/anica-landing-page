@@ -46,8 +46,9 @@ export class WasmSceneRenderer {
     /**
      * Register an in-memory asset for this renderer only.
      *
-     * The `name` should match the `src` attribute used in `<Image>` or `<Svg>`
-     * nodes (e.g. `"logo.png"`). The `bytes` argument is the raw file content.
+     * The `name` should match the `src` attribute used in `<ImageAsset>` or
+     * `<Svg>` nodes (e.g. `"logo.png"`). The `bytes` argument is the raw file
+     * content.
      */
     add_asset(name: string, bytes: Uint8Array): void;
     /**

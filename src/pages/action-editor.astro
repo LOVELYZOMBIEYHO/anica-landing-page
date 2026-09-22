@@ -1,5 +1,17 @@
 ---
 import BaseLayout from '@components/BaseLayout.astro';
+// @ts-expect-error Astro executes frontmatter in Node; this project omits Node ambient types.
+import { createHash } from 'node:crypto';
+// @ts-expect-error Astro executes frontmatter in Node; this project omits Node ambient types.
+import { readFileSync } from 'node:fs';
+
+// The Action Editor loads the WASM package and the Action library from the
+// site base path. Without publishing these globals the page resolves them
+// against `/`, which only works locally and 404s on GitHub Pages.
+const motionLoomWasmVersion = createHash('sha256')
+  .update(readFileSync('public/motionloom-wasm/pkg/motionloom_bg.wasm'))
+  .digest('hex')
+  .slice(0, 16);
 ---
 
 <BaseLayout
@@ -139,6 +151,10 @@ import BaseLayout from '@components/BaseLayout.astro';
     </dialog>
   </section>
 
+  <script is:inline define:vars={{ baseUrl: import.meta.env.BASE_URL, motionLoomWasmVersion }}>
+    window.MOTIONLOOM_BASE = baseUrl;
+    window.MOTIONLOOM_WASM_VERSION = motionLoomWasmVersion;
+  </script>
   <script>
     import { installActionEditor } from '../scripts/action-editor';
     installActionEditor();
