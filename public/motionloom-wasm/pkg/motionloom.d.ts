@@ -259,6 +259,11 @@ export function motionloom_dsl_schema_json(): string;
 export function motionloom_editable_actions_json(script: string): string;
 
 /**
+ * Format DSL with the native formatter; source edits use UTF-16 editor offsets.
+ */
+export function motionloom_format_dsl(script: string): string;
+
+/**
  * Return structured AnimationTarget binding diagnostics for one graph script.
  */
 export function motionloom_inspect_animation_targets(script: string): string;
@@ -382,6 +387,7 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
     readonly memory: WebAssembly.Memory;
+    readonly motionloom_format_dsl: (a: number, b: number) => [number, number, number, number];
     readonly __wbg_wasmposediagnostics_free: (a: number, b: number) => void;
     readonly wasmposediagnostics_new: (a: number, b: number, c: number, d: number) => [number, number, number];
     readonly wasmposediagnostics_sample_json: (a: number, b: number, c: number, d: number, e: number) => [number, number, number, number];

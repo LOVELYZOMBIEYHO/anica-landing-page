@@ -31,18 +31,33 @@ export function tags(source: string): Tag[] {
 export function attribute(raw: string, key: string): string {
   return new RegExp(`\\s${key}\\s*=\\s*["']([^"']*)["']`).exec(raw)?.[1] || '';
 }
+// Both discovery and editing resolve the same material-bound geometry reference.
+function editableMeshRegion(all: Tag[], assetId: string): {start: number; end: number} | null {
+  const asset = all.find(t => t.name === 'MeshAsset' && !t.closing && attribute(t.raw, 'id') === assetId);
+  if (!asset) return null;
+  const id = attribute(asset.raw, 'geometry');
+  const geometry = all.find(t => t.name === 'GeometryAsset' && !t.closing && attribute(t.raw, 'id') === id);
+  if (!geometry || attribute(geometry.raw, 'source')) return null;
+  const end = all.find(t => t.name === 'GeometryAsset' && t.closing && t.start > geometry.start);
+  if (!end) return null;
+  const mesh = all.find(t => t.name === 'Mesh' && !t.closing && t.start > geometry.start && t.start < end.start);
+  const close = mesh && all.find(t => t.name === 'Mesh' && t.closing && t.start > mesh.start && t.start < end.start);
+  return mesh && close ? {start: mesh.start, end: close.start} : null;
+}
 export function meshTargets(source: string): MeshTarget[] {
   const all = tags(source);
-  const assets = new Set(all.filter(t => t.name === 'MeshAsset' && !t.closing).map(t => attribute(t.raw, 'id')));
+  const geometryByAsset = new Map(all.filter(t => t.name === 'MeshAsset' && !t.closing).map(t => [attribute(t.raw, 'id'), attribute(t.raw, 'geometry')]));
+  const assets = new Set(all.filter(t => t.name === 'MeshAsset' && !t.closing && editableMeshRegion(all, attribute(t.raw, 'id'))).map(t => attribute(t.raw, 'id')));
   const models = all.filter(t => t.name === 'Model' && !t.closing && assets.has(attribute(t.raw, 'asset')));
   return models.filter(t => attribute(t.raw, 'id')).map(t => ({ modelId: attribute(t.raw, 'id'),
-    assetId: attribute(t.raw, 'asset'), users: models.filter(m => attribute(m.raw, 'asset') === attribute(t.raw, 'asset')).length }));
+    assetId: attribute(t.raw, 'asset'), users: models.filter(m => geometryByAsset.get(attribute(m.raw, 'asset')) === geometryByAsset.get(attribute(t.raw, 'asset'))).length }));
 }
 export function rewriteVertices(source: string, assetId: string, changes: Map<number, V3>): string {
-  const all = tags(source); let active = false; let index = 0; const patches: { start: number; end: number; value: string }[] = [];
+  const all = tags(source); const region = editableMeshRegion(all, assetId);
+  if (!region) throw new Error('Convert parametric or derived geometry to Mesh before vertex editing.');
+  let index = 0; const patches: { start: number; end: number; value: string }[] = [];
   for (const tag of all) {
-    if (tag.name === 'MeshAsset') { active = !tag.closing && attribute(tag.raw, 'id') === assetId; continue; }
-    if (!active || tag.name !== 'Vertex' || tag.closing) continue;
+    if (tag.start <= region.start || tag.start >= region.end || tag.name !== 'Vertex' || tag.closing) continue;
     const value = changes.get(index++); if (!value) continue;
     if (!value.every(Number.isFinite)) throw new Error('Vertex coordinates must be finite.');
     const match = /\bposition\s*=\s*\{\s*\[[^\]]*\]\s*\}/.exec(tag.raw);

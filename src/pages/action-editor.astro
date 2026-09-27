@@ -144,7 +144,7 @@ const motionLoomWasmVersion = createHash('sha256')
     </section>
 
     <dialog id="ae-dsl-dialog" class="dsl-dialog">
-      <form method="dialog"><header><strong>MotionLoom Action DSL</strong><button value="close" aria-label="Close DSL">×</button></header><textarea id="ae-dsl-source" spellcheck="false"></textarea><footer><button id="ae-copy-dsl" type="button">Copy DSL</button><button value="close" class="accent">Done</button></footer></form>
+      <form method="dialog"><header><strong>MotionLoom Action DSL</strong><button value="close" aria-label="Close DSL">×</button></header><textarea id="ae-dsl-source" spellcheck="false"></textarea><footer><button id="ae-format-dsl" type="button" title="Shift + Alt + F">Format DSL</button><button id="ae-apply-dsl" type="button">Apply DSL</button><label><input id="ae-format-on-save" type="checkbox" checked />Format on save</label><button id="ae-copy-dsl" type="button">Copy DSL</button><button value="close" class="accent">Done</button></footer></form>
     </dialog>
     <dialog id="ae-action-dialog" class="dsl-dialog compact-dialog">
       <form method="dialog"><header><strong id="ae-action-dialog-title">New Action</strong><button value="cancel">×</button></header><div class="dialog-fields"><label>Action ID<input id="ae-action-id" value="new_action" /></label><label>Duration (frames)<input id="ae-action-duration" type="number" min="1" value="60" /></label></div><footer><button value="cancel">Cancel</button><button id="ae-confirm-action" type="button" class="accent">Create</button></footer></form>

@@ -274,6 +274,12 @@ const motionLoomWasmVersion = createHash('sha256')
           <div id="ml-source-region" class="ml-source-region">
             <details id="ml-source-panel" class="ml-source-panel" open>
               <summary><span>DSL source</span><span class="ml-source-hint">Edit directly · ⌘ / Ctrl + Enter to render</span><span aria-hidden="true">⌄</span></summary>
+              <div class="flex flex-wrap items-center gap-3 px-4 py-2 font-mono text-xs text-anica-paper/75">
+                <button type="button" id="dsl-format" title="Format DSL (Shift + Alt + F)">Format DSL</button>
+                <button type="button" id="dsl-download" title="Save DSL (⌘ / Ctrl + S)">Download DSL</button>
+                <label class="flex items-center gap-2"><input type="checkbox" id="dsl-format-on-save" checked />Format on save</label>
+                <output id="dsl-format-status" aria-live="polite"></output>
+              </div>
               <textarea aria-label="MotionLoom DSL source"
                 id="dsl-editor"
                 class="min-h-[420px] min-w-0 max-w-full flex-1 overflow-auto rounded-2xl border-2 border-anica-ink/40 bg-anica-ink/60 p-4 font-mono text-xs leading-relaxed text-anica-paper shadow-inner outline-none transition focus:border-anica-lime"
@@ -1008,9 +1014,8 @@ const motionLoomWasmVersion = createHash('sha256')
     #github-example-bar, #process-github-example-bar { border:0; border-radius:0; background:none; padding:0; justify-content:flex-start; gap:8px; }
     #example-category, #process-example-select { flex:0 1 220px; }
     #motionloom-workspace { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:0; padding:0; }
-    #motionloom-playground-panel.ml-process-mode #motionloom-workspace { grid-template-columns:minmax(0,1fr); }
-    .ml-process-mode .ml-tools-column { display:none; }
     .ml-tools-column { min-width:0; border-right:1px solid #ffffff12; background:#191d15; padding:18px; overflow:auto; max-height:720px; }
+    .ml-process-mode .ml-source-region { margin:-18px; border-top:0; }
     .ml-preview-column { min-width:0; display:flex; flex-direction:column; gap:12px; padding:18px 22px; }
     #animation-controls-panel { padding:0; border:0; border-radius:0; background:none; }
     .motionloom-inspector-toolbar { flex-wrap:nowrap; gap:8px; padding-bottom:14px; border-bottom:1px solid #ffffff12; }
@@ -2427,11 +2432,13 @@ const motionLoomWasmVersion = createHash('sha256')
     import { installMeshEditing } from '../scripts/motionloom-mesh-tools';
     import { installMotionLoomPuppetTools } from '../scripts/motionloom-puppet-tools';
     import { installMotionLoomWebExport } from '../scripts/motionloom-web-export';
+    import { installDslFormatting } from '../scripts/motionloom-formatting';
 
     installMeshEditing((window as any).MOTIONLOOM_MESH_HOST);
     installMotionLoomDrawingTools();
     installMotionLoomPuppetTools();
     installMotionLoomWebExport();
+    installDslFormatting((window as any).MOTIONLOOM_FORMAT_HOST);
   </script>
 
   <script is:inline>
@@ -2542,6 +2549,7 @@ const motionLoomWasmVersion = createHash('sha256')
       const processExampleSelect = document.getElementById('process-example-select');
       const loadProcessExampleBtn = document.getElementById('btn-load-process-example');
       const ctx = canvas.getContext('2d');
+      let activeEditorMode = 'scene';
       let activePreviewCanvas = canvas;
       let lastPreviewWidth = canvas.width || 1920;
       let lastPreviewHeight = canvas.height || 1080;
@@ -2731,15 +2739,19 @@ const motionLoomWasmVersion = createHash('sha256')
         if (label) label.textContent = sceneInspectorCollapsed ? 'Expand' : 'Collapse';
       }
 
+      function updateDslSourceVisibility() {
+        const sourceAvailable = activeEditorMode === 'process' || sceneToolPanelSelect.value === 'scene-controls';
+        document.getElementById('ml-source-region').classList.toggle('hidden', !sourceAvailable);
+        const sourceToggle = document.getElementById('ml-toggle-source');
+        sourceToggle.disabled = !sourceAvailable;
+        sourceToggle.title = sourceAvailable ? 'Show or hide DSL source' : 'DSL source is available in Scene controls';
+      }
+
       function setSceneToolPanel(panel) {
-        const isSceneControls = panel === 'scene-controls';
         drawingToolsContent.classList.toggle('hidden', panel !== 'drawing-tools');
         puppetWarpContent.classList.toggle('hidden', panel !== 'puppet-warp');
         document.getElementById('model-editing-content').classList.toggle('hidden', panel !== 'model-editing');
-        document.getElementById('ml-source-region').classList.toggle('hidden', !isSceneControls);
-        const sourceToggle = document.getElementById('ml-toggle-source');
-        sourceToggle.disabled = !isSceneControls;
-        sourceToggle.title = isSceneControls ? 'Show or hide DSL source' : 'DSL source is available in Scene controls';
+        updateDslSourceVisibility();
         try { window.localStorage.setItem('motionloom.sceneToolPanel', panel); } catch (_) {}
         applySceneInspectorState();
         window.dispatchEvent(new CustomEvent('motionloom:tool-panel-change', { detail: { panel } }));
@@ -5220,7 +5232,6 @@ ${track}
       let compileRunToken = 0;
       let runtimeSceneRenderDebounceId = null;
       let runtimeSceneRenderToken = 0;
-      let activeEditorMode = 'scene';
 
       function setEditorMode(mode) {
         document.getElementById('ml-mode-label').textContent = mode === 'process' ? 'Process' : 'Scene';
@@ -5236,6 +5247,7 @@ ${track}
         processGithubExampleBar.classList.toggle('flex', isProcess);
         animationControlsPanel.classList.toggle('hidden', isProcess);
         processSourceControls.classList.toggle('hidden', !isProcess);
+        updateDslSourceVisibility();
       }
 
       function executeScene(graph, time) {
@@ -6831,6 +6843,19 @@ ${track}
         }
       });
 
+      // Source formatting shares history and preserves the current preview frame.
+      window.MOTIONLOOM_FORMAT_HOST = {
+        module: loadMotionLoomWasm,
+        history: pushSceneDslHistory,
+        changed: () => {
+          resetPreviewPlaybackOnNextCompile = false;
+          pausePreviewPlaybackForEdit();
+          refreshGroupControls({ keepSelection: true });
+          compileNow();
+        },
+        undo: undoSceneDslHistory,
+        redo: redoSceneDslHistory,
+      };
       // Mesh editing shares the existing source history and paused-frame compile path.
       window.MOTIONLOOM_MESH_HOST = {
         snapshot: async (source, model) => {

@@ -20,7 +20,7 @@ export function installMeshEditing(host: Host) {
     <div class="mesh-buttons"><button data-mesh="all">Select all</button><button data-mesh="none">Clear selection</button><button data-mesh="apply">Apply XYZ</button></div>
     <label><input data-mesh="xray" type="checkbox" checked disabled /> X-ray control cage</label>
     <p>Click a point; Shift adds or removes. Drag empty space to box-select. Drag selected points to move. XYZ sets the selection center in asset coordinates.</p>
-    <output data-mesh="status" aria-live="polite">Choose a MeshAsset model. HeadAsset is not editable here.</output>
+    <output data-mesh="status" aria-live="polite">Choose a model with an explicit Mesh geometry.</output>
   </div>`;
   const q = <T extends HTMLElement>(key: string) => panel.querySelector<T>(`[data-mesh="${key}"]`)!;
   const target = q<HTMLSelectElement>('target'); const status = q<HTMLOutputElement>('status');
@@ -34,7 +34,7 @@ export function installMeshEditing(host: Host) {
       option.textContent = `${t.modelId} → ${t.assetId}${t.users > 1 ? ` (${t.users} shared instances)` : ''}`; target.append(option);
     }
     if ([...target.options].some(o=>o.value===previous)) target.value=previous;
-    if (!target.options.length) say('No named Model referencing MeshAsset in this DSL. HeadAsset and HairAsset stay parametric.');
+    if (!target.options.length) say('No named Model references editable Mesh geometry in this DSL.');
   }
   function exit() { drag=null; generation++; snapshot=null; selected.clear(); overlay.replaceChildren(); overlay.classList.add('hidden'); target.disabled=false; }
   function center(): V3 {

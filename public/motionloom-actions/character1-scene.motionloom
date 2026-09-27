@@ -5,8 +5,10 @@
                 src="https://raw.githubusercontent.com/LOVELYZOMBIEYHO/motionloom-example/refs/heads/main/assets/sample_assets/characters/character1/character1.glb" />
     <MaterialAsset id="action_floor_mat" shading="pbr" baseColor="#142033"
                    metallic="0.35" roughness="0.3" specular="0.82" />
-    <PrimitiveAsset id="action_floor" shape="cylinder" radius="2.3" height="0.14"
-                    segments="64" material="action_floor_mat" />
+    <GeometryAsset id="action_floor_geometry">
+    <Primitive shape="cylinder" radius="2.3" height="0.14" segments="64" />
+    </GeometryAsset>
+    <MeshAsset id="action_floor" material="action_floor_mat" geometry="action_floor_geometry" />
   </Assets>
 
   <ModelProfile id="character1_profile" kind="3d" model="character1_model" preset="humanoid_v1">

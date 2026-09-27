@@ -1,3 +1,9 @@
+// =========================================
+// =========================================
+// src/scripts/action-editor.ts
+
+import { applyFormattedSource, bindFormatOnSave, downloadDsl, formatDsl } from './motionloom-formatting';
+
 interface EditableBone { id: string; channels: Record<string, string>; interpolation?: string; inTangent?: string; outTangent?: string }
 interface EditablePose { timeMs: number; bones: EditableBone[] }
 interface EditableContact { id: string; effector: string; target: string; from: number; to: number; mode: string; weight: string }
@@ -22,6 +28,7 @@ interface MotionLoomModule {
   default(options: { module_or_path: string }): Promise<unknown>;
   WasmSceneRenderer: { create(script: string, profile: string): Promise<SceneRenderer> };
   motionloom_editable_actions_json(script: string): string;
+  motionloom_format_dsl(script: string): string;
   motionloom_apply_action_edit(script: string, command: string): string;
   motionloom_inspect_glb_skeleton_json(assetLabel: string, bytes: Uint8Array): string;
   motionloom_inspect_glb_humanoid_profile_json?(assetLabel: string, bytes: Uint8Array): string;
@@ -891,10 +898,38 @@ function extractAction(): string {
   return state.dsl.match(new RegExp(`<Action\\b(?=[^>]*\\bid=["']${escaped}["'])[^>]*(?:\\/>|>[\\s\\S]*?<\\/Action>)`))?.[0] || state.dsl;
 }
 
-function download(name: string, source: string): void {
-  const url = URL.createObjectURL(new Blob([source], { type: 'text/plain;charset=utf-8' }));
-  const anchor = document.createElement('a'); anchor.href = url; anchor.download = name; anchor.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+// Formatting is one source-history transaction; pending dialog edits remain intact on error.
+function formatActionDsl(): boolean {
+  if (!state.wasm) { setStatus('MotionLoom WASM is not ready.', true); return false; }
+  const editor = q<HTMLTextAreaElement>('#ae-dsl-source');
+  const source = q<HTMLDialogElement>('#ae-dsl-dialog').open ? editor.value : state.dsl;
+  try {
+    const result = formatDsl(state.wasm, source);
+    // Validate edited DSL before replacing the live document or its undo history.
+    state.wasm.motionloom_editable_actions_json(result.source);
+    if (result.source !== state.dsl) {
+      state.undo.push(state.dsl); state.redo.length = 0;
+      state.dsl = result.source; state.dirty = true;
+      parseDocument(); refreshUi();
+    }
+    if (q<HTMLDialogElement>('#ae-dsl-dialog').open) applyFormattedSource(editor, result);
+    setStatus(result.changed ? 'DSL formatted.' : 'DSL already formatted.');
+    return true;
+  } catch (error) { setStatus(error instanceof Error ? error.message : String(error), true); return false; }
+}
+
+async function applyDialogDsl(): Promise<void> {
+  if (!state.wasm) return;
+  const source = q<HTMLTextAreaElement>('#ae-dsl-source').value;
+  try {
+    const next = q<HTMLInputElement>('#ae-format-on-save').checked ? formatDsl(state.wasm, source).source : source;
+    state.wasm.motionloom_editable_actions_json(next);
+    if (next !== state.dsl) {
+      state.undo.push(state.dsl); state.redo.length = 0; state.dsl = next; state.dirty = true;
+      parseDocument(); refreshUi(); await rebuildRenderer();
+    }
+    q<HTMLTextAreaElement>('#ae-dsl-source').value = next;
+  } catch (error) { setStatus(error instanceof Error ? error.message : String(error), true); }
 }
 
 function openActionDialog(mode: 'create' | 'duplicate'): void {
@@ -1246,8 +1281,35 @@ function bindUi(): void {
     parseDocument(); refreshUi(); await rebuildRenderer();
   });
   q('#ae-view-dsl').addEventListener('click', () => { q<HTMLTextAreaElement>('#ae-dsl-source').value = state.dsl; q<HTMLDialogElement>('#ae-dsl-dialog').showModal(); });
-  q('#ae-copy-dsl').addEventListener('click', () => void navigator.clipboard.writeText(extractAction()));
-  q('#ae-export').addEventListener('click', () => { download(`${state.actionId}.motionloom`, extractAction()); state.dirty = false; parseDocument(); });
+  bindFormatOnSave(q<HTMLInputElement>('#ae-format-on-save'));
+  q('#ae-format-dsl').addEventListener('click', () => { if (formatActionDsl()) void rebuildRenderer(); });
+  q('#ae-apply-dsl').addEventListener('click', () => void applyDialogDsl());
+  q('#ae-copy-dsl').addEventListener('click', () => {
+    if (!state.wasm) return;
+    try { void navigator.clipboard.writeText(formatDsl(state.wasm, extractAction()).source); }
+    catch (error) { setStatus(error instanceof Error ? error.message : String(error), true); }
+  });
+  q<HTMLTextAreaElement>('#ae-dsl-source').addEventListener('keydown', (event) => {
+    if (event.shiftKey && event.altKey && event.key.toLowerCase() === 'f') {
+      event.preventDefault(); if (formatActionDsl()) void rebuildRenderer();
+    } else if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') {
+      event.preventDefault(); void applyDialogDsl();
+    } else if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'z'
+      && q<HTMLTextAreaElement>('#ae-dsl-source').value === state.dsl) {
+      event.preventDefault(); void restore(event.shiftKey ? 'redo' : 'undo').then(() => {
+        q<HTMLTextAreaElement>('#ae-dsl-source').value = state.dsl;
+      });
+    }
+  });
+  q('#ae-export').addEventListener('click', () => {
+    if (!state.wasm) { setStatus('MotionLoom WASM is not ready.', true); return; }
+    try {
+      if (q<HTMLInputElement>('#ae-format-on-save').checked && !formatActionDsl()) return;
+      const source = extractAction();
+      downloadDsl(q<HTMLInputElement>('#ae-format-on-save').checked ? formatDsl(state.wasm, source).source : source, `${state.actionId}.motionloom`);
+      state.dirty = false; parseDocument();
+    } catch (error) { setStatus(error instanceof Error ? error.message : String(error), true); }
+  });
   q('#ae-undo').addEventListener('click', () => void restore('undo')); q('#ae-redo').addEventListener('click', () => void restore('redo'));
   document.addEventListener('keydown', (event) => {
     if ((event.target as HTMLElement).matches('input,textarea,select')) return;
