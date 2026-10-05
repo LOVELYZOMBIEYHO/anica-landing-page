@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@components/BaseLayout.astro';
+import motionLoomAssetConfig from '../config/motionloom-assets.json';
 // @ts-expect-error Astro executes frontmatter in Node; this project omits Node ambient types.
 import { createHash } from 'node:crypto';
 // @ts-expect-error Astro executes frontmatter in Node; this project omits Node ambient types.
@@ -61,12 +62,9 @@ const motionLoomWasmVersion = createHash('sha256')
               id="example-category" aria-label="Example category"
               class="min-w-0 max-w-full flex-1 rounded-full border border-anica-paper/25 bg-anica-ink/70 px-3 py-1 font-mono text-xs font-bold text-anica-paper outline-none transition focus:border-anica-lime"
             >
-              <option value="showcase">showcase</option>
-              <option value="scene">scene</option>
-              <option value="process">process</option>
-              <option value="text">text</option>
-              <option value="material_and_texture">material_and_texture</option>
-              <option value="simulation">simulation</option>
+              {Object.entries(motionLoomAssetConfig.categories).map(([value, config]) => (
+                <option value={value}>{config.label}</option>
+              ))}
             </select>
             <input
               id="showcase-number" aria-label="Example number"
@@ -280,6 +278,31 @@ const motionLoomWasmVersion = createHash('sha256')
                 <label class="flex items-center gap-2"><input type="checkbox" id="dsl-format-on-save" checked />Format on save</label>
                 <output id="dsl-format-status" aria-live="polite"></output>
               </div>
+              <details class="px-4 py-2 text-xs text-anica-paper/75">
+                <summary class="cursor-pointer">Asset source</summary>
+                <div class="mt-2 flex flex-wrap items-end gap-2">
+                  <label class="grid min-w-0 flex-1 gap-1">
+                    <span>Source DSL path or URL</span>
+                    <input id="asset-source-input" type="text" spellcheck="false" placeholder="showcase/s-000092/main.motionloom or https://…/main.motionloom" class="min-w-0 rounded-lg border border-anica-paper/25 bg-anica-ink/70 px-3 py-2 font-mono text-xs text-anica-paper outline-none focus:border-anica-lime" />
+                  </label>
+                  <button id="asset-source-apply" type="button" class="rounded-lg border border-anica-lime/40 px-3 py-2 text-anica-lime">Apply source</button>
+                </div>
+                <div class="mt-2 flex flex-wrap items-end gap-2">
+                  <label class="grid gap-1"><span>Example asset category</span>
+                    <select id="asset-source-category" class="rounded-lg border border-anica-paper/25 bg-anica-ink/70 px-3 py-2">
+                      {Object.entries(motionLoomAssetConfig.categories).map(([value, config]) => (
+                        <option value={value}>{config.label}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label class="grid gap-1"><span>Example asset number</span>
+                    <input id="asset-source-number" type="number" min="1" value="1" class="w-24 rounded-lg border border-anica-paper/25 bg-anica-ink/70 px-3 py-2" />
+                  </label>
+                  <button id="asset-source-example" type="button" class="rounded-lg border border-anica-paper/25 px-3 py-2">Use example source</button>
+                </div>
+                <p class="mt-2">Paste DSL, then choose its asset source. This changes where relative assets are read; your DSL stays unchanged. A directory URL must end with /.</p>
+                <output id="asset-source-status" class="mt-1 block break-all" aria-live="polite"></output>
+              </details>
               <textarea aria-label="MotionLoom DSL source"
                 id="dsl-editor"
                 class="min-h-[420px] min-w-0 max-w-full flex-1 overflow-auto rounded-2xl border-2 border-anica-ink/40 bg-anica-ink/60 p-4 font-mono text-xs leading-relaxed text-anica-paper shadow-inner outline-none transition focus:border-anica-lime"
@@ -2423,7 +2446,8 @@ const motionLoomWasmVersion = createHash('sha256')
     </div>
   </section>
 
-  <script is:inline define:vars={{ baseUrl: import.meta.env.BASE_URL, motionLoomWasmVersion }}>
+  <script is:inline define:vars={{ baseUrl: import.meta.env.BASE_URL, motionLoomWasmVersion, motionLoomAssetConfig }}>
+    window.MOTIONLOOM_ASSET_CONFIG = motionLoomAssetConfig;
     window.MOTIONLOOM_BASE = baseUrl;
     window.MOTIONLOOM_WASM_VERSION = motionLoomWasmVersion;
   </script>
@@ -3678,8 +3702,9 @@ ${track}
       const demoImageUrl = base.replace(/\/$/, '') + '/demo.jpg';
       const wasmPkgBase = base.replace(/\/$/, '') + '/motionloom-wasm/pkg';
       const motionLoomWasmVersion = window.MOTIONLOOM_WASM_VERSION || 'development';
-      const exampleRawRoot = 'https://raw.githubusercontent.com/LOVELYZOMBIEYHO/motionloom-example/refs/heads/main';
-      const processExampleManifestUrl = `${exampleRawRoot}/dataset/layer-fx-templates.json`;
+      const assetSourceConfig = window.MOTIONLOOM_ASSET_CONFIG;
+      const exampleRawRoot = `https://raw.githubusercontent.com/${assetSourceConfig.repository}/${assetSourceConfig.ref}`;
+      const processExampleManifestUrl = `${exampleRawRoot}/${assetSourceConfig.processManifest}`;
       const motionLoomFontUrls = [
         'https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/OTF/TraditionalChinese/NotoSansCJKtc-Regular.otf',
       ];
@@ -3716,51 +3741,47 @@ ${track}
       };
 
       function exampleConfig(category) {
-        switch (category) {
-          case 'process':
-            return {
-              label: 'process',
-              folder: 'core/process',
-              prefix: 'cp',
-              entry: 'main.motionloom',
-            };
-          case 'scene':
-            return {
-              label: 'scene',
-              folder: 'core/scene',
-              prefix: 'cs',
-              entry: 'main.motionloom',
-            };
-          case 'text':
-            return {
-              label: 'text',
-              folder: 'core/text',
-              prefix: 'ct',
-              entry: 'main.motionloom',
-            };
-          case 'material_and_texture':
-            return {
-              label: 'material_and_texture',
-              folder: 'core/material_and_texture',
-              prefix: 'cm',
-              entry: 'main.motionloom',
-            };
-          case 'simulation':
-            return {
-              label: 'simulation',
-              folder: 'core/simulation',
-              prefix: 'csim',
-              entry: 'main.motionloom',
-            };
-          case 'showcase':
-          default:
-            return {
-              label: 'showcase',
-              folder: 'showcase',
-              prefix: 's',
-              entry: 'main.motionloom',
-            };
+        return assetSourceConfig.categories[category] || assetSourceConfig.categories.showcase;
+      }
+
+      function resolveGraphAssetUrl(src, baseUrl = currentGraphAssetBaseUrl) {
+        return new URL(src, baseUrl || document.baseURI).href;
+      }
+
+      function graphSourceBaseUrl(source) {
+        const value = String(source || '').trim();
+        if (!value) return null;
+        // Repository-relative paths use one configured root; explicit URLs
+        // support other repositories and hosts without rewriting the DSL.
+        const url = new URL(value, `${exampleRawRoot}/`);
+        if (!['http:', 'https:'].includes(url.protocol)) {
+          throw new Error('Asset source must be an HTTP(S) URL or an example repository path.');
         }
+        if (value.startsWith('/') && !value.startsWith('//')) {
+          throw new Error('Use a repository-relative path without a leading /, or a full URL.');
+        }
+        return new URL('.', url).href;
+      }
+
+      function setGraphAssetSource(source) {
+        const baseUrl = graphSourceBaseUrl(source);
+        currentGraphAssetBaseUrl = baseUrl;
+        document.getElementById('asset-source-input').value = source || '';
+        if (source) {
+          const sourceUrl = new URL(source, `${exampleRawRoot}/`).href;
+          for (const [category, config] of Object.entries(assetSourceConfig.categories)) {
+            const prefix = `${exampleRawRoot}/${config.folder}/${config.prefix}-`;
+            if (!sourceUrl.startsWith(prefix)) continue;
+            const number = /^(\d+)\//.exec(sourceUrl.slice(prefix.length))?.[1];
+            if (number) {
+              document.getElementById('asset-source-category').value = category;
+              document.getElementById('asset-source-number').value = String(Number(number));
+            }
+          }
+        }
+        const status = document.getElementById('asset-source-status');
+        status.textContent = baseUrl ? `Assets read from ${baseUrl}` : 'No source selected. Relative assets use the page URL.';
+        status.classList.remove('text-anica-signal');
       }
 
       function exampleIdFromNumber(category, value) {
@@ -3884,7 +3905,7 @@ ${track}
             throw new Error(`${response.status} ${response.statusText}`);
           }
           const script = await response.text();
-          currentGraphAssetBaseUrl = new URL('.', new URL(url, window.location.href)).href;
+          setGraphAssetSource(url);
           defaultScript = script;
           editor.value = script;
           resetSceneDslHistory();
@@ -3925,7 +3946,7 @@ ${track}
             throw new Error(`${response.status} ${response.statusText}`);
           }
           const script = await response.text();
-          currentGraphAssetBaseUrl = new URL('.', new URL(url, window.location.href)).href;
+          setGraphAssetSource(url);
           defaultScript = script;
           editor.value = script;
           resetSceneDslHistory();
@@ -3942,7 +3963,7 @@ ${track}
         } catch (err) {
           if (options.fallbackScript) {
             defaultScript = options.fallbackScript;
-            currentGraphAssetBaseUrl = null;
+            setGraphAssetSource(null);
             editor.value = options.fallbackScript;
             resetSceneDslHistory();
             setEditorMode('scene');
@@ -4028,22 +4049,17 @@ ${track}
 
       function collectGraphAssetReferences(script) {
         const references = new Map();
-        // In a browser every literal `src` is an external dependency because
-        // WASM has no filesystem. This includes asset declarations such as
-        // <ImageAsset> and directly rendered nodes such as <Svg> and <Texture>.
-        // Resolve them against the loaded document URL, then keep registering
-        // the bytes under the unchanged authored `src` so the same DSL remains
-        // portable between native projects and remote playback. <Image>
-        // references an ImageAsset id and is resolved to that `src` at render
-        // time, so no extra preload key is needed for it.
         const source = script.replace(/<!--[\s\S]*?-->/g, '');
-        const assetTag = /<([A-Za-z][A-Za-z0-9]*)\b[^>]*\bsrc\s*=\s*"([^"]+)"/g;
-        let match;
-        while ((match = assetTag.exec(source)) !== null) {
-          const kind = String(match[1] || '');
-          const src = String(match[2] || '').trim();
-          if (src && !src.startsWith('data:') && !references.has(src)) {
-            references.set(src, { kind, src });
+        const assetIds = new Set([...source.matchAll(/<(?:ModelAsset|HeadSwapAsset)\b[^>]*\bid\s*=\s*["']([^"']+)["']/g)].map((match) => match[1]));
+        // Recipes add DSL/GLB dependencies beyond the ordinary src attributes.
+        for (const tag of source.matchAll(/<([A-Za-z][A-Za-z0-9]*)\b[^>]*>/g)) {
+          const kind = tag[1];
+          const attributes = kind === 'HeadSwapAsset' ? ['src', 'body', 'headScene', 'head'] : ['src'];
+          for (const attribute of attributes) {
+            const match = tag[0].match(new RegExp(`\\b${attribute}\\s*=\\s*["']([^"']+)["']`));
+            const src = String(match?.[1] || '').trim();
+            if (!src || /^(?:data:|motionloom:)/i.test(src) || (['body', 'head'].includes(attribute) && assetIds.has(src))) continue;
+            if (!references.has(src)) references.set(src, { kind: attribute === 'headScene' ? 'HeadScene' : kind, src });
           }
         }
         return [...references.values()];
@@ -4095,13 +4111,13 @@ ${track}
         const inlineUri = async (entry, defaultMime) => {
           const uri = String(entry?.uri || '').trim();
           if (!uri || uri.startsWith('data:')) return;
-          const dependencyUrl = new URL(uri, url).href;
+          const dependencyUrl = resolveGraphAssetUrl(uri, url.href);
           let dependencyBytes = graphAssetByteCache.get(dependencyUrl);
           let mime = defaultMime;
           if (!dependencyBytes) {
             const response = await fetch(dependencyUrl, { mode: 'cors', cache: 'no-store' });
             if (!response.ok) {
-              throw new Error(`glTF dependency fetch failed for ${uri}: ${response.status} ${response.statusText}`);
+              throw new Error(`glTF dependency fetch failed for ${uri} (resolved to ${dependencyUrl}): ${response.status} ${response.statusText}`);
             }
             dependencyBytes = new Uint8Array(await response.arrayBuffer());
             graphAssetByteCache.set(dependencyUrl, dependencyBytes);
@@ -4130,7 +4146,9 @@ ${track}
         const environmentSources = collectGraphEnvironmentSources(script);
         const pending = collectGraphAssetReferences(script).map((reference) => ({
           ...reference,
-          baseUrl: currentGraphAssetBaseUrl
+          baseUrl: currentGraphAssetBaseUrl,
+          scopeKey: reference.src,
+          scoped: false
         }));
         const visitedUrls = new Set();
         const maxPreloadedAssets = 256;
@@ -4139,23 +4157,14 @@ ${track}
           if (index >= maxPreloadedAssets) {
             throw new Error(`asset preload exceeded ${maxPreloadedAssets} files`);
           }
-          const { kind, src, baseUrl } = pending[index];
-          let fetchUrl = src;
-          try {
-            if (baseUrl) {
-              fetchUrl = new URL(src, baseUrl).href;
-            } else if (!/^(?:https?:)?\/\//i.test(src) && !src.startsWith('/')) {
-              // A pasted/local graph has no source document URL. Keep the
-              // original name registered only when the host can resolve it.
-              fetchUrl = new URL(src, window.location.href).href;
-            }
-          } catch (_) {}
+          const { kind, src, baseUrl, scopeKey, scoped } = pending[index];
+          const fetchUrl = resolveGraphAssetUrl(src, baseUrl);
 
           let bytes = graphAssetByteCache.get(fetchUrl);
           if (!bytes) {
             const response = await fetch(fetchUrl, { mode: 'cors', cache: 'no-store' });
             if (!response.ok) {
-              throw new Error(`asset fetch failed for ${src}: ${response.status} ${response.statusText}`);
+              throw new Error(`asset fetch failed for ${src} (resolved to ${fetchUrl}): ${response.status} ${response.statusText}. Check Asset source.`);
             }
             bytes = new Uint8Array(await response.arrayBuffer());
             bytes = await inlineGltfDependencies(bytes, fetchUrl);
@@ -4163,15 +4172,26 @@ ${track}
           }
           // The renderer resolves the exact DSL `src`, while the absolute URL
           // alias is useful for graphs that refer to the same asset directly.
-          renderer.add_asset(src, bytes);
-          if (fetchUrl !== src) renderer.add_asset(fetchUrl, bytes);
+          // Scoped child names prevent equal filenames in different head scenes
+          // from overwriting one another or the outer body's assets.
+          renderer.add_asset(scopeKey, bytes);
+          if (!scoped && scopeKey !== src) renderer.add_asset(src, bytes);
+          if (fetchUrl !== scopeKey) renderer.add_asset(fetchUrl, bytes);
 
-          if (kind.toLowerCase() === 'actionlibrary' && !visitedUrls.has(fetchUrl)) {
-            visitedUrls.add(fetchUrl);
+          const isHeadScene = kind.toLowerCase() === 'headscene';
+          const visitKey = `${fetchUrl}|${isHeadScene ? scopeKey : ''}`;
+          if ((isHeadScene || kind.toLowerCase() === 'actionlibrary') && !visitedUrls.has(visitKey)) {
+            visitedUrls.add(visitKey);
             const libraryScript = new TextDecoder().decode(bytes);
             const libraryBaseUrl = new URL('.', fetchUrl).href;
             for (const reference of collectGraphAssetReferences(libraryScript)) {
-              pending.push({ ...reference, baseUrl: libraryBaseUrl });
+              const childKey = isHeadScene
+                ? (reference.src.startsWith('/') ? reference.src
+                  : /^[a-z][a-z0-9+.-]*:/i.test(scopeKey)
+                  ? new URL(reference.src, scopeKey).href
+                  : scopeKey.slice(0, scopeKey.lastIndexOf('/') + 1) + reference.src)
+                : reference.src;
+              pending.push({ ...reference, baseUrl: libraryBaseUrl, scopeKey: childKey, scoped: isHeadScene });
             }
           }
 
@@ -4214,16 +4234,11 @@ ${track}
           if (!mod || typeof mod.motionloom_inspect_glb_skeleton_json !== 'function') {
             throw new Error('Current MotionLoom WASM does not expose GLB skeleton inspection');
           }
-          let fetchUrl = src;
-          if (currentGraphAssetBaseUrl) {
-            fetchUrl = new URL(src, currentGraphAssetBaseUrl).href;
-          } else if (!/^(?:https?:)?\/\//i.test(src) && !src.startsWith('/')) {
-            fetchUrl = new URL(src, window.location.href).href;
-          }
+          const fetchUrl = resolveGraphAssetUrl(src);
           let bytes = graphAssetByteCache.get(fetchUrl);
           if (!bytes) {
             const response = await fetch(fetchUrl, { mode: 'cors', cache: 'no-store' });
-            if (!response.ok) throw new Error(`asset fetch failed: ${response.status} ${response.statusText}`);
+            if (!response.ok) throw new Error(`asset fetch failed for ${src} (resolved to ${fetchUrl}): ${response.status} ${response.statusText}. Check Asset source.`);
             bytes = new Uint8Array(await response.arrayBuffer());
             graphAssetByteCache.set(fetchUrl, bytes);
           }
@@ -6414,6 +6429,7 @@ ${track}
         defaultScript = processScript;
         editor.value = defaultScript;
         resetSceneDslHistory();
+        setGraphAssetSource(null);
         sourceName.textContent = 'demo.jpg';
         compileNow();
       }
@@ -6493,6 +6509,43 @@ ${track}
         });
       }
 
+      function applyAssetSource(source) {
+        try {
+          setGraphAssetSource(source);
+          sourceName.textContent = 'Editor DSL · selected asset source';
+          requestPreviewPlaybackReset();
+          stopSceneLoop();
+          compileNow({ resetPlayback: true });
+        } catch (err) {
+          const status = document.getElementById('asset-source-status');
+          status.textContent = formatWasmError(err);
+          status.classList.add('text-anica-signal');
+        }
+      }
+
+      document.getElementById('asset-source-apply').addEventListener('click', () => {
+        applyAssetSource(document.getElementById('asset-source-input').value);
+      });
+      document.getElementById('asset-source-input').addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          applyAssetSource(event.target.value);
+        }
+      });
+      document.getElementById('asset-source-example').addEventListener('click', () => {
+        const category = document.getElementById('asset-source-category').value;
+        const number = document.getElementById('asset-source-number').value;
+        const example = category === 'process' ? resolveProcessExample(number) : null;
+        const url = example ? processExampleUrl(example) : exampleUrlFromNumber(category, number);
+        if (url) applyAssetSource(url);
+        else {
+          const status = document.getElementById('asset-source-status');
+          status.textContent = 'Enter a positive example number.';
+          status.classList.add('text-anica-signal');
+        }
+      });
+      setGraphAssetSource(null);
+
       loadShowcaseBtn.addEventListener('click', () => {
         loadRemoteExample(showcaseNumber.value || '1');
       });
@@ -6511,6 +6564,7 @@ ${track}
           editor.value = script;
           resetSceneDslHistory();
           setEditorMode('scene');
+          setGraphAssetSource(null);
           sourceName.textContent = 'empty MotionLoom scene template';
           compileStatus.textContent = 'Loaded empty white Scene template.';
           compileStatus.classList.remove('text-anica-signal');

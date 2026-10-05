@@ -1,0 +1,43 @@
+{
+  "repository": "LOVELYZOMBIEYHO/motionloom-example",
+  "ref": "refs/heads/main",
+  "processManifest": "dataset/layer-fx-templates.json",
+  "categories": {
+    "showcase": {
+      "label": "showcase",
+      "folder": "showcase",
+      "prefix": "s",
+      "entry": "main.motionloom"
+    },
+    "process": {
+      "label": "process",
+      "folder": "core/process",
+      "prefix": "cp",
+      "entry": "main.motionloom"
+    },
+    "scene": {
+      "label": "scene",
+      "folder": "core/scene",
+      "prefix": "cs",
+      "entry": "main.motionloom"
+    },
+    "text": {
+      "label": "text",
+      "folder": "core/text",
+      "prefix": "ct",
+      "entry": "main.motionloom"
+    },
+    "material_and_texture": {
+      "label": "material_and_texture",
+      "folder": "core/material_and_texture",
+      "prefix": "cm",
+      "entry": "main.motionloom"
+    },
+    "simulation": {
+      "label": "simulation",
+      "folder": "core/simulation",
+      "prefix": "csim",
+      "entry": "main.motionloom"
+    }
+  }
+}

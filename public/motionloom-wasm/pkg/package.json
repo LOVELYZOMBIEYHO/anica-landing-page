@@ -6,7 +6,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/LOVELYZOMBIEYHO/anica"
+    "url": "https://github.com/LOVELYZOMBIEYHO/motionloom"
   },
   "files": [
     "motionloom_bg.wasm",
@@ -14,7 +14,7 @@
     "motionloom.d.ts"
   ],
   "main": "motionloom.js",
-  "homepage": "https://github.com/LOVELYZOMBIEYHO/anica",
+  "homepage": "https://github.com/LOVELYZOMBIEYHO/motionloom",
   "types": "motionloom.d.ts",
   "sideEffects": [
     "./snippets/*"

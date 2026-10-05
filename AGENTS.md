@@ -54,7 +54,7 @@ If the change only touches docs or `AGENTS.md`, a build is optional. If build ca
 - `npm run dev`: local Astro dev server.
 - `npm run check`: Astro type/content check.
 - `npm run build`: `astro check && astro build`.
-- `npm run build:motionloom-wasm`: rebuild local MotionLoom WASM package from `../anica/crates/motionloom`.
+- `npm run build:motionloom-wasm`: rebuild local MotionLoom WASM package from `../motionloom`.
 
 ## MotionLoom Page Rules
 

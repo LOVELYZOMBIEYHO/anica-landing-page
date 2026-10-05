@@ -343,6 +343,17 @@ export class WasmSceneRenderer {
         return ret;
     }
     /**
+     * Compose a recipe using assets registered with add_asset; no GPU is required.
+     * @param {string} asset_id
+     * @returns {Promise<Uint8Array>}
+     */
+    export_head_swap_glb(asset_id) {
+        const ptr0 = passStringToWasm0(asset_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.wasmscenerenderer_export_head_swap_glb(this.__wbg_ptr, ptr0, len0);
+        return ret;
+    }
+    /**
      * Export selected active model ids as one static, world-space GLB.
      * @param {string} scene_id
      * @param {number} frame
@@ -1942,7 +1953,7 @@ function __wbg_get_imports() {
                     const a = state0.a;
                     state0.a = 0;
                     try {
-                        return wasm_bindgen__convert__closures_____invoke__h45c32c0111268609(a, state0.b, arg0, arg1);
+                        return wasm_bindgen__convert__closures_____invoke__h3c04383cc91514dd(a, state0.b, arg0, arg1);
                     } finally {
                         state0.a = a;
                     }
@@ -2602,13 +2613,13 @@ function __wbg_get_imports() {
             arg0.writeTexture(arg1, arg2, arg3, arg4);
         }, arguments); },
         __wbindgen_cast_0000000000000001: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 2093, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
-            const ret = makeMutClosure(arg0, arg1, wasm_bindgen__convert__closures_____invoke__h200a21b777a48c32);
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 2123, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
+            const ret = makeMutClosure(arg0, arg1, wasm_bindgen__convert__closures_____invoke__h100218397ed57b8d);
             return ret;
         },
         __wbindgen_cast_0000000000000002: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 2121, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
-            const ret = makeMutClosure(arg0, arg1, wasm_bindgen__convert__closures_____invoke__h4aa3e05baac20cce);
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 2156, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
+            const ret = makeMutClosure(arg0, arg1, wasm_bindgen__convert__closures_____invoke__h4a86affae3b4729f);
             return ret;
         },
         __wbindgen_cast_0000000000000003: function(arg0) {
@@ -2649,19 +2660,19 @@ function __wbg_get_imports() {
     };
 }
 
-function wasm_bindgen__convert__closures_____invoke__h200a21b777a48c32(arg0, arg1, arg2) {
-    wasm.wasm_bindgen__convert__closures_____invoke__h200a21b777a48c32(arg0, arg1, arg2);
+function wasm_bindgen__convert__closures_____invoke__h100218397ed57b8d(arg0, arg1, arg2) {
+    wasm.wasm_bindgen__convert__closures_____invoke__h100218397ed57b8d(arg0, arg1, arg2);
 }
 
-function wasm_bindgen__convert__closures_____invoke__h4aa3e05baac20cce(arg0, arg1, arg2) {
-    const ret = wasm.wasm_bindgen__convert__closures_____invoke__h4aa3e05baac20cce(arg0, arg1, arg2);
+function wasm_bindgen__convert__closures_____invoke__h4a86affae3b4729f(arg0, arg1, arg2) {
+    const ret = wasm.wasm_bindgen__convert__closures_____invoke__h4a86affae3b4729f(arg0, arg1, arg2);
     if (ret[1]) {
         throw takeFromExternrefTable0(ret[0]);
     }
 }
 
-function wasm_bindgen__convert__closures_____invoke__h45c32c0111268609(arg0, arg1, arg2, arg3) {
-    wasm.wasm_bindgen__convert__closures_____invoke__h45c32c0111268609(arg0, arg1, arg2, arg3);
+function wasm_bindgen__convert__closures_____invoke__h3c04383cc91514dd(arg0, arg1, arg2, arg3) {
+    wasm.wasm_bindgen__convert__closures_____invoke__h3c04383cc91514dd(arg0, arg1, arg2, arg3);
 }
 
 
