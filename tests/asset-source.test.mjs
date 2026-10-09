@@ -23,6 +23,7 @@ function setup(assetConfig = config) {
     currentGraphAssetBaseUrl: null, graphAssetByteCache: new Map(),
     document: {baseURI:'https://site.example/editor/',getElementById:id => elements.get(id)},
     inlineGltfDependencies:async bytes => bytes,
+    formatWasmError:error => error.message || String(error),
   });
   vm.runInContext(functions, context);
   return {context,elements};
@@ -123,4 +124,78 @@ test('external glTF buffers and textures use the model URL rather than scene sou
   const result = JSON.parse(new TextDecoder().decode(bytes));
   assert.equal(result.buffers[0].uri,'data:application/octet-stream;base64,AQI=');
   assert.equal(result.images[0].uri,'data:image/png;base64,AQI=');
+});
+
+const lightingBytes = (...sources) => new TextEncoder().encode(JSON.stringify({
+  states: sources.map(src => ({volumes:[{reflections:[{src}]}]})),
+}));
+
+test('baked lighting preloads both states relative to JSON and registers WASM lookup names', async () => {
+  const {context} = setup();
+  context.setGraphAssetSource('showcase/s-000099/main.motionloom');
+  const base = context.currentGraphAssetBaseUrl;
+  const urls = [];
+  context.fetch = async url => {
+    urls.push(url);
+    const bytes = url.endsWith('.json')
+      ? lightingBytes('reflections/day.hdr','reflections/dusk.hdr','reflections/day.hdr')
+      : new Uint8Array([url.includes('day.hdr') ? 11 : 22]);
+    return {ok:true,arrayBuffer:async () => bytes.buffer};
+  };
+  const script = '<BakedLighting src="assets/lighting/room.json" />';
+  // The cache must also populate a newly created renderer after recompilation.
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const assets = new Map();
+    await context.attachGraphAssets({add_asset:(key,bytes) => assets.set(key,bytes)}, script);
+    assert.equal(assets.get('assets/lighting/reflections/day.hdr')[0],11);
+    assert.equal(assets.get('assets/lighting/reflections/dusk.hdr')[0],22);
+    assert.equal(assets.get(base+'assets/lighting/reflections/day.hdr')[0],11);
+    assert.equal(assets.has('reflections/day.hdr'),false);
+  }
+  assert.deepEqual(urls,[base+'assets/lighting/room.json',base+'assets/lighting/reflections/day.hdr',base+'assets/lighting/reflections/dusk.hdr']);
+});
+
+test('lighting dependencies do not overwrite equal names in the outer scene or another bake', async () => {
+  const {context} = setup();
+  context.setGraphAssetSource('https://cdn.example/scene/main.motionloom');
+  context.fetch = async url => {
+    const bytes = url.endsWith('.json') ? lightingBytes('shared.hdr')
+      : new Uint8Array([url.includes('/a/') ? 1 : url.includes('/b/') ? 2 : 3]);
+    return {ok:true,arrayBuffer:async () => bytes.buffer};
+  };
+  const assets = new Map();
+  await context.attachGraphAssets({add_asset:(key,bytes) => assets.set(key,bytes)},
+    '<ImageAsset src="shared.hdr" /><BakedLighting src="a/room.json" /><BakedLighting src="b/room.json" />');
+  assert.equal(assets.get('shared.hdr')[0],3);
+  assert.equal(assets.get('a/shared.hdr')[0],1);
+  assert.equal(assets.get('b/shared.hdr')[0],2);
+});
+
+test('baked JSON is expanded even when an ImageAsset references the same source first', async () => {
+  const {context} = setup();
+  const fetched = [];
+  context.fetch = async url => {
+    fetched.push(url);
+    const bytes = url.endsWith('.json') ? lightingBytes('reflection.hdr') : new Uint8Array([4]);
+    return {ok:true,arrayBuffer:async () => bytes.buffer};
+  };
+  await context.attachGraphAssets({add_asset(){}},'<ImageAsset src="room.json" /><BakedLighting src="room.json" />');
+  assert.deepEqual(fetched,['https://site.example/editor/room.json','https://site.example/editor/reflection.hdr']);
+});
+
+test('missing baked captures report their resolved URL rather than silently skipping them', async () => {
+  const {context} = setup();
+  context.setGraphAssetSource('https://cdn.example/scene/main.motionloom');
+  context.fetch = async url => url.endsWith('.json')
+    ? {ok:true,arrayBuffer:async () => lightingBytes('reflections/day.hdr').buffer}
+    : {ok:false,status:404,statusText:'Not Found'};
+  await assert.rejects(context.attachGraphAssets({add_asset(){}},'<BakedLighting src="lighting/room.json" />'),
+    /resolved to https:\/\/cdn\.example\/scene\/lighting\/reflections\/day\.hdr.*404/);
+});
+
+test('malformed baked JSON fails with the authored source name', async () => {
+  const {context} = setup();
+  context.fetch = async () => ({ok:true,arrayBuffer:async () => new TextEncoder().encode('{}').buffer});
+  await assert.rejects(context.attachGraphAssets({add_asset(){}},'<BakedLighting src="lighting/room.json" />'),
+    /Invalid baked lighting lighting\/room\.json: missing states array/);
 });

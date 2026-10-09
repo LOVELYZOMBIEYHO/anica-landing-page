@@ -4059,7 +4059,7 @@ ${track}
             const match = tag[0].match(new RegExp(`\\b${attribute}\\s*=\\s*["']([^"']+)["']`));
             const src = String(match?.[1] || '').trim();
             if (!src || /^(?:data:|motionloom:)/i.test(src) || (['body', 'head'].includes(attribute) && assetIds.has(src))) continue;
-            if (!references.has(src)) references.set(src, { kind: attribute === 'headScene' ? 'HeadScene' : kind, src });
+            if (!references.has(src) || kind === 'BakedLighting') references.set(src, { kind: attribute === 'headScene' ? 'HeadScene' : kind, src });
           }
         }
         return [...references.values()];
@@ -4177,6 +4177,41 @@ ${track}
           renderer.add_asset(scopeKey, bytes);
           if (!scoped && scopeKey !== src) renderer.add_asset(src, bytes);
           if (fetchUrl !== scopeKey) renderer.add_asset(fetchUrl, bytes);
+
+          // Room reflection captures live beside the lighting JSON, rather
+          // than in DSL ImageAssets. Register their document-relative names
+          // as well as download URLs so the WASM memory resolver can find them.
+          if (kind.toLowerCase() === 'bakedlighting') {
+            const bakeVisitKey = `bake:${fetchUrl}|${scopeKey}`;
+            if (!visitedUrls.has(bakeVisitKey)) {
+              visitedUrls.add(bakeVisitKey);
+              let bake;
+              try {
+                bake = JSON.parse(new TextDecoder().decode(bytes));
+                if (!Array.isArray(bake?.states)) throw new Error('missing states array');
+              } catch (err) {
+                throw new Error(`Invalid baked lighting ${src}: ${formatWasmError(err)}`);
+              }
+              const captureSources = new Set();
+              for (const state of bake.states) {
+                for (const volume of state.volumes || []) {
+                  for (const capture of volume.reflections || []) {
+                    const captureSrc = String(capture.src || '').trim();
+                    if (captureSrc) captureSources.add(captureSrc);
+                  }
+                }
+              }
+              for (const captureSrc of captureSources) {
+                const captureKey = captureSrc.startsWith('/') ? captureSrc
+                  : scopeKey.slice(0, scopeKey.lastIndexOf('/') + 1) + captureSrc;
+                pending.push({
+                  kind: 'BakedReflection', src: captureSrc,
+                  baseUrl: new URL('.', fetchUrl).href,
+                  scopeKey: captureKey, scoped: true
+                });
+              }
+            }
+          }
 
           const isHeadScene = kind.toLowerCase() === 'headscene';
           const visitKey = `${fetchUrl}|${isHeadScene ? scopeKey : ''}`;
@@ -4524,6 +4559,7 @@ ${track}
       async function tryRenderSceneWithWasm(script, graph, playbackOptions = {}, expectedCompileToken) {
         let renderer = null;
         let webgpuFailure = '';
+        const requiresWebGpu = /<CompositeGroup\b[^>]*\bspace\s*=\s*["']3d["']/i.test(script.replace(/<!--[\s\S]*?-->/g, ''));
         const isCurrentCompile = () => expectedCompileToken === undefined || expectedCompileToken === compileRunToken;
         try {
           webgpuStatus.textContent = 'Loading MotionLoom WASM...';
@@ -4570,7 +4606,7 @@ ${track}
               await renderer.render_frame_to_canvas(initialFrame, gpuCanvas);
               const profile = readWasm3DProfile(renderer);
               window.__motionloomWasm3DProfile = profile;
-              if (/<CompositeGroup\b[^>]*\bspace=["']3d["']/i.test(script) && profile?.draw_calls === 0) {
+              if (requiresWebGpu && profile?.draw_calls === 0) {
                 throw new Error(
                   `MotionLoom WebGPU produced zero 3D draw calls. ` +
                   `resources: mesh_cache=${profile.mesh_cache_entries}, ` +
@@ -4594,12 +4630,16 @@ ${track}
               window.__motionloomWasmGpuError = { error: formatWasmError(err), profile };
               freeWasmRenderer(renderer);
               renderer = null;
+              // CPU Scene rendering cannot reproduce a GPU 3D island. Keep
+              // its real failure visible instead of playing only 2D overlays.
+              if (requiresWebGpu) throw new Error(`3D preview requires WebGPU: ${webgpuFailure}`);
               console.warn('MotionLoom WASM WebGPU unavailable; trying WASM CPU.', window.__motionloomWasmGpuError);
               webgpuStatus.textContent = `WebGPU failed: ${webgpuFailure}`;
               showCanvas2dPreview();
             }
           }
 
+          if (requiresWebGpu) throw new Error('3D preview requires a browser with WebGPU enabled.');
           renderer = new mod.WasmSceneRenderer(script, 'cpu');
           if (!isCurrentCompile()) return null;
           addImportedSvgAssets(renderer);
